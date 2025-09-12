@@ -41,8 +41,7 @@ where
         match serde_json::to_string(&self) {
             Ok(body) => ready(
                 HttpResponse::build(
-                    StatusCode::from_u16(self.status_code)
-                        .unwrap_or(StatusCode::INTERNAL_SERVER_ERROR),
+                    StatusCode::from_u16(self.status_code).unwrap_or(StatusCode::OK),
                 )
                 .content_type("application/json")
                 .body(body),
