@@ -5,7 +5,7 @@ use ntex::web::{
 
 use crate::{
     dtos::{api_response::ApiResponse, request::register::RegisterRequest},
-    errors::app_error::AppResult,
+    errors::app_error::{AppError, AppResult},
     repositories::auth::AuthRepository,
     state::AppState,
 };
@@ -15,6 +15,9 @@ pub async fn register_handler(
     payload: Json<RegisterRequest>,
 ) -> AppResult<impl Responder> {
     let payload = payload.into_inner();
+    if payload.password != payload.confirm_password {
+        return Err(AppError::PasswordIsNotMatched);
+    }
     let user = app_state
         .db_client
         .create_user(payload.name, payload.email, payload.password)

@@ -18,6 +18,8 @@ pub enum AppError {
     PasswordEmpty,
     #[error("Password is too long")]
     PasswordIsTooLong,
+    #[error("Password is not matched")]
+    PasswordIsNotMatched,
     #[error("Authentication failed")]
     AuthenticationError,
     #[error("User creation failed")]
@@ -52,18 +54,11 @@ impl From<anyhow::Error> for AppError {
 
 impl WebResponseError for AppError {
     fn error_response(&self, _: &ntex::web::HttpRequest) -> ntex::http::Response {
-        let api_response = ApiResponse::<()> {
-            status: "error".to_string(),
-            status_code: self.status_code().as_u16(),
-            message: self.to_string(),
-            data: None,
-        };
+        let api_response: ApiResponse<()> =
+            ApiResponse::error(self.status_code(), self.to_string().as_str());
         web::HttpResponse::build(self.status_code())
             .content_type("application/json")
-            .body(
-                serde_json::to_string(&api_response)
-                    .unwrap_or_else(|_| r#"{"status":"error","status_code":500,"message":"Serialization error","data":null}"#.to_string())
-            )
+            .body(serde_json::to_string(&api_response).unwrap())
     }
     fn status_code(&self) -> ntex::http::StatusCode {
         match self {
@@ -72,6 +67,7 @@ impl WebResponseError for AppError {
             AppError::PasswordHashError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             AppError::PasswordEmpty => StatusCode::BAD_REQUEST,
             AppError::PasswordIsTooLong => StatusCode::BAD_REQUEST,
+            AppError::PasswordIsNotMatched => StatusCode::BAD_REQUEST,
             AppError::AuthenticationError => StatusCode::UNAUTHORIZED,
             AppError::UserCreationError => StatusCode::INTERNAL_SERVER_ERROR,
             AppError::UserAlreadyExists => StatusCode::CONFLICT,
