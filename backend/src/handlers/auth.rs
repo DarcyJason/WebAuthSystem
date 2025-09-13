@@ -29,8 +29,14 @@ pub async fn register_handler(
     if payload.confirm_password.is_empty() {
         return Err(AppError::ConfirmationPasswordEmpty);
     }
+    if payload.password.len() < 8 {
+        return Err(AppError::PasswordIsTooShort);
+    }
     if payload.password.len() > 64 {
         return Err(AppError::PasswordIsTooLong);
+    }
+    if payload.confirm_password.len() < 8 {
+        return Err(AppError::ConfirmationPasswordIsTooShort);
     }
     if payload.confirm_password.len() > 64 {
         return Err(AppError::ConfirmationPasswordIsTooLong);

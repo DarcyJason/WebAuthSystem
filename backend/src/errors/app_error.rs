@@ -18,9 +18,13 @@ pub enum AppError {
     PasswordEmpty,
     #[error("Confirmation password is empty")]
     ConfirmationPasswordEmpty,
-    #[error("Password is too long")]
+    #[error("Password is too short, at least 8 characters")]
+    PasswordIsTooShort,
+    #[error("Password is too long, at most 64 characters")]
     PasswordIsTooLong,
-    #[error("Confirmation password is too long")]
+    #[error("Confirmation password is too short, at least 8 characters")]
+    ConfirmationPasswordIsTooShort,
+    #[error("Confirmation password is too long, at most 64 characters")]
     ConfirmationPasswordIsTooLong,
     #[error("Password and confirmation password are not matched")]
     PasswordAndConfirmationPasswordAreNotMatched,
@@ -77,7 +81,9 @@ impl WebResponseError for AppError {
             AppError::PasswordHashError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             AppError::PasswordEmpty => StatusCode::BAD_REQUEST,
             AppError::ConfirmationPasswordEmpty => StatusCode::BAD_REQUEST,
+            AppError::PasswordIsTooShort => StatusCode::BAD_REQUEST,
             AppError::PasswordIsTooLong => StatusCode::BAD_REQUEST,
+            AppError::ConfirmationPasswordIsTooShort => StatusCode::BAD_REQUEST,
             AppError::ConfirmationPasswordIsTooLong => StatusCode::BAD_REQUEST,
             AppError::PasswordAndConfirmationPasswordAreNotMatched => StatusCode::BAD_REQUEST,
             AppError::NameEmpty => StatusCode::BAD_REQUEST,

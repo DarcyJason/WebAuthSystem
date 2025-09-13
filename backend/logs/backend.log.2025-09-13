@@ -292,3 +292,47 @@
 2025-09-13T05:46:38.012244Z  INFO Worker WorkerId(2) has been stopped
 2025-09-13T05:46:38.012238Z  INFO Worker service shutdown, 0 connections
 2025-09-13T05:46:38.012291Z  INFO Worker service shutdown, 0 connections
+2025-09-13T06:07:12.566001Z  INFO Starting 8 workers
+2025-09-13T06:07:12.566378Z  INFO Starting "ntex-web-service-127.0.0.1:7878" service on 127.0.0.1:7878
+2025-09-13T06:07:12.566975Z  INFO Starting worker WorkerId(0)
+2025-09-13T06:07:12.567070Z  INFO Starting worker WorkerId(1)
+2025-09-13T06:07:12.567097Z  INFO Starting worker WorkerId(2)
+2025-09-13T06:07:12.567159Z  INFO Starting worker WorkerId(3)
+2025-09-13T06:07:12.567193Z  INFO Starting worker WorkerId(4)
+2025-09-13T06:07:12.567181Z  INFO Starting worker WorkerId(5)
+2025-09-13T06:07:12.567325Z  INFO Starting worker WorkerId(7)
+2025-09-13T06:07:12.567338Z  INFO Starting worker WorkerId(6)
+2025-09-13T06:07:12.568539Z  INFO Resuming accept loop
+2025-09-13T06:07:12.568561Z  INFO Resuming socket listener on 127.0.0.1:7878 after back-pressure
+2025-09-13T06:08:01.477792Z  INFO SIGINT received, exiting
+2025-09-13T06:08:01.477918Z  INFO Stopping accept loop
+2025-09-13T06:08:01.477938Z  INFO Stopping socket listener on 127.0.0.1:7878
+2025-09-13T06:08:01.477992Z  INFO Accept loop has been stopped
+2025-09-13T06:08:16.775301Z  INFO Starting 8 workers
+2025-09-13T06:08:16.775728Z  INFO Starting "ntex-web-service-127.0.0.1:7878" service on 127.0.0.1:7878
+2025-09-13T06:08:16.776163Z  INFO Starting worker WorkerId(0)
+2025-09-13T06:08:16.776181Z  INFO Starting worker WorkerId(2)
+2025-09-13T06:08:16.776220Z  INFO Starting worker WorkerId(1)
+2025-09-13T06:08:16.776342Z  INFO Starting worker WorkerId(5)
+2025-09-13T06:08:16.776412Z  INFO Starting worker WorkerId(6)
+2025-09-13T06:08:16.776408Z  INFO Starting worker WorkerId(3)
+2025-09-13T06:08:16.776422Z  INFO Starting worker WorkerId(4)
+2025-09-13T06:08:16.776462Z  INFO Starting worker WorkerId(7)
+2025-09-13T06:08:16.777333Z  INFO Resuming accept loop
+2025-09-13T06:08:16.777352Z  INFO Resuming socket listener on 127.0.0.1:7878 after back-pressure
+2025-09-13T06:10:21.338377Z  INFO SIGINT received, exiting
+2025-09-13T06:10:21.338605Z  INFO Stopping accept loop
+2025-09-13T06:10:21.338670Z  INFO Stopping socket listener on 127.0.0.1:7878
+2025-09-13T06:10:21.338769Z  INFO Accept loop has been stopped
+2025-09-13T06:12:31.038146Z  INFO Starting 8 workers
+2025-09-13T06:12:31.038544Z  INFO Starting "ntex-web-service-127.0.0.1:7878" service on 127.0.0.1:7878
+2025-09-13T06:12:31.039043Z  INFO Starting worker WorkerId(0)
+2025-09-13T06:12:31.039090Z  INFO Starting worker WorkerId(2)
+2025-09-13T06:12:31.039103Z  INFO Starting worker WorkerId(1)
+2025-09-13T06:12:31.039218Z  INFO Starting worker WorkerId(3)
+2025-09-13T06:12:31.039256Z  INFO Starting worker WorkerId(4)
+2025-09-13T06:12:31.039296Z  INFO Starting worker WorkerId(5)
+2025-09-13T06:12:31.039400Z  INFO Starting worker WorkerId(6)
+2025-09-13T06:12:31.039466Z  INFO Starting worker WorkerId(7)
+2025-09-13T06:12:31.040463Z  INFO Resuming accept loop
+2025-09-13T06:12:31.040486Z  INFO Resuming socket listener on 127.0.0.1:7878 after back-pressure
