@@ -32,16 +32,20 @@ pub enum AppError {
     NameEmpty,
     #[error("Email is empty")]
     EmailIsEmpty,
+    #[error("Email is invalid")]
+    EmailIsInvalid,
     #[error("Email already exists")]
     EmailAlreadyExists,
     #[error("Authentication failed")]
     AuthenticationError,
     #[error("User creation failed")]
     UserCreationError,
-    #[error("User already exists")]
-    UserAlreadyExists,
     #[error("User not found")]
     UserNotFound,
+    #[error("Invalid token")]
+    InvalidToken,
+    #[error("Token error")]
+    TokenError(#[from] jsonwebtoken::errors::Error),
     #[error("IO error: {0}")]
     IOError(#[from] std::io::Error),
     #[error("Other error: {0}")]
@@ -87,12 +91,14 @@ impl WebResponseError for AppError {
             AppError::ConfirmationPasswordIsTooLong => StatusCode::BAD_REQUEST,
             AppError::PasswordAndConfirmationPasswordAreNotMatched => StatusCode::BAD_REQUEST,
             AppError::NameEmpty => StatusCode::BAD_REQUEST,
+            AppError::EmailIsInvalid => StatusCode::BAD_REQUEST,
             AppError::EmailIsEmpty => StatusCode::BAD_REQUEST,
             AppError::EmailAlreadyExists => StatusCode::CONFLICT,
             AppError::AuthenticationError => StatusCode::UNAUTHORIZED,
             AppError::UserCreationError => StatusCode::INTERNAL_SERVER_ERROR,
-            AppError::UserAlreadyExists => StatusCode::CONFLICT,
             AppError::UserNotFound => StatusCode::NOT_FOUND,
+            AppError::InvalidToken => StatusCode::UNAUTHORIZED,
+            AppError::TokenError(_) => StatusCode::UNAUTHORIZED,
             AppError::IOError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             AppError::OtherError(_) => StatusCode::INTERNAL_SERVER_ERROR,
         }

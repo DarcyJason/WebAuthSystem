@@ -2,6 +2,7 @@ use ntex::web::{
     Responder,
     types::{Json, State},
 };
+use validator::ValidateEmail;
 
 use crate::{
     dtos::{
@@ -22,6 +23,9 @@ pub async fn register_handler(
     }
     if payload.email.is_empty() {
         return Err(AppError::EmailIsEmpty);
+    }
+    if !ValidateEmail::validate_email(&payload.email) {
+        return Err(AppError::EmailIsInvalid);
     }
     if payload.password.is_empty() {
         return Err(AppError::PasswordEmpty);
