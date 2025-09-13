@@ -16,10 +16,20 @@ pub enum AppError {
     PasswordHashError(#[from] argon2::password_hash::Error),
     #[error("Password is empty")]
     PasswordEmpty,
+    #[error("Confirmation password is empty")]
+    ConfirmationPasswordEmpty,
     #[error("Password is too long")]
     PasswordIsTooLong,
-    #[error("Password is not matched")]
-    PasswordIsNotMatched,
+    #[error("Confirmation password is too long")]
+    ConfirmationPasswordIsTooLong,
+    #[error("Password and confirmation password are not matched")]
+    PasswordAndConfirmationPasswordAreNotMatched,
+    #[error("Name is empty")]
+    NameEmpty,
+    #[error("Email is empty")]
+    EmailIsEmpty,
+    #[error("Email already exists")]
+    EmailAlreadyExists,
     #[error("Authentication failed")]
     AuthenticationError,
     #[error("User creation failed")]
@@ -66,8 +76,13 @@ impl WebResponseError for AppError {
             AppError::SurrealDBError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             AppError::PasswordHashError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             AppError::PasswordEmpty => StatusCode::BAD_REQUEST,
+            AppError::ConfirmationPasswordEmpty => StatusCode::BAD_REQUEST,
             AppError::PasswordIsTooLong => StatusCode::BAD_REQUEST,
-            AppError::PasswordIsNotMatched => StatusCode::BAD_REQUEST,
+            AppError::ConfirmationPasswordIsTooLong => StatusCode::BAD_REQUEST,
+            AppError::PasswordAndConfirmationPasswordAreNotMatched => StatusCode::BAD_REQUEST,
+            AppError::NameEmpty => StatusCode::BAD_REQUEST,
+            AppError::EmailIsEmpty => StatusCode::BAD_REQUEST,
+            AppError::EmailAlreadyExists => StatusCode::CONFLICT,
             AppError::AuthenticationError => StatusCode::UNAUTHORIZED,
             AppError::UserCreationError => StatusCode::INTERNAL_SERVER_ERROR,
             AppError::UserAlreadyExists => StatusCode::CONFLICT,

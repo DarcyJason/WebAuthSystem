@@ -1,12 +1,12 @@
 use chrono::{DateTime, Utc};
 use serde::Serialize;
-use uuid::Uuid;
+use surrealdb::sql::Thing;
 
 use crate::models::user::User;
 
 #[derive(Debug, Serialize)]
 pub struct UserResponse {
-    pub id: Uuid,
+    pub id: Thing,
     pub name: String,
     pub email: String,
     pub created_at: DateTime<Utc>,

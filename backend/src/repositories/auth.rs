@@ -5,12 +5,13 @@ use crate::{
     utils::crypto::hash_password,
 };
 use async_trait::async_trait;
+use uuid::Uuid;
 
 #[async_trait]
 pub trait AuthRepository {
     async fn create_user(&self, name: String, email: String, password: String) -> AppResult<User>;
-    // async fn find_user_by_email(&self, email: &str) -> AppResult<Option<User>>;
-    // async fn find_user_by_id(&self, id: Uuid) -> AppResult<Option<User>>;
+    async fn find_user_by_email(&self, email: String) -> AppResult<Option<User>>;
+    async fn find_user_by_id(&self, id: Uuid) -> AppResult<Option<User>>;
 }
 
 #[async_trait]
@@ -19,12 +20,9 @@ impl AuthRepository for DBClient {
         let hashed_password = hash_password(password)?;
         let sql = r#"
             CREATE user CONTENT {
-                id: rand::uuid::v4(),
                 name: $name,
                 email: $email,
-                password: $password,
-                created_at: time::now(),
-                updated_at: time::now()
+                password: $password
             }
         "#;
         let mut result = self
@@ -37,5 +35,33 @@ impl AuthRepository for DBClient {
             .map_err(AppError::from)?;
         let created: Option<User> = result.take(0)?;
         created.ok_or_else(|| AppError::UserCreationError)
+    }
+    async fn find_user_by_email(&self, email: String) -> AppResult<Option<User>> {
+        let sql = r#"
+            SELECT * FROM user WHERE email = $email LIMIT 1
+        "#;
+        let mut result = self
+            .surrealdb
+            .query(sql)
+            .bind(("email", email))
+            .await
+            .map_err(AppError::from)?;
+        let user: Option<User> = result.take(0)?;
+        Ok(user)
+    }
+    async fn find_user_by_id(&self, id: Uuid) -> AppResult<Option<User>> {
+        let sql = r#"
+            SELECT * FROM user WHERE id = $id
+        "#;
+
+        let mut result = self
+            .surrealdb
+            .query(sql)
+            .bind(("id", id.to_string()))
+            .await
+            .map_err(AppError::from)?;
+
+        let user: Option<User> = result.take(0)?;
+        Ok(user)
     }
 }

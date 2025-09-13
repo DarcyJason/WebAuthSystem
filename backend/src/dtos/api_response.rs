@@ -38,28 +38,11 @@ where
     T: Serialize,
 {
     fn respond_to(self, _: &web::HttpRequest) -> impl Future<Output = web::HttpResponse> {
-        match serde_json::to_string(&self) {
-            Ok(body) => ready(
-                HttpResponse::build(
-                    StatusCode::from_u16(self.status_code).unwrap_or(StatusCode::OK),
-                )
+        let body = serde_json::to_string(&self).expect("Serialization failed");
+        ready(
+            HttpResponse::build(StatusCode::from_u16(self.status_code).unwrap_or(StatusCode::OK))
                 .content_type("application/json")
                 .body(body),
-            ),
-            Err(_) => {
-                let error_response: ApiResponse<()> =
-                    ApiResponse::error(StatusCode::INTERNAL_SERVER_ERROR, "Internal Server Error");
-
-                let body = serde_json::to_string(&error_response).unwrap_or_else(|_| {
-                    r#"{"status":"error","status_code":500,"message":"Internal Server Error","data":null}"#.to_string()
-                });
-
-                return ready(
-                    HttpResponse::InternalServerError()
-                        .content_type("application/json")
-                        .body(body),
-                );
-            }
-        }
+        )
     }
 }
