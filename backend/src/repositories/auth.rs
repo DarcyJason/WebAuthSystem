@@ -5,13 +5,13 @@ use crate::{
     utils::crypto::hash_password,
 };
 use async_trait::async_trait;
-use uuid::Uuid;
+use surrealdb::sql::Thing;
 
 #[async_trait]
 pub trait AuthRepository {
     async fn create_user(&self, name: String, email: String, password: String) -> AppResult<User>;
     async fn find_user_by_email(&self, email: String) -> AppResult<Option<User>>;
-    async fn find_user_by_id(&self, id: Uuid) -> AppResult<Option<User>>;
+    async fn find_user_by_id(&self, id: Thing) -> AppResult<Option<User>>;
 }
 
 #[async_trait]
@@ -49,7 +49,7 @@ impl AuthRepository for DBClient {
         let user: Option<User> = result.take(0)?;
         Ok(user)
     }
-    async fn find_user_by_id(&self, id: Uuid) -> AppResult<Option<User>> {
+    async fn find_user_by_id(&self, id: Thing) -> AppResult<Option<User>> {
         let sql = r#"
             SELECT * FROM user WHERE id = $id
         "#;
@@ -57,7 +57,7 @@ impl AuthRepository for DBClient {
         let mut result = self
             .surrealdb
             .query(sql)
-            .bind(("id", id.to_string()))
+            .bind(("id", id))
             .await
             .map_err(AppError::from)?;
 
