@@ -42,6 +42,8 @@ pub enum AppError {
     UserCreationError,
     #[error("User not found")]
     UserNotFound,
+    #[error("Invalid credentials")]
+    InvalidCredentials,
     #[error("Invalid token")]
     InvalidToken,
     #[error("Token error")]
@@ -97,6 +99,7 @@ impl WebResponseError for AppError {
             AppError::AuthenticationError => StatusCode::UNAUTHORIZED,
             AppError::UserCreationError => StatusCode::INTERNAL_SERVER_ERROR,
             AppError::UserNotFound => StatusCode::NOT_FOUND,
+            AppError::InvalidCredentials => StatusCode::UNAUTHORIZED,
             AppError::InvalidToken => StatusCode::UNAUTHORIZED,
             AppError::TokenError(_) => StatusCode::UNAUTHORIZED,
             AppError::IOError(_) => StatusCode::INTERNAL_SERVER_ERROR,

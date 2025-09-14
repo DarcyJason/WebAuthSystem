@@ -6,18 +6,20 @@ use validator::ValidateEmail;
 
 use crate::{
     dtos::{
-        api_response::ApiResponse, request::register::RegisterRequest, response::user::UserResponse,
+        api_response::ApiResponse,
+        request::{login::LoginRequest, register::RegisterRequest},
+        response::user::UserResponse,
     },
     errors::app_error::{AppError, AppResult},
     repositories::auth::AuthRepository,
     state::AppState,
+    utils::{crypto::compare_hashed_password, token::generate_tokens},
 };
 
 pub async fn register_handler(
     app_state: State<AppState>,
-    payload: Json<RegisterRequest>,
+    Json(payload): Json<RegisterRequest>,
 ) -> AppResult<impl Responder> {
-    let payload = payload.into_inner();
     if payload.name.is_empty() {
         return Err(AppError::NameEmpty);
     }
@@ -63,4 +65,52 @@ pub async fn register_handler(
         "Register success",
         UserResponse::from(user),
     ))
+}
+
+pub async fn login_handler(
+    app_state: State<AppState>,
+    Json(payload): Json<LoginRequest>,
+) -> AppResult<impl Responder> {
+    if payload.email.is_empty() {
+        return Err(AppError::EmailIsEmpty);
+    }
+    if !ValidateEmail::validate_email(&payload.email) {
+        return Err(AppError::EmailIsInvalid);
+    }
+    if payload.password.is_empty() {
+        return Err(AppError::PasswordEmpty);
+    }
+    if payload.password.len() < 8 {
+        return Err(AppError::PasswordIsTooShort);
+    }
+    if payload.password.len() > 64 {
+        return Err(AppError::PasswordIsTooLong);
+    }
+    let user = app_state
+        .db_client
+        .find_user_by_email(payload.email.clone())
+        .await?
+        .ok_or(AppError::UserNotFound)?;
+
+    let is_password_matched = compare_hashed_password(payload.password, user.password)?;
+
+    if is_password_matched {
+        let (access_token, refresh_token) = generate_tokens(
+            user.id,
+            app_state.config.token.jwt_secret_key.as_bytes(),
+            app_state.config.token.access_expires_in_seconds,
+            app_state.config.token.refresh_expires_in_seconds,
+        )?;
+
+        let response = ApiResponse::success("Login successful", ())
+            .with_tokens(&access_token, Some(&refresh_token));
+
+        Ok(response)
+    } else {
+        Err(AppError::InvalidCredentials)
+    }
+}
+
+pub async fn logout_handler() -> AppResult<impl Responder> {
+    Ok(ApiResponse::success("Logout successful", ()).revoke_tokens())
 }

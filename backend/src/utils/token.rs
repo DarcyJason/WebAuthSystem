@@ -85,3 +85,40 @@ pub fn refresh_access_token(
         access_expires_in_seconds,
     )
 }
+
+pub fn refresh_refresh_token(
+    refresh_token: String,
+    secret: &[u8],
+    refresh_expires_in_seconds: i64,
+) -> AppResult<String> {
+    let user_id = validate_refresh_token(refresh_token, secret)?;
+    generate_jwt_token(
+        "refresh".to_string(),
+        user_id,
+        secret,
+        refresh_expires_in_seconds,
+    )
+}
+
+pub fn refresh_access_token_and_refresh_token(
+    refresh_token: String,
+    secret: &[u8],
+    access_expires_in_seconds: i64,
+    refresh_expires_in_seconds: i64,
+) -> AppResult<(String, String)> {
+    let user_id = validate_refresh_token(refresh_token, secret)?;
+    let access_token = generate_jwt_token(
+        "access".to_string(),
+        user_id.clone(),
+        secret,
+        access_expires_in_seconds,
+    )?;
+    let refresh_token = generate_jwt_token(
+        "refresh".to_string(),
+        user_id,
+        secret,
+        refresh_expires_in_seconds,
+    )?;
+
+    Ok((access_token, refresh_token))
+}
