@@ -110,12 +110,11 @@ pub async fn login_handler(
             Ok((access_token, refresh_token)) => {
                 let refresh_token_hash = hash_token(&refresh_token);
                 let expires_at = Utc::now()
-                    + chrono::Duration::seconds(
-                        app_state.config.token.refresh_expires_in_seconds as i64,
-                    );
+                    + chrono::Duration::seconds(app_state.config.token.refresh_expires_in_seconds);
+                let expires_at_surreal = expires_at.into();
                 match app_state
                     .db_client
-                    .store_refresh_token(user.id.clone(), refresh_token_hash, expires_at)
+                    .store_refresh_token(user.id.clone(), refresh_token_hash, expires_at_surreal)
                     .await
                 {
                     Ok(_) => {
@@ -123,10 +122,10 @@ pub async fn login_handler(
                             .with_tokens(&access_token, Some(&refresh_token));
                         Ok(response)
                     }
-                    Err(_) => Err(AppError::StoreRefreshTokenError),
+                    Err(e) => Err(e),
                 }
             }
-            Err(_) => Err(AppError::GenerateTokenError),
+            Err(e) => Err(e.into()),
         }
     } else {
         Err(AppError::InvalidCredentials)
@@ -137,26 +136,41 @@ pub async fn logout_handler(
     req: HttpRequest,
     app_state: State<AppState>,
 ) -> AppResult<impl Responder> {
-    if let Some(cookie) = req.cookie("refresh_token") {
-        let raw_refresh_token = cookie.value().to_string();
-        if let Ok(user_id) = validate_refresh_token(
-            raw_refresh_token.clone(),
-            app_state.config.token.jwt_secret_key.as_bytes(),
-        ) {
-            let token_hash = hash_token(&raw_refresh_token);
-            if let Ok(Some(token)) = app_state
+    let Some(cookie) = req.cookie("refresh_token") else {
+        return Ok(ApiResponse::success("Logout successful (no token found)", ()).revoke_tokens());
+    };
+
+    let raw_refresh_token = cookie.value().to_string();
+
+    let Ok(user_id) = validate_refresh_token(
+        raw_refresh_token.clone(),
+        app_state.config.token.jwt_secret_key.as_bytes(),
+    ) else {
+        return Ok(ApiResponse::success("Logout successful (invalid token)", ()).revoke_tokens());
+    };
+
+    let token_hash = hash_token(&raw_refresh_token);
+
+    match app_state
+        .db_client
+        .find_refresh_token(user_id, token_hash)
+        .await
+    {
+        Ok(Some(token)) => {
+            match app_state
                 .db_client
-                .find_refresh_token(user_id, token_hash)
+                .delete_refresh_token(token.id.unwrap())
                 .await
             {
-                let _ = app_state
-                    .db_client
-                    .delete_refresh_token(token.id.unwrap())
-                    .await;
+                Ok(_) => Ok(ApiResponse::success("Logout successful", ()).revoke_tokens()),
+                Err(e) => Err(e),
             }
         }
+        Err(e) => Err(e),
+        Ok(None) => {
+            Ok(ApiResponse::success("Logout successful (token not in DB)", ()).revoke_tokens())
+        }
     }
-    Ok(ApiResponse::success("Logout successful", ()).revoke_tokens())
 }
 
 pub async fn refresh_handler(
@@ -199,9 +213,10 @@ pub async fn refresh_handler(
                 + chrono::Duration::seconds(
                     app_state.config.token.refresh_expires_in_seconds as i64,
                 );
+            let expires_at_surreal = expires_at.into();
             match app_state
                 .db_client
-                .store_refresh_token(user_id, new_refresh_token_hash, expires_at)
+                .store_refresh_token(user_id, new_refresh_token_hash, expires_at_surreal)
                 .await
             {
                 Ok(_) => {

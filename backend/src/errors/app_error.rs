@@ -58,6 +58,8 @@ pub enum AppError {
     InvalidToken,
     #[error("Token error")]
     TokenError(#[from] jsonwebtoken::errors::Error),
+    #[error("Internal server error: {0}")]
+    InternalServerError(String),
     #[error("IO error: {0}")]
     IOError(#[from] std::io::Error),
     #[error("Other error: {0}")]
@@ -117,6 +119,7 @@ impl WebResponseError for AppError {
             AppError::InvalidCredentials => StatusCode::UNAUTHORIZED,
             AppError::InvalidToken => StatusCode::UNAUTHORIZED,
             AppError::TokenError(_) => StatusCode::UNAUTHORIZED,
+            AppError::InternalServerError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             AppError::IOError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             AppError::OtherError(_) => StatusCode::INTERNAL_SERVER_ERROR,
         }

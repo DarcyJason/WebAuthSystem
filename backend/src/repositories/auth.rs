@@ -5,8 +5,7 @@ use crate::{
     utils::crypto::hash_password,
 };
 use async_trait::async_trait;
-use chrono::{DateTime, Utc};
-use surrealdb::sql::Thing;
+use surrealdb::sql::{Datetime, Thing};
 
 #[async_trait]
 pub trait AuthRepository {
@@ -17,7 +16,7 @@ pub trait AuthRepository {
         &self,
         user_id: Thing,
         token_hash: String,
-        expires_at: DateTime<Utc>,
+        expires_at: Datetime,
     ) -> AppResult<()>;
     async fn find_refresh_token(
         &self,
@@ -77,11 +76,13 @@ impl AuthRepository for DBClient {
         let user: Option<User> = result.take(0)?;
         Ok(user)
     }
+    // 在 backend/src/repositories/auth.rs 文件中
+
     async fn store_refresh_token(
         &self,
         user_id: Thing,
         token_hash: String,
-        expires_at: DateTime<Utc>,
+        expires_at: Datetime,
     ) -> AppResult<()> {
         let sql = "CREATE refresh_token SET user = $user, token_hash = $token_hash, expires_at = $expires_at;";
         self.surrealdb

@@ -1,11 +1,10 @@
 DEFINE TABLE OVERWRITE user SCHEMALESS;
 
-# DEFINE FIELD OVERWRITE field ON user;
 DEFINE FIELD OVERWRITE name ON user TYPE string;
 DEFINE FIELD OVERWRITE email ON user TYPE string;
 DEFINE FIELD OVERWRITE password ON user TYPE string;
 DEFINE FIELD OVERWRITE created_at ON user TYPE datetime DEFAULT time::now() READONLY;
 DEFINE FIELD OVERWRITE updated_at ON user TYPE datetime DEFAULT time::now();
 
-DEFINE INDEX user_email_idx ON TABLE user COLUMNS email UNIQUE;
-DEFINE INDEX user_name_idx ON TABLE user COLUMNS name;
+DEFINE INDEX OVERWRITE user_email_idx ON TABLE user COLUMNS email UNIQUE;
+DEFINE INDEX OVERWRITE user_name_idx ON TABLE user COLUMNS name;

@@ -1,6 +1,6 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use surrealdb::sql::{Datetime, Thing};
+use surrealdb::sql::Thing;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct RefreshToken {
@@ -8,9 +8,7 @@ pub struct RefreshToken {
     pub id: Option<Thing>,
     pub user: Thing,
     pub token_hash: String,
-    pub expires_at: Datetime,
-    #[serde(default = "Utc::now")]
+    pub expires_at: DateTime<Utc>,
     pub created_at: DateTime<Utc>,
-    #[serde(default = "Utc::now")]
     pub updated_at: DateTime<Utc>,
 }
