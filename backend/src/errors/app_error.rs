@@ -42,6 +42,16 @@ pub enum AppError {
     UserCreationError,
     #[error("User not found")]
     UserNotFound,
+    #[error("Generate token failed")]
+    GenerateTokenError,
+    #[error("Refresh token failed")]
+    RefreshTokenError,
+    #[error("Store refresh tokens failed")]
+    StoreRefreshTokenError,
+    #[error("Delete refresh tokens failed")]
+    DeleteRefreshTokenError,
+    #[error("Refresh token not found")]
+    RefreshTokenNotFound,
     #[error("Invalid credentials")]
     InvalidCredentials,
     #[error("Invalid token")]
@@ -99,6 +109,11 @@ impl WebResponseError for AppError {
             AppError::AuthenticationError => StatusCode::UNAUTHORIZED,
             AppError::UserCreationError => StatusCode::INTERNAL_SERVER_ERROR,
             AppError::UserNotFound => StatusCode::NOT_FOUND,
+            AppError::GenerateTokenError => StatusCode::INTERNAL_SERVER_ERROR,
+            AppError::RefreshTokenError => StatusCode::INTERNAL_SERVER_ERROR,
+            AppError::StoreRefreshTokenError => StatusCode::INTERNAL_SERVER_ERROR,
+            AppError::DeleteRefreshTokenError => StatusCode::INTERNAL_SERVER_ERROR,
+            AppError::RefreshTokenNotFound => StatusCode::NOT_FOUND,
             AppError::InvalidCredentials => StatusCode::UNAUTHORIZED,
             AppError::InvalidToken => StatusCode::UNAUTHORIZED,
             AppError::TokenError(_) => StatusCode::UNAUTHORIZED,

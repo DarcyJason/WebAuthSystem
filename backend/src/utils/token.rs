@@ -4,6 +4,7 @@ use crate::{
 };
 use chrono::{Duration, Utc};
 use jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, Header, Validation, decode, encode};
+use sha2::{Digest, Sha256};
 use surrealdb::sql::Thing;
 
 pub fn generate_jwt_token(
@@ -100,25 +101,9 @@ pub fn refresh_refresh_token(
     )
 }
 
-pub fn refresh_access_token_and_refresh_token(
-    refresh_token: String,
-    secret: &[u8],
-    access_expires_in_seconds: i64,
-    refresh_expires_in_seconds: i64,
-) -> AppResult<(String, String)> {
-    let user_id = validate_refresh_token(refresh_token, secret)?;
-    let access_token = generate_jwt_token(
-        "access".to_string(),
-        user_id.clone(),
-        secret,
-        access_expires_in_seconds,
-    )?;
-    let refresh_token = generate_jwt_token(
-        "refresh".to_string(),
-        user_id,
-        secret,
-        refresh_expires_in_seconds,
-    )?;
-
-    Ok((access_token, refresh_token))
+pub fn hash_token(token: &str) -> String {
+    let mut hasher = Sha256::new();
+    hasher.update(token.as_bytes());
+    let result = hasher.finalize();
+    format!("{:x}", result)
 }

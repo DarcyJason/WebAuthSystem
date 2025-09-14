@@ -1,4 +1,4 @@
-use ntex::web;
+use ntex::web::{self, middleware::Logger};
 
 use crate::{
     config::Config,
@@ -15,6 +15,7 @@ pub async fn run() -> AppResult<()> {
     let app_state = AppState::new(config, db_client);
     web::HttpServer::new(move || {
         web::App::new()
+            .wrap(Logger::default())
             .state(app_state.clone())
             .configure(api_routes)
     })
