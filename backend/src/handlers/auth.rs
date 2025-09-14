@@ -122,10 +122,10 @@ pub async fn login_handler(
                             .with_tokens(&access_token, Some(&refresh_token));
                         Ok(response)
                     }
-                    Err(e) => Err(e),
+                    Err(_) => Err(AppError::StoreRefreshTokenError),
                 }
             }
-            Err(e) => Err(e.into()),
+            Err(_) => Err(AppError::GenerateTokenError),
         }
     } else {
         Err(AppError::InvalidCredentials)
@@ -163,10 +163,10 @@ pub async fn logout_handler(
                 .await
             {
                 Ok(_) => Ok(ApiResponse::success("Logout successful", ()).revoke_tokens()),
-                Err(e) => Err(e),
+                Err(_) => Err(AppError::DeleteRefreshTokenError),
             }
         }
-        Err(e) => Err(e),
+        Err(_) => Err(AppError::RefreshTokenNotFound),
         Ok(None) => {
             Ok(ApiResponse::success("Logout successful (token not in DB)", ()).revoke_tokens())
         }
