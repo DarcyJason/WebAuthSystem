@@ -60,14 +60,11 @@ pub async fn register_handler(
     {
         return Err(AppError::EmailAlreadyExists);
     }
-    let user = app_state
+    let _ = app_state
         .db_client
         .create_user(payload.name, payload.email, payload.password)
         .await?;
-    Ok(ApiResponse::success(
-        "Register success",
-        UserResponse::from(user),
-    ))
+    Ok(ApiResponse::success("Register success", ()))
 }
 
 pub async fn login_handler(
@@ -95,7 +92,8 @@ pub async fn login_handler(
         .await?
         .ok_or(AppError::UserNotFound)?;
 
-    let is_password_matched = match compare_hashed_password(payload.password, user.password) {
+    let is_password_matched = match compare_hashed_password(payload.password, user.password.clone())
+    {
         Ok(is_matched) => is_matched,
         Err(_) => return Err(AppError::InvalidCredentials),
     };
@@ -118,8 +116,9 @@ pub async fn login_handler(
                     .await
                 {
                     Ok(_) => {
-                        let response = ApiResponse::success("Login successful", ())
-                            .with_tokens(&access_token, Some(&refresh_token));
+                        let response =
+                            ApiResponse::success("Login successful", UserResponse::from(user))
+                                .with_tokens(&access_token, Some(&refresh_token));
                         Ok(response)
                     }
                     Err(_) => Err(AppError::StoreRefreshTokenError),
