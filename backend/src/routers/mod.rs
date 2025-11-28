@@ -1,0 +1,22 @@
+use axum::Router;
+use std::sync::Arc;
+
+use crate::{
+    core::state::AppState,
+    middlewares::cors::cors,
+    routers::{auth::auth_routers, health::health_router, user::user_routers},
+};
+
+pub mod auth;
+pub mod health;
+pub mod user;
+
+pub fn api_routers(app_state: Arc<AppState>) -> Router {
+    let frontend_address = app_state.config.frontend_server.frontend_address.clone();
+    let all_router = Router::new()
+        .merge(health_router(app_state.clone()))
+        .merge(auth_routers(app_state.clone()))
+        .merge(user_routers(app_state))
+        .layer(cors(frontend_address));
+    Router::new().nest("/api/v1", all_router)
+}

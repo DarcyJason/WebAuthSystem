@@ -1,0 +1,138 @@
+use async_trait::async_trait;
+use surrealdb::sql::Thing;
+
+use crate::{
+    core::error::{external::ExternalError, user::UserErrorKind},
+    core::result::AppResult,
+    database::surreal::client::SurrealClient,
+    models::user::{User, UserRole, UserStatus},
+    utils::password::hash_password,
+};
+
+#[async_trait]
+pub trait AuthRepository {
+    async fn create_user(&self, name: &str, email: &str, password: &str) -> AppResult<()>;
+    async fn find_user_by_email(&self, email: &str) -> AppResult<Option<User>>;
+    async fn find_user_by_id(&self, user_id: Thing) -> AppResult<Option<User>>;
+    async fn user_verified(&self, user_id: Thing, user_status: UserStatus) -> AppResult<()>;
+    async fn reset_password(&self, user_id: Thing, new_password: &str) -> AppResult<()>;
+}
+
+#[async_trait]
+impl AuthRepository for SurrealClient {
+    async fn create_user(&self, name: &str, email: &str, password: &str) -> AppResult<()> {
+        let (password, salt) = hash_password(password.to_string())?;
+        let sql = r#"
+            CREATE users CONTENT {
+                id: rand::uuid::v4(),
+                name: $name,
+                email: $email,
+                password: $password,
+                role: $role,
+                salt: $salt,
+                is_verified: false,
+                status: $status,
+            }
+        "#;
+        let mut result = self
+            .client
+            .query(sql)
+            .bind(("name", name.to_string()))
+            .bind(("email", email.to_string()))
+            .bind(("password", password))
+            .bind(("role", UserRole::User))
+            .bind(("salt", salt))
+            .bind(("status", UserStatus::Inactive))
+            .await
+            .map_err(ExternalError::from)?;
+        let user: Option<User> = result.take(0).map_err(ExternalError::from)?;
+        match user {
+            Some(_) => Ok(()),
+            None => Err(UserErrorKind::CreateUserFailed.into()),
+        }
+    }
+    async fn find_user_by_email(&self, email: &str) -> AppResult<Option<User>> {
+        let sql = r#"
+            SELECT * FROM users
+            WHERE
+                email = $email
+                LIMIT 1
+        "#;
+        let mut result = self
+            .client
+            .query(sql)
+            .bind(("email", email.to_string()))
+            .await
+            .map_err(ExternalError::from)?;
+        let user: Option<User> = result.take(0).map_err(ExternalError::from)?;
+        Ok(user)
+    }
+    async fn find_user_by_id(&self, user_id: Thing) -> AppResult<Option<User>> {
+        let sql = r#"
+            SELECT * FROM users
+            WHERE
+                id = $user_id
+                LIMIT 1
+        "#;
+        let mut result = self
+            .client
+            .query(sql)
+            .bind(("user_id", user_id))
+            .await
+            .map_err(ExternalError::from)?;
+        let user: Option<User> = result.take(0).map_err(ExternalError::from)?;
+        Ok(user)
+    }
+    async fn user_verified(&self, user_id: Thing, user_status: UserStatus) -> AppResult<()> {
+        let sql = r#"
+            BEGIN TRANSACTION;
+                UPDATE users SET is_verified = true, status = $user_status
+                WHERE
+                    id = $user_id RETURN AFTER;
+
+                UPDATE (
+                    SELECT * FROM emails
+                    WHERE user_id = $user_id
+                        AND token_type = Verification
+                        AND is_used = false
+                    ORDER BY created_at DESC
+                    LIMIT 1
+                ) SET is_used = true;
+            COMMIT TRANSACTION;
+        "#;
+        let mut result = self
+            .client
+            .query(sql)
+            .bind(("user_id", user_id))
+            .bind(("user_status", user_status))
+            .await
+            .map_err(ExternalError::from)?;
+        let user: Option<User> = result.take(0).map_err(ExternalError::from)?;
+        match user {
+            Some(_) => Ok(()),
+            None => Err(UserErrorKind::UserNotFound.into()),
+        }
+    }
+    async fn reset_password(&self, user_id: Thing, new_password: &str) -> AppResult<()> {
+        let (new_password, new_salt) = hash_password(new_password.to_string())?;
+        let sql = r#"
+            UPDATE users SET password = $password,
+            salt = $salt
+            WHERE
+                id = $user_id
+        "#;
+        let mut result = self
+            .client
+            .query(sql)
+            .bind(("password", new_password.to_string()))
+            .bind(("salt", new_salt))
+            .bind(("user_id", user_id))
+            .await
+            .map_err(ExternalError::from)?;
+        let user: Option<User> = result.take(0).map_err(ExternalError::from)?;
+        match user {
+            Some(_) => Ok(()),
+            None => Err(UserErrorKind::UserNotFound.into()),
+        }
+    }
+}
