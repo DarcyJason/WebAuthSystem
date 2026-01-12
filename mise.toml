@@ -1,0 +1,10 @@
+experimental_monorepo_root = true
+
+[env]
+MISE_EXPERIMENTAL = true
+
+[tools]
+rust = "1.92.0"
+
+[tasks.backend]
+run = "mise run //backend:run"
