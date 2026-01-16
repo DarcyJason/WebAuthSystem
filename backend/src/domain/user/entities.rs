@@ -1,0 +1,57 @@
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
+use surrealdb::RecordId;
+
+use crate::domain::user::{
+    errors::UserError,
+    value_objects::{Email, HashPassword, Username},
+};
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct User {
+    id: Option<RecordId>,
+    username: Username,
+    email: Email,
+    hash_password: HashPassword,
+    created_at: Option<DateTime<Utc>>,
+    updated_at: Option<DateTime<Utc>>,
+}
+
+impl User {
+    pub fn id(&self) -> &Option<RecordId> {
+        &self.id
+    }
+    pub fn username(&self) -> &Username {
+        &self.username
+    }
+    pub fn email(&self) -> &Email {
+        &self.email
+    }
+    pub fn hash_password(&self) -> &HashPassword {
+        &self.hash_password
+    }
+    pub fn created_at(&self) -> &Option<DateTime<Utc>> {
+        &self.created_at
+    }
+    pub fn updated_at(&self) -> &Option<DateTime<Utc>> {
+        &self.updated_at
+    }
+    pub fn register(
+        username: String,
+        email: String,
+        password: String,
+        confirm_passowrd: String,
+    ) -> Result<User, UserError> {
+        if password != confirm_passowrd {
+            return Err(UserError::PasswordsNotMatch);
+        }
+        Ok(User {
+            id: None,
+            username: Username::new(username)?,
+            email: Email::new(email)?,
+            hash_password: HashPassword::new(password)?,
+            created_at: None,
+            updated_at: None,
+        })
+    }
+}

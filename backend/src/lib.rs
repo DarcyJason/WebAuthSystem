@@ -1,14 +1,18 @@
-use crate::infrastructure::persistence::surreal::client::SurrealClient;
-use crate::presentation::http::v1::bootstrap::shutdown::shutdown;
-use crate::presentation::http::v1::bootstrap::startup::startup;
 use crate::presentation::http::v1::config::Config;
+use crate::presentation::http::v1::logo::show_brand_logo;
 use crate::presentation::http::v1::middlewares::cors::cors;
 use crate::presentation::http::v1::routers::create_routers;
 use crate::presentation::http::v1::state::AppState;
+use crate::{
+    infrastructure::persistence::surreal::client::SurrealClient,
+    presentation::http::v1::logger::logger,
+};
 use std::sync::Arc;
+use resend_rs::Resend;
 use tokio::net::TcpListener;
 use tower_http::trace::TraceLayer;
 use tracing::{error, info};
+use crate::infrastructure::cache::redis::client::RedisClient;
 
 pub mod application;
 pub mod domain;
@@ -16,12 +20,15 @@ pub mod infrastructure;
 pub mod presentation;
 
 pub async fn run() -> anyhow::Result<()> {
-    startup();
+    logger();
+    show_brand_logo();
     let config = Config::new()?;
     let frontend_address = config.server.frontend_address.clone();
     let backend_address = config.server.backend_address.clone();
+    let resend = Resend::new(&config.resend.api_key);
     let surreal = SurrealClient::new(&config.surreal).await?;
-    let app_state = AppState::new(config.clone(), surreal);
+    let redis = RedisClient::new(&config.redis).await?;
+    let app_state = AppState::new(config.clone(), resend, surreal, redis);
     let routers = create_routers(Arc::new(app_state))
         .layer(TraceLayer::new_for_http())
         .layer(cors(frontend_address));
@@ -34,6 +41,5 @@ pub async fn run() -> anyhow::Result<()> {
                 .map_err(|e| error!("Failed to install CTRL+C signal handler: {}", e));
         })
         .await?;
-    shutdown();
     Ok(())
 }

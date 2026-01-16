@@ -1,3 +1,4 @@
-pub mod errors;
 pub mod commands;
+pub mod errors;
+pub mod handlers;
 pub mod queries;

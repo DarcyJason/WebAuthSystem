@@ -1,5 +1,5 @@
+use surrealdb::engine::remote::ws::{Client, Ws};
 use crate::infrastructure::config::surreal::SurrealConfig;
-use surrealdb::engine::remote::http::{Client, Http};
 use surrealdb::opt::auth::Root;
 use surrealdb::Surreal;
 
@@ -11,7 +11,7 @@ pub struct SurrealClient {
 
 impl SurrealClient {
     pub async fn new(config: &SurrealConfig) -> Result<Self, surrealdb::Error> {
-        let client = Surreal::new::<Http>(&config.address).await?;
+        let client = Surreal::new::<Ws>(&config.address).await?;
         client.signin(
             Root {
                 username: &config.root_name,

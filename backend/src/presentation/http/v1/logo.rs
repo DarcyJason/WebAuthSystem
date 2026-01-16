@@ -1,6 +1,7 @@
-use crate::presentation::http::v1::constants::LOGO;
 use colorgrad::Gradient;
 use owo_colors::{OwoColorize, Rgb};
+
+use crate::presentation::http::v1::constants::LOGO;
 
 pub fn show_brand_logo() {
     let lines: Vec<&str> = LOGO.lines().collect();

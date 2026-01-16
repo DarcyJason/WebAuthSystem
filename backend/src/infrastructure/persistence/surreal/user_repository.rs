@@ -1,0 +1,84 @@
+use async_trait::async_trait;
+use surrealdb::RecordId;
+use crate::{
+    domain::user::repositories::UserRepository,
+    infrastructure::persistence::surreal::client::SurrealClient,
+};
+use crate::domain::user::entities::User;
+use crate::domain::user::value_objects::{Email, Username};
+
+#[derive(Debug, Clone)]
+pub struct SurrealUserRepository {
+    surreal: SurrealClient,
+}
+
+impl SurrealUserRepository {
+    pub fn new(surreal: SurrealClient) -> Self {
+        SurrealUserRepository { surreal }
+    }
+}
+
+#[async_trait]
+impl UserRepository for SurrealUserRepository {
+    async fn save(&self, user: &User) -> Result<Option<User>, anyhow::Error> {
+        let sql = r#"
+            CREATE user CONTENT {
+                id: rand::uuid::v4(),
+                username: $username,
+                email: $email,
+                hash_password: $hash_password,
+                created_at: time::now(),
+                updated_at: time::now(),
+            };
+        "#;
+        let mut result = self
+            .surreal
+            .client
+            .query(sql)
+            .bind(("username", user.username().to_string()))
+            .bind(("email", user.email().to_string()))
+            .bind(("hash_password", user.hash_password().to_string()))
+            .await?;
+        let user: Option<User> = result.take(0)?;
+        Ok(user)
+    }
+    async fn find_by_id(&self, id: &RecordId) -> Result<Option<User>, anyhow::Error> {
+        let sql = r#"
+            SELECT * FROM user WHERE id = type::thing($id);
+        "#;
+        let mut result = self
+            .surreal
+            .client
+            .query(sql)
+            .bind(("id", id.to_string()))
+            .await?;
+        let user: Option<User> = result.take(0)?;
+        Ok(user)
+    }
+    async fn find_by_username(&self, username: &Username) -> Result<Option<User>, anyhow::Error> {
+        let sql = r#"
+            SELECT * FROM user WHERE username = $username;
+        "#;
+        let mut result = self
+            .surreal
+            .client
+            .query(sql)
+            .bind(("username", username.to_string()))
+            .await?;
+        let user: Option<User> = result.take(0)?;
+        Ok(user)
+    }
+    async fn find_by_email(&self, email: &Email) -> Result<Option<User>, anyhow::Error> {
+        let sql = r#"
+            SELECT * FROM user WHERE email = $email;
+        "#;
+        let mut result = self
+            .surreal
+            .client
+            .query(sql)
+            .bind(("email", email.to_string()))
+            .await?;
+        let user: Option<User> = result.take(0)?;
+        Ok(user)
+    }
+}

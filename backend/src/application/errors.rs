@@ -1,10 +1,11 @@
 use thiserror::Error;
-use crate::domain::errors::DomainError;
+
+use crate::domain::user::errors::UserError;
 
 #[derive(Debug, Error)]
 pub enum ApplicationError {
     #[error(transparent)]
-    Domain(#[from] DomainError),
-    #[error("Respository is unavailable")]
-    RespoitoryUnavailable,
+    UserError(#[from] UserError),
+    #[error("Repository is unavailable: {0}")]
+    RepoitoryUnavailable(String),
 }
