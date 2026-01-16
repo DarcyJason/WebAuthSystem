@@ -3,6 +3,7 @@ use crate::{
     domain::{
         auth::repositories::AuthRepository,
         user::{entities::User, repositories::UserRepository},
+        error::DomainResult,
     },
     infrastructure::persistence::surreal::user_repository::SurrealUserRepository,
 };
@@ -20,24 +21,24 @@ impl SurrealAuthRepository {
 
 #[async_trait]
 impl AuthRepository for SurrealAuthRepository {
-    async fn register(&self, user: &User) -> Result<(), anyhow::Error> {
+    async fn register(&self, user: &User) -> DomainResult<()> {
         self.user_repo.save(user).await?;
         Ok(())
     }
 
-    async fn login(&self, username: &str, password: &str) -> Result<User, anyhow::Error> {
+    async fn login(&self, username: &str, password: &str) -> DomainResult<User> {
         todo!("Implement login logic")
     }
 
-    async fn logout(&self, user_id: &str) -> Result<(), anyhow::Error> {
+    async fn logout(&self, user_id: &str) -> DomainResult<()> {
         todo!("Implement logout logic")
     }
 
-    async fn forget_password(&self, email: &str) -> Result<(), anyhow::Error> {
+    async fn forget_password(&self, email: &str) -> DomainResult<()> {
         todo!("Implement forget password logic")
     }
 
-    async fn reset_password(&self, token: &str, new_password: &str) -> Result<(), anyhow::Error> {
+    async fn reset_password(&self, token: &str, new_password: &str) -> DomainResult<()> {
         todo!("Implement reset password logic")
     }
 }

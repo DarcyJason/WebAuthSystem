@@ -1,11 +1,15 @@
 use std::sync::Arc;
 
-use axum::{Json, extract::State, response::IntoResponse};
 use crate::{
-    application::{commands::auth::register::RegisterCommand, use_cases::auth::register_case::RegisterCase},
-    infrastructure::persistence::surreal::{auth_repository::SurrealAuthRepository, user_repository::SurrealUserRepository},
-    presentation::http::v1::{response::ApiResponse, result::AppResult, state::AppState},
+    application::{
+        commands::auth::register::RegisterCommand, use_cases::auth::register_case::RegisterCase,
+    },
+    infrastructure::persistence::surreal::{
+        auth_repository::SurrealAuthRepository, user_repository::SurrealUserRepository,
+    },
+    presentation::http::v1::{errors::AppResult, response::ApiResponse, state::AppState},
 };
+use axum::{Json, extract::State, response::IntoResponse};
 
 pub async fn register(
     State(app_state): State<Arc<AppState>>,

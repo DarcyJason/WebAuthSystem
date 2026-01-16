@@ -17,11 +17,7 @@ where
         SurrealHealthCase { surreal_health_repo }
     }
     pub async fn execute(&self) -> Result<(), ApplicationError> {
-        let execute_result = self
-            .surreal_health_repo
-            .check()
-            .await
-            .map_err(|e| ApplicationError::RepoitoryUnavailable(e.to_string()))?;
-        Ok(execute_result)
+        self.surreal_health_repo.check().await?;
+        Ok(())
     }
 }

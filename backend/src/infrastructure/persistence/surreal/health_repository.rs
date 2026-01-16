@@ -1,14 +1,13 @@
-use async_trait::async_trait;
 use crate::domain::health::errors::HealthError;
 use crate::domain::health::repositories::HealthRepository;
+use async_trait::async_trait;
 
 #[derive(Debug, Clone)]
-pub struct SurrealHealthRepository {
-}
+pub struct SurrealHealthRepository {}
 
 impl SurrealHealthRepository {
     pub fn new() -> Self {
-        SurrealHealthRepository { }
+        SurrealHealthRepository {}
     }
 }
 

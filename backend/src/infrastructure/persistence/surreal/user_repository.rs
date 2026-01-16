@@ -3,6 +3,7 @@ use surrealdb::RecordId;
 use crate::{
     domain::user::repositories::UserRepository,
     infrastructure::persistence::surreal::client::SurrealClient,
+    domain::error::DomainResult,
 };
 use crate::domain::user::entities::User;
 use crate::domain::user::value_objects::{Email, Username};
@@ -20,7 +21,7 @@ impl SurrealUserRepository {
 
 #[async_trait]
 impl UserRepository for SurrealUserRepository {
-    async fn save(&self, user: &User) -> Result<Option<User>, anyhow::Error> {
+    async fn save(&self, user: &User) -> DomainResult<Option<User>> {
         let sql = r#"
             CREATE user CONTENT {
                 id: rand::uuid::v4(),
@@ -38,11 +39,13 @@ impl UserRepository for SurrealUserRepository {
             .bind(("username", user.username().to_string()))
             .bind(("email", user.email().to_string()))
             .bind(("hash_password", user.hash_password().to_string()))
-            .await?;
-        let user: Option<User> = result.take(0)?;
+            .await
+            .map_err(|e| crate::domain::error::DomainError::Repository(e.to_string()))?;
+        let user: Option<User> = result.take(0)
+            .map_err(|e| crate::domain::error::DomainError::Repository(e.to_string()))?;
         Ok(user)
     }
-    async fn find_by_id(&self, id: &RecordId) -> Result<Option<User>, anyhow::Error> {
+    async fn find_by_id(&self, id: &RecordId) -> DomainResult<Option<User>> {
         let sql = r#"
             SELECT * FROM user WHERE id = type::thing($id);
         "#;
@@ -51,11 +54,13 @@ impl UserRepository for SurrealUserRepository {
             .client
             .query(sql)
             .bind(("id", id.to_string()))
-            .await?;
-        let user: Option<User> = result.take(0)?;
+            .await
+            .map_err(|e| crate::domain::error::DomainError::Repository(e.to_string()))?;
+        let user: Option<User> = result.take(0)
+            .map_err(|e| crate::domain::error::DomainError::Repository(e.to_string()))?;
         Ok(user)
     }
-    async fn find_by_username(&self, username: &Username) -> Result<Option<User>, anyhow::Error> {
+    async fn find_by_username(&self, username: &Username) -> DomainResult<Option<User>> {
         let sql = r#"
             SELECT * FROM user WHERE username = $username;
         "#;
@@ -64,11 +69,13 @@ impl UserRepository for SurrealUserRepository {
             .client
             .query(sql)
             .bind(("username", username.to_string()))
-            .await?;
-        let user: Option<User> = result.take(0)?;
+            .await
+            .map_err(|e| crate::domain::error::DomainError::Repository(e.to_string()))?;
+        let user: Option<User> = result.take(0)
+            .map_err(|e| crate::domain::error::DomainError::Repository(e.to_string()))?;
         Ok(user)
     }
-    async fn find_by_email(&self, email: &Email) -> Result<Option<User>, anyhow::Error> {
+    async fn find_by_email(&self, email: &Email) -> DomainResult<Option<User>> {
         let sql = r#"
             SELECT * FROM user WHERE email = $email;
         "#;
@@ -77,8 +84,10 @@ impl UserRepository for SurrealUserRepository {
             .client
             .query(sql)
             .bind(("email", email.to_string()))
-            .await?;
-        let user: Option<User> = result.take(0)?;
+            .await
+            .map_err(|e| crate::domain::error::DomainError::Repository(e.to_string()))?;
+        let user: Option<User> = result.take(0)
+            .map_err(|e| crate::domain::error::DomainError::Repository(e.to_string()))?;
         Ok(user)
     }
 }

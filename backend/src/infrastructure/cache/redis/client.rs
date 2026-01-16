@@ -1,5 +1,5 @@
-use redis::RedisError;
 use crate::infrastructure::config::redis::RedisConfig;
+use redis::RedisError;
 
 #[derive(Debug, Clone)]
 pub struct RedisClient {
