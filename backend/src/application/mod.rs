@@ -1,4 +1,4 @@
 pub mod commands;
 pub mod errors;
-pub mod handlers;
+pub mod use_cases;
 pub mod queries;
