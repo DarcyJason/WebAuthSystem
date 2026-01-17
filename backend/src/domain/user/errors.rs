@@ -4,6 +4,8 @@ use thiserror::Error;
 pub enum UserError {
     #[error("username is required")]
     UsernameIsrequired,
+    #[error("username is invalid, can't contain @ symbol")]
+    UsernameIsInvalid,
     #[error("username is too short")]
     UsernameIsTooShort,
     #[error("username is too long")]

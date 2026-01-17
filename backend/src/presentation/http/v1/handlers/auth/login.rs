@@ -2,7 +2,8 @@ use std::sync::Arc;
 
 use crate::{
     application::{
-        commands::auth::register::RegisterCommand, use_cases::auth::register_case::RegisterCase,
+        commands::auth::login::LoginCommand, queries::auth::login::LoginView,
+        use_cases::auth::login_case::LoginCase,
     },
     infrastructure::persistence::surreal::{
         auth_repository::SurrealAuthRepository, user_repository::SurrealUserRepository,
@@ -11,14 +12,14 @@ use crate::{
 };
 use axum::{Json, extract::State, response::IntoResponse};
 
-pub async fn register(
+pub async fn login(
     State(app_state): State<Arc<AppState>>,
-    Json(cmd): Json<RegisterCommand>,
+    Json(cmd): Json<LoginCommand>,
 ) -> ApiResult<impl IntoResponse> {
     let user_repo = SurrealUserRepository::new(app_state.surreal.clone());
     let auth_repo = SurrealAuthRepository::new(user_repo);
-    let case = RegisterCase::new(auth_repo);
+    let case = LoginCase::new(auth_repo);
     let (message, data) = case.execute(cmd).await?;
-    let response = ApiResponse::<()>::ok(200, message, data);
+    let response = ApiResponse::<LoginView>::ok(200, message, data);
     Ok(response)
 }

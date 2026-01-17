@@ -1,5 +1,5 @@
 use crate::domain::user::entities::User;
-use crate::domain::user::value_objects::{Email, Username};
+use crate::domain::user::value_objects::{Email, HashPassword, Username};
 use crate::{
     domain::error::DomainResult, domain::user::repositories::UserRepository,
     infrastructure::persistence::surreal::client::SurrealClient,
@@ -20,7 +20,12 @@ impl SurrealUserRepository {
 
 #[async_trait]
 impl UserRepository for SurrealUserRepository {
-    async fn save(&self, user: &User) -> DomainResult<Option<User>> {
+    async fn save(
+        &self,
+        username: Username,
+        email: Email,
+        hash_password: HashPassword,
+    ) -> DomainResult<Option<User>> {
         let sql = r#"
             CREATE user CONTENT {
                 id: rand::uuid::v4(),
@@ -35,9 +40,9 @@ impl UserRepository for SurrealUserRepository {
             .surreal
             .client
             .query(sql)
-            .bind(("username", user.username().to_string()))
-            .bind(("email", user.email().to_string()))
-            .bind(("hash_password", user.hash_password().to_string()))
+            .bind(("username", username.to_string()))
+            .bind(("email", email.to_string()))
+            .bind(("hash_password", hash_password.to_string()))
             .await
             .map_err(|e| crate::domain::error::DomainError::Repository(e.to_string()))?;
         let user: Option<User> = result

@@ -1,4 +1,4 @@
-use crate::application::errors::ApplicationError;
+use crate::application::errors::{ApplicationError, ApplicationResult};
 use crate::domain::error::DomainError;
 use crate::domain::user::errors::UserError;
 use crate::presentation::http::v1::response::ApiResponse;
@@ -9,6 +9,9 @@ impl IntoResponse for ApplicationError {
     fn into_response(self) -> Response {
         let (http_status, business_code, message) = match self {
             ApplicationError::UserError(UserError::UsernameIsrequired) => {
+                (StatusCode::BAD_REQUEST, 40001, self.to_string())
+            }
+            ApplicationError::UserError(UserError::UsernameIsInvalid) => {
                 (StatusCode::BAD_REQUEST, 40001, self.to_string())
             }
             ApplicationError::UserError(UserError::UsernameIsTooShort) => {
@@ -42,6 +45,45 @@ impl IntoResponse for ApplicationError {
             ApplicationError::UserError(UserError::PasswordsNotMatch) => {
                 (StatusCode::BAD_REQUEST, 40004, self.to_string())
             }
+            ApplicationError::DomainError(DomainError::User(user_error)) => match user_error {
+                UserError::UsernameIsrequired => {
+                    (StatusCode::BAD_REQUEST, 40001, user_error.to_string())
+                }
+                UserError::UsernameIsInvalid => {
+                    (StatusCode::BAD_REQUEST, 40001, user_error.to_string())
+                }
+                UserError::UsernameIsTooShort => {
+                    (StatusCode::BAD_REQUEST, 40001, user_error.to_string())
+                }
+                UserError::UsernameIsTooLong => {
+                    (StatusCode::BAD_REQUEST, 40001, user_error.to_string())
+                }
+                UserError::EmailIsRequired => {
+                    (StatusCode::BAD_REQUEST, 40002, user_error.to_string())
+                }
+                UserError::EmailIsInvalid => {
+                    (StatusCode::BAD_REQUEST, 40002, user_error.to_string())
+                }
+                UserError::PasswordIsRequired => {
+                    (StatusCode::BAD_REQUEST, 40003, user_error.to_string())
+                }
+                UserError::PasswordIsInvalid => {
+                    (StatusCode::BAD_REQUEST, 40003, user_error.to_string())
+                }
+                UserError::HashPasswordError => (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    50001,
+                    "Internal server error".to_string(),
+                ),
+                UserError::ParseHashPasswordError => (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    50001,
+                    "Internal server error".to_string(),
+                ),
+                UserError::PasswordsNotMatch => {
+                    (StatusCode::BAD_REQUEST, 40004, user_error.to_string())
+                }
+            },
             ApplicationError::DomainError(DomainError::NotFound(_)) => {
                 (StatusCode::NOT_FOUND, 40400, self.to_string())
             }
@@ -74,4 +116,4 @@ impl IntoResponse for ApplicationError {
     }
 }
 
-pub type AppResult<T> = Result<T, ApplicationError>;
+pub type ApiResult<T> = ApplicationResult<T>;

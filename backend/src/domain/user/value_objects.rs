@@ -15,6 +15,9 @@ impl Username {
         if username.is_empty() {
             return Err(UserError::UsernameIsrequired);
         }
+        if username.contains("@") {
+            return Err(UserError::UsernameIsInvalid);
+        }
         if username.len() < 2 {
             return Err(UserError::UsernameIsTooShort);
         }
@@ -37,7 +40,7 @@ impl Email {
     pub fn new(email: String) -> Result<Self, UserError> {
         let email = email.trim().to_string();
         if email.is_empty() {
-            return Err(UserError::EmailIsInvalid);
+            return Err(UserError::EmailIsRequired);
         }
         if !email.contains("@") {
             return Err(UserError::EmailIsInvalid);
