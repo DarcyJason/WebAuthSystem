@@ -11,6 +11,12 @@ impl SurrealHealthRepository {
     }
 }
 
+impl Default for SurrealHealthRepository {
+    fn default() -> Self {
+        SurrealHealthRepository::new()
+    }
+}
+
 #[async_trait]
 impl HealthRepository for SurrealHealthRepository {
     async fn check(&self) -> Result<(), HealthError> {

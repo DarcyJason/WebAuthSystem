@@ -18,7 +18,7 @@ pub async fn register(
     let user_repo = SurrealUserRepository::new(app_state.surreal.clone());
     let auth_repo = SurrealAuthRepository::new(user_repo);
     let case = RegisterCase::new(auth_repo);
-    let data = case.execute(cmd).await?;
-    let response = ApiResponse::<()>::ok(200, "Register success", data);
+    let (message, data) = case.execute(cmd).await?;
+    let response = ApiResponse::<()>::ok(200, message, data);
     Ok(response)
 }

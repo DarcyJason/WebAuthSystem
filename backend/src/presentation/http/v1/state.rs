@@ -1,7 +1,7 @@
-use resend_rs::Resend;
 use crate::infrastructure::cache::redis::client::RedisClient;
 use crate::infrastructure::persistence::surreal::client::SurrealClient;
 use crate::presentation::http::v1::config::Config;
+use resend_rs::Resend;
 
 #[derive(Debug, Clone)]
 pub struct AppState {

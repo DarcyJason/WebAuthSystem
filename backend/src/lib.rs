@@ -1,3 +1,4 @@
+use crate::infrastructure::cache::redis::client::RedisClient;
 use crate::presentation::http::v1::config::Config;
 use crate::presentation::http::v1::logo::show_brand_logo;
 use crate::presentation::http::v1::middlewares::cors::cors;
@@ -7,12 +8,11 @@ use crate::{
     infrastructure::persistence::surreal::client::SurrealClient,
     presentation::http::v1::logger::logger,
 };
-use std::sync::Arc;
 use resend_rs::Resend;
+use std::sync::Arc;
 use tokio::net::TcpListener;
 use tower_http::trace::TraceLayer;
 use tracing::{error, info};
-use crate::infrastructure::cache::redis::client::RedisClient;
 
 pub mod application;
 pub mod domain;

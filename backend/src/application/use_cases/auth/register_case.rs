@@ -18,9 +18,9 @@ where
     pub fn new(auth_repo: R) -> Self {
         RegisterCase { auth_repo }
     }
-    pub async fn execute(&self, cmd: RegisterCommand) -> Result<(), ApplicationError> {
+    pub async fn execute(&self, cmd: RegisterCommand) -> Result<(&str, ()), ApplicationError> {
         let user = User::register(cmd.username, cmd.email, cmd.password, cmd.confirm_password)?;
         self.auth_repo.register(&user).await?;
-        Ok(())
+        Ok(("regster success", ()))
     }
 }

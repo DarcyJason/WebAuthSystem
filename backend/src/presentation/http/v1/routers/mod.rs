@@ -1,11 +1,11 @@
+use crate::presentation::http::v1::routers::auth::auth_routers;
+use crate::presentation::http::v1::routers::health::health_routers;
 use crate::presentation::http::v1::state::AppState;
 use axum::Router;
 use std::sync::Arc;
-use crate::presentation::http::v1::routers::auth::auth_routers;
-use crate::presentation::http::v1::routers::health::health_routers;
 
-pub mod health;
 pub mod auth;
+pub mod health;
 pub mod user;
 
 pub fn create_routers(app_state: Arc<AppState>) -> Router {

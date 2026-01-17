@@ -1,12 +1,11 @@
-use async_trait::async_trait;
-use surrealdb::RecordId;
-use crate::{
-    domain::user::repositories::UserRepository,
-    infrastructure::persistence::surreal::client::SurrealClient,
-    domain::error::DomainResult,
-};
 use crate::domain::user::entities::User;
 use crate::domain::user::value_objects::{Email, Username};
+use crate::{
+    domain::error::DomainResult, domain::user::repositories::UserRepository,
+    infrastructure::persistence::surreal::client::SurrealClient,
+};
+use async_trait::async_trait;
+use surrealdb::RecordId;
 
 #[derive(Debug, Clone)]
 pub struct SurrealUserRepository {
@@ -41,7 +40,8 @@ impl UserRepository for SurrealUserRepository {
             .bind(("hash_password", user.hash_password().to_string()))
             .await
             .map_err(|e| crate::domain::error::DomainError::Repository(e.to_string()))?;
-        let user: Option<User> = result.take(0)
+        let user: Option<User> = result
+            .take(0)
             .map_err(|e| crate::domain::error::DomainError::Repository(e.to_string()))?;
         Ok(user)
     }
@@ -56,7 +56,8 @@ impl UserRepository for SurrealUserRepository {
             .bind(("id", id.to_string()))
             .await
             .map_err(|e| crate::domain::error::DomainError::Repository(e.to_string()))?;
-        let user: Option<User> = result.take(0)
+        let user: Option<User> = result
+            .take(0)
             .map_err(|e| crate::domain::error::DomainError::Repository(e.to_string()))?;
         Ok(user)
     }
@@ -71,7 +72,8 @@ impl UserRepository for SurrealUserRepository {
             .bind(("username", username.to_string()))
             .await
             .map_err(|e| crate::domain::error::DomainError::Repository(e.to_string()))?;
-        let user: Option<User> = result.take(0)
+        let user: Option<User> = result
+            .take(0)
             .map_err(|e| crate::domain::error::DomainError::Repository(e.to_string()))?;
         Ok(user)
     }
@@ -86,7 +88,8 @@ impl UserRepository for SurrealUserRepository {
             .bind(("email", email.to_string()))
             .await
             .map_err(|e| crate::domain::error::DomainError::Repository(e.to_string()))?;
-        let user: Option<User> = result.take(0)
+        let user: Option<User> = result
+            .take(0)
             .map_err(|e| crate::domain::error::DomainError::Repository(e.to_string()))?;
         Ok(user)
     }

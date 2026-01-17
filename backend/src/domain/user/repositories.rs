@@ -1,9 +1,9 @@
 use async_trait::async_trait;
 use surrealdb::RecordId;
 
+use crate::domain::error::DomainResult;
 use crate::domain::user::entities::User;
 use crate::domain::user::value_objects::{Email, Username};
-use crate::domain::error::DomainResult;
 
 #[async_trait]
 pub trait UserRepository: Send + Sync {

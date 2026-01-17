@@ -12,9 +12,9 @@ pub struct ApiResponse<T> {
 
 impl<T> ApiResponse<T> {
     pub fn ok(code: u16, message: impl Into<String>, data: T) -> Self {
-        ApiResponse { 
-            code, 
-            message: message.into(), 
+        ApiResponse {
+            code,
+            message: message.into(),
             data: Some(data),
         }
     }
@@ -27,12 +27,16 @@ impl<T> ApiResponse<T> {
     }
 }
 
-impl<T> IntoResponse for ApiResponse<T> where T: Serialize {
+impl<T> IntoResponse for ApiResponse<T>
+where
+    T: Serialize,
+{
     fn into_response(self) -> Response {
         let status = if self.code == 200 {
             axum::http::StatusCode::OK
         } else {
-            axum::http::StatusCode::from_u16(self.code).unwrap_or(axum::http::StatusCode::BAD_REQUEST)
+            axum::http::StatusCode::from_u16(self.code)
+                .unwrap_or(axum::http::StatusCode::BAD_REQUEST)
         };
         (status, Json(self)).into_response()
     }

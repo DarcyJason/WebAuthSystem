@@ -4,20 +4,22 @@ use crate::domain::health::repositories::HealthRepository;
 #[derive(Debug, Clone)]
 pub struct SurrealHealthCase<R>
 where
-    R: HealthRepository
+    R: HealthRepository,
 {
-    surreal_health_repo: R
+    surreal_health_repo: R,
 }
 
 impl<R> SurrealHealthCase<R>
 where
-    R: HealthRepository
+    R: HealthRepository,
 {
     pub fn new(surreal_health_repo: R) -> Self {
-        SurrealHealthCase { surreal_health_repo }
+        SurrealHealthCase {
+            surreal_health_repo,
+        }
     }
-    pub async fn execute(&self) -> Result<(), ApplicationError> {
+    pub async fn execute(&self) -> Result<(&str, ()), ApplicationError> {
         self.surreal_health_repo.check().await?;
-        Ok(())
+        Ok(("SurrealDB is healthy", ()))
     }
 }

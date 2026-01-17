@@ -1,12 +1,12 @@
-use async_trait::async_trait;
 use crate::{
     domain::{
         auth::repositories::AuthRepository,
-        user::{entities::User, repositories::UserRepository},
         error::DomainResult,
+        user::{entities::User, repositories::UserRepository},
     },
     infrastructure::persistence::surreal::user_repository::SurrealUserRepository,
 };
+use async_trait::async_trait;
 
 #[derive(Debug, Clone)]
 pub struct SurrealAuthRepository {

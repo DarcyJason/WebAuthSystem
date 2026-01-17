@@ -7,7 +7,7 @@ use axum::response::IntoResponse;
 pub async fn surreal_health_handler() -> AppResult<impl IntoResponse> {
     let surreal_health_repo = SurrealHealthRepository::new();
     let case = SurrealHealthCase::new(surreal_health_repo);
-    let data = case.execute().await?;
-    let response = ApiResponse::<()>::ok(200, "Surreal is Healthy", data);
+    let (message, data) = case.execute().await?;
+    let response = ApiResponse::<()>::ok(200, message, data);
     Ok(response)
 }
