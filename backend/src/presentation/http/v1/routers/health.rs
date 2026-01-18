@@ -1,6 +1,6 @@
-use crate::presentation::http::v1::handlers::health::health_handler;
-use crate::presentation::http::v1::handlers::health::redis_health::redis_health_handler;
-use crate::presentation::http::v1::handlers::health::surreal_health::surreal_health_handler;
+use crate::presentation::http::v1::handlers::health::health::health_handler::health_handler;
+use crate::presentation::http::v1::handlers::health::redis_health::redis_health_handler::redis_health_handler;
+use crate::presentation::http::v1::handlers::health::surreal_health::surreal_health_handler::surreal_health_handler;
 use crate::presentation::http::v1::state::AppState;
 use axum::Router;
 use axum::routing::get;

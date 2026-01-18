@@ -1,4 +1,3 @@
-use crate::domain::user::errors::UserError;
 use crate::domain::user::value_objects::{Email, HashPassword, Username};
 use crate::{
     application::{commands::auth::register::RegisterCommand, errors::ApplicationError},
@@ -21,12 +20,12 @@ where
         RegisterCase { auth_repo }
     }
     pub async fn execute(&self, cmd: RegisterCommand) -> Result<(&str, ()), ApplicationError> {
-        if cmd.password != cmd.confirm_password {
-            return Err(ApplicationError::UserError(UserError::PasswordsNotMatch));
-        }
-        let username = Username::new(cmd.username.clone())?;
-        let email = Email::new(cmd.email.clone())?;
-        let hash_password = HashPassword::new(cmd.confirm_password.clone())?;
+        let username = Username::new(cmd.username.clone())
+            .map_err(|e| ApplicationError::DomainError(e.into()))?;
+        let email =
+            Email::new(cmd.email.clone()).map_err(|e| ApplicationError::DomainError(e.into()))?;
+        let hash_password = HashPassword::new(cmd.confirm_password.clone())
+            .map_err(|e| ApplicationError::DomainError(e.into()))?;
         self.auth_repo
             .register(username, email, hash_password)
             .await?;

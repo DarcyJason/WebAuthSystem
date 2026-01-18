@@ -1,3 +1,4 @@
+use crate::domain::auth::errors::AuthError;
 use argon2::{
     Argon2, PasswordHash, PasswordHasher, PasswordVerifier,
     password_hash::{SaltString, rand_core::OsRng},
@@ -5,24 +6,25 @@ use argon2::{
 use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 
-use crate::domain::user::errors::UserError;
+use crate::domain::{error::DomainError, user::errors::UserError};
+use crate::domain::auth::value_objects::PlainPassword;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Username(String);
 impl Username {
-    pub fn new(username: String) -> Result<Self, UserError> {
+    pub fn new(username: String) -> Result<Self, DomainError> {
         let username = username.trim().to_string();
         if username.is_empty() {
-            return Err(UserError::UsernameIsrequired);
+            return Err(UserError::UsernameIsrequired.into());
         }
         if username.contains("@") {
-            return Err(UserError::UsernameIsInvalid);
+            return Err(UserError::UsernameIsInvalid.into());
         }
         if username.len() < 2 {
-            return Err(UserError::UsernameIsTooShort);
+            return Err(UserError::UsernameIsTooShort.into());
         }
         if username.len() > 20 {
-            return Err(UserError::UsernameIsTooLong);
+            return Err(UserError::UsernameIsTooLong.into());
         }
         Ok(Username(username))
     }
@@ -37,13 +39,13 @@ impl Display for Username {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Email(String);
 impl Email {
-    pub fn new(email: String) -> Result<Self, UserError> {
+    pub fn new(email: String) -> Result<Self, DomainError> {
         let email = email.trim().to_string();
         if email.is_empty() {
-            return Err(UserError::EmailIsRequired);
+            return Err(UserError::EmailIsRequired.into());
         }
         if !email.contains("@") {
-            return Err(UserError::EmailIsInvalid);
+            return Err(UserError::EmailIsInvalid.into());
         }
         Ok(Email(email))
     }
@@ -58,10 +60,10 @@ impl Display for Email {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HashPassword(String);
 impl HashPassword {
-    pub fn new(password: String) -> Result<Self, UserError> {
+    pub fn new(password: String) -> Result<Self, DomainError> {
         let password = password.trim().to_string();
         if password.is_empty() {
-            return Err(UserError::PasswordIsRequired);
+            return Err(UserError::PasswordIsRequired.into());
         }
         let salt = SaltString::generate(&mut OsRng);
         let argon2 = Argon2::default();
@@ -71,14 +73,14 @@ impl HashPassword {
             .to_string();
         Ok(HashPassword(password_hash))
     }
-    pub fn verify_password(hash_password: String, password: String) -> Result<bool, UserError> {
+    pub fn verify_password(&self, password: &PlainPassword) -> Result<(), DomainError> {
         let parsed_hash =
-            PasswordHash::new(&hash_password).map_err(|_| UserError::ParseHashPasswordError)?;
-        let password = password.trim().as_bytes();
-        let result = Argon2::default()
-            .verify_password(password, &parsed_hash)
-            .is_ok();
-        Ok(result)
+            PasswordHash::new(&self.0)
+                .map_err(|_| UserError::ParseHashPasswordError)?;
+        Argon2::default()
+            .verify_password(password.expose().as_bytes(), &parsed_hash)
+            .map_err(|_| AuthError::InvalidCredentials)?;
+        Ok(())
     }
 }
 

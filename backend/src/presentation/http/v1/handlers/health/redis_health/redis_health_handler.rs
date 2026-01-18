@@ -4,7 +4,9 @@ use crate::presentation::http::v1::{errors::ApiResult, response::ApiResponse, st
 use axum::extract::State;
 use axum::response::IntoResponse;
 use std::sync::Arc;
+use tracing::instrument;
 
+#[instrument]
 pub async fn redis_health_handler(
     State(app_state): State<Arc<AppState>>,
 ) -> ApiResult<impl IntoResponse> {

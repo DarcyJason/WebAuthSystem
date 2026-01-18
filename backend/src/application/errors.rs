@@ -1,12 +1,9 @@
 use crate::domain::error::DomainError;
 use crate::domain::health::errors::HealthError;
-use crate::domain::user::errors::UserError;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum ApplicationError {
-    #[error(transparent)]
-    UserError(#[from] UserError),
     #[error(transparent)]
     DomainError(#[from] DomainError),
     #[error(transparent)]

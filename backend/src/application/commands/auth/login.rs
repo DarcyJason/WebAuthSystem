@@ -1,7 +1,9 @@
 use serde::Deserialize;
 
+use crate::domain::auth::value_objects::{LoginIdentity, PlainPassword};
+
 #[derive(Debug, Deserialize)]
 pub struct LoginCommand {
-    pub username_or_email: String,
-    pub password: String,
+    pub identity: LoginIdentity,
+    pub password: PlainPassword,
 }

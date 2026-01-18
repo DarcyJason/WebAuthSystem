@@ -1,3 +1,4 @@
+use crate::domain::auth::value_objects::{LoginIdentity, PlainPassword};
 use crate::domain::error::DomainError;
 use crate::domain::user::value_objects::{Email, HashPassword, Username};
 use crate::{
@@ -43,23 +44,12 @@ impl AuthRepository for SurrealAuthRepository {
 
     async fn login(
         &self,
-        username: Option<Username>,
-        email: Option<Email>,
-        password: String,
-    ) -> DomainResult<User> {
-        let user = if let Some(username) = username {
-            self.user_repo.find_by_username(&username).await?
-        } else if let Some(email) = email {
-            self.user_repo.find_by_email(&email).await?
-        } else {
-            return Err(DomainError::Repository(
-                "Username or email required".to_string(),
-            ));
+        identity: LoginIdentity,
+    ) -> DomainResult<Option<User>> {
+        let user = match identity {
+            LoginIdentity::Username(username) => self.user_repo.find_by_username(&username).await?,
+            LoginIdentity::Email(email) => self.user_repo.find_by_email(&email).await?,
         };
-        let user = user.ok_or_else(|| DomainError::NotFound("User not found".to_string()))?;
-        if !HashPassword::verify_password(user.hash_password().to_string(), password)? {
-            return Err(DomainError::Repository("Invalid credentials".to_string()));
-        }
         Ok(user)
     }
 

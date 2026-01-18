@@ -4,7 +4,7 @@ use thiserror::Error;
 pub enum UserError {
     #[error("username is required")]
     UsernameIsrequired,
-    #[error("username is invalid, can't contain @ symbol")]
+    #[error("username is invalid")]
     UsernameIsInvalid,
     #[error("username is too short")]
     UsernameIsTooShort,
@@ -18,6 +18,18 @@ pub enum UserError {
     PasswordIsRequired,
     #[error("password is invalid")]
     PasswordIsInvalid,
+    #[error("password is too short")]
+    PasswordIsTooshort,
+    #[error("password is too long")]
+    PasswordIsTooLong,
+    #[error("confirm_password is required")]
+    ConfirmPasswordIsRequired,
+    #[error("confirm_password is invalid")]
+    ConfirmPasswordIsInvalid,
+    #[error("confirm_password is too short")]
+    ConfirmPasswordIsTooshort,
+    #[error("confirm_password is too long")]
+    ConfirmPasswordIsTooLong,
     #[error("hash password error")]
     HashPasswordError,
     #[error("parse hash_password error")]

@@ -3,7 +3,9 @@ use crate::infrastructure::persistence::surreal::health_repository::SurrealHealt
 use crate::presentation::http::v1::errors::ApiResult;
 use crate::presentation::http::v1::response::ApiResponse;
 use axum::response::IntoResponse;
+use tracing::instrument;
 
+#[instrument]
 pub async fn surreal_health_handler() -> ApiResult<impl IntoResponse> {
     let surreal_health_repo = SurrealHealthRepository::new();
     let case = SurrealHealthCase::new(surreal_health_repo);
