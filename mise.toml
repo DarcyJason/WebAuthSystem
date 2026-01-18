@@ -1,7 +1,7 @@
 experimental_monorepo_root = true
 
 [env]
-MISE_EXPERIMENTAL = 1
+MISE_EXPERIMENTAL = true
 
 [monorepo]
 config_roots = [
@@ -12,4 +12,4 @@ config_roots = [
 rust = "1.92.0"
 
 [tasks.backend]
-run = "mise run //backend:run"
+run = "mise run -C backend run"
