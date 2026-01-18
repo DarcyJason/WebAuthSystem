@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use surrealdb::RecordId;
 
-use crate::domain::error::DomainResult;
+use crate::domain::error::RepoResult;
 use crate::domain::user::entities::User;
 use crate::domain::user::value_objects::{Email, HashPassword, Username};
 
@@ -12,10 +12,10 @@ pub trait UserRepository: Send + Sync {
         username: Username,
         email: Email,
         hash_password: HashPassword,
-    ) -> DomainResult<Option<User>>;
-    async fn find_by_id(&self, id: &RecordId) -> DomainResult<Option<User>>;
-    async fn find_by_username(&self, username: &Username) -> DomainResult<Option<User>>;
-    async fn find_by_email(&self, email: &Email) -> DomainResult<Option<User>>;
+    ) -> RepoResult<Option<User>>;
+    async fn find_by_id(&self, id: &RecordId) -> RepoResult<Option<User>>;
+    async fn find_by_username(&self, username: &Username) -> RepoResult<Option<User>>;
+    async fn find_by_email(&self, email: &Email) -> RepoResult<Option<User>>;
 }
 
 pub trait UserCache: Send + Sync {}

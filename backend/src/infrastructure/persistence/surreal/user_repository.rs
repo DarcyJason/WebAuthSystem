@@ -1,7 +1,8 @@
+use crate::domain::error::RepoResult;
 use crate::domain::user::entities::User;
 use crate::domain::user::value_objects::{Email, HashPassword, Username};
 use crate::{
-    domain::error::DomainResult, domain::user::repositories::UserRepository,
+    domain::user::repositories::UserRepository,
     infrastructure::persistence::surreal::client::SurrealClient,
 };
 use async_trait::async_trait;
@@ -25,7 +26,7 @@ impl UserRepository for SurrealUserRepository {
         username: Username,
         email: Email,
         hash_password: HashPassword,
-    ) -> DomainResult<Option<User>> {
+    ) -> RepoResult<Option<User>> {
         let sql = r#"
             CREATE user CONTENT {
                 id: rand::uuid::v4(),
@@ -50,7 +51,7 @@ impl UserRepository for SurrealUserRepository {
             .map_err(|e| crate::domain::error::DomainError::Repository(e.to_string()))?;
         Ok(user)
     }
-    async fn find_by_id(&self, id: &RecordId) -> DomainResult<Option<User>> {
+    async fn find_by_id(&self, id: &RecordId) -> RepoResult<Option<User>> {
         let sql = r#"
             SELECT * FROM user WHERE id = type::thing($id);
         "#;
@@ -66,7 +67,7 @@ impl UserRepository for SurrealUserRepository {
             .map_err(|e| crate::domain::error::DomainError::Repository(e.to_string()))?;
         Ok(user)
     }
-    async fn find_by_username(&self, username: &Username) -> DomainResult<Option<User>> {
+    async fn find_by_username(&self, username: &Username) -> RepoResult<Option<User>> {
         let sql = r#"
             SELECT * FROM user WHERE username = $username;
         "#;
@@ -82,7 +83,7 @@ impl UserRepository for SurrealUserRepository {
             .map_err(|e| crate::domain::error::DomainError::Repository(e.to_string()))?;
         Ok(user)
     }
-    async fn find_by_email(&self, email: &Email) -> DomainResult<Option<User>> {
+    async fn find_by_email(&self, email: &Email) -> RepoResult<Option<User>> {
         let sql = r#"
             SELECT * FROM user WHERE email = $email;
         "#;

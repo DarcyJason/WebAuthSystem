@@ -2,6 +2,8 @@ use thiserror::Error;
 
 pub type DomainResult<T> = Result<T, DomainError>;
 
+pub type RepoResult<T> = Result<T, DomainError>;
+
 #[derive(Error, Debug)]
 pub enum DomainError {
     #[error("not found: {0}")]

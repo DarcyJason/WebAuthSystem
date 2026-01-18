@@ -1,4 +1,4 @@
-use crate::domain::{auth::errors::AuthError, error::DomainResult};
+use crate::domain::error::DomainResult;
 use argon2::{
     Argon2, PasswordHash, PasswordHasher, PasswordVerifier,
     password_hash::{SaltString, rand_core::OsRng},
@@ -87,12 +87,12 @@ impl HashPassword {
             .to_string();
         Ok(HashPassword(password_hash))
     }
-    pub fn verify_password(&self, password: &PlainPassword) -> Result<(), DomainError> {
+    pub fn verify_password(&self, password: &PlainPassword) -> DomainResult<()> {
         let parsed_hash = PasswordHash::new(&self.0)
             .map_err(|_| DomainError::Validation(UserError::ParseHashPasswordError.to_string()))?;
         Argon2::default()
             .verify_password(password.expose().as_bytes(), &parsed_hash)
-            .map_err(|_| DomainError::Validation(AuthError::InvalidCredentials.to_string()))?;
+            .map_err(|_| DomainError::Validation(UserError::InvalidCredentials.to_string()))?;
         Ok(())
     }
 }

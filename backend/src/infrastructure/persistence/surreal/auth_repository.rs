@@ -1,10 +1,9 @@
 use crate::domain::auth::value_objects::LoginIdentity;
-use crate::domain::error::DomainError;
+use crate::domain::error::{DomainError, RepoResult};
 use crate::domain::user::value_objects::{Email, HashPassword, Username};
 use crate::{
     domain::{
         auth::repositories::AuthRepository,
-        error::DomainResult,
         user::{entities::User, repositories::UserRepository},
     },
     infrastructure::persistence::surreal::user_repository::SurrealUserRepository,
@@ -29,7 +28,7 @@ impl AuthRepository for SurrealAuthRepository {
         username: Username,
         email: Email,
         hash_password: HashPassword,
-    ) -> DomainResult<()> {
+    ) -> RepoResult<()> {
         let user = self.user_repo.find_by_username(&username).await?;
         if user.is_some() {
             return Err(DomainError::Repository("User already exists".to_string()));
@@ -42,7 +41,7 @@ impl AuthRepository for SurrealAuthRepository {
         Ok(())
     }
 
-    async fn login(&self, identity: LoginIdentity) -> DomainResult<Option<User>> {
+    async fn login(&self, identity: LoginIdentity) -> RepoResult<Option<User>> {
         let user = match identity {
             LoginIdentity::Username(username) => self.user_repo.find_by_username(&username).await?,
             LoginIdentity::Email(email) => self.user_repo.find_by_email(&email).await?,
@@ -50,15 +49,15 @@ impl AuthRepository for SurrealAuthRepository {
         Ok(user)
     }
 
-    async fn logout(&self, _user_id: &str) -> DomainResult<()> {
+    async fn logout(&self, _user_id: &str) -> RepoResult<()> {
         todo!("Implement logout logic")
     }
 
-    async fn forget_password(&self, _email: &str) -> DomainResult<()> {
+    async fn forget_password(&self, _email: &str) -> RepoResult<()> {
         todo!("Implement forget password logic")
     }
 
-    async fn reset_password(&self, _token: &str, _new_password: &str) -> DomainResult<()> {
+    async fn reset_password(&self, _token: &str, _new_password: &str) -> RepoResult<()> {
         todo!("Implement reset password logic")
     }
 }

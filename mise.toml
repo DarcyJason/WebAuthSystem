@@ -1,7 +1,12 @@
 experimental_monorepo_root = true
 
 [env]
-MISE_EXPERIMENTAL = true
+MISE_EXPERIMENTAL = 1
+
+[monorepo]
+config_roots = [
+    "backend",
+]
 
 [tools]
 rust = "1.92.0"

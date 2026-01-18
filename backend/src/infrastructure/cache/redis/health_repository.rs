@@ -1,7 +1,10 @@
 use async_trait::async_trait;
 
 use crate::{
-    domain::health::{errors::HealthError, repositories::HealthRepository},
+    domain::{
+        error::{DomainError, RepoResult},
+        health::{errors::HealthError, repositories::HealthRepository},
+    },
     infrastructure::cache::redis::client::RedisClient,
 };
 
@@ -18,14 +21,17 @@ impl RedisHealthRepository {
 
 #[async_trait]
 impl HealthRepository for RedisHealthRepository {
-    async fn check(&self) -> Result<(), HealthError> {
+    async fn check(&self) -> RepoResult<()> {
         let result: String = redis::cmd("PING")
             .query_async(&mut self.redis.client.clone())
-            .await?;
+            .await
+            .map_err(|e| DomainError::Validation(e.to_string()))?;
         if result == "PONG" {
             Ok(())
         } else {
-            Err(HealthError::RedisIsUnhealthy)
+            Err(DomainError::Validation(
+                HealthError::RedisIsUnhealthy.to_string(),
+            ))
         }
     }
 }

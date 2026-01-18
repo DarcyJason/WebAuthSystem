@@ -1,3 +1,4 @@
+use crate::domain::error::{DomainError, RepoResult};
 use crate::domain::health::errors::HealthError;
 use crate::domain::health::repositories::HealthRepository;
 use async_trait::async_trait;
@@ -19,15 +20,18 @@ impl Default for SurrealHealthRepository {
 
 #[async_trait]
 impl HealthRepository for SurrealHealthRepository {
-    async fn check(&self) -> Result<(), HealthError> {
+    async fn check(&self) -> RepoResult<()> {
         let result = reqwest::Client::new()
             .get("http://localhost:10086/health")
             .send()
-            .await?;
+            .await
+            .map_err(|e| DomainError::Validation(e.to_string()))?;
         if result.status().is_success() {
             Ok(())
         } else {
-            Err(HealthError::SurrealDBIsUnhealthy)
+            Err(DomainError::Validation(
+                HealthError::SurrealDBIsUnhealthy.to_string(),
+            ))
         }
     }
 }

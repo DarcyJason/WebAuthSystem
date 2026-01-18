@@ -36,4 +36,6 @@ pub enum UserError {
     ParseHashPasswordError,
     #[error("passwords not match")]
     PasswordsNotMatch,
+    #[error("invalid credentials")]
+    InvalidCredentials,
 }
