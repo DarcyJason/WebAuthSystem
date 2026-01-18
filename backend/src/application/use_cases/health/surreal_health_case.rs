@@ -19,7 +19,10 @@ where
         }
     }
     pub async fn execute(&self) -> Result<(&str, ()), ApplicationError> {
-        self.surreal_health_repo.check().await?;
+        self.surreal_health_repo
+            .check()
+            .await
+            .map_err(|_| ApplicationError::Infrastructure)?;
         Ok(("SurrealDB is healthy", ()))
     }
 }

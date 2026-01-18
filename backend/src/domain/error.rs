@@ -1,21 +1,21 @@
 use thiserror::Error;
 
-use crate::domain::{auth::errors::AuthError, user::errors::UserError};
+pub type DomainResult<T> = Result<T, DomainError>;
 
 #[derive(Error, Debug)]
 pub enum DomainError {
-    #[error("Repository error: {0}")]
-    Repository(String),
-    #[error("Entity not found: {0}")]
+    #[error("not found: {0}")]
     NotFound(String),
-    #[error("Validation error: {0}")]
+    #[error("conflict: {0}")]
+    Conflict(String),
+    #[error("validation failed: {0}")]
     Validation(String),
-    #[error("Duplicate entry: {0}")]
-    Duplicate(String),
-    #[error(transparent)]
-    UserError(#[from] UserError),
-    #[error(transparent)]
-    AuthError(#[from] AuthError),
+    #[error("unauthorized")]
+    Unauthorized,
+    #[error("forbidden")]
+    Forbidden,
+    #[error("invariant violated: {0}")]
+    Invariant(String),
+    #[error("repository error: {0}")]
+    Repository(String),
 }
-
-pub type DomainResult<T> = Result<T, DomainError>;

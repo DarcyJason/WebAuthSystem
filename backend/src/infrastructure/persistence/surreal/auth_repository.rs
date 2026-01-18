@@ -1,4 +1,4 @@
-use crate::domain::auth::value_objects::{LoginIdentity, PlainPassword};
+use crate::domain::auth::value_objects::LoginIdentity;
 use crate::domain::error::DomainError;
 use crate::domain::user::value_objects::{Email, HashPassword, Username};
 use crate::{
@@ -42,10 +42,7 @@ impl AuthRepository for SurrealAuthRepository {
         Ok(())
     }
 
-    async fn login(
-        &self,
-        identity: LoginIdentity,
-    ) -> DomainResult<Option<User>> {
+    async fn login(&self, identity: LoginIdentity) -> DomainResult<Option<User>> {
         let user = match identity {
             LoginIdentity::Username(username) => self.user_repo.find_by_username(&username).await?,
             LoginIdentity::Email(email) => self.user_repo.find_by_email(&email).await?,

@@ -2,10 +2,10 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum AuthError {
-    #[error("password too shot")]
-    PasswordTooShort,
-    #[error("password too long")]
-    PasswordTooLong,
+    #[error("password is too short")]
+    PasswordIsTooShort,
+    #[error("password is too long")]
+    PasswordIsTooLong,
     #[error("invalid credentials")]
     InvalidCredentials,
 }

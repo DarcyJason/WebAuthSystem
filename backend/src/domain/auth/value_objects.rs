@@ -2,7 +2,7 @@ use serde::Deserialize;
 
 use crate::domain::{
     auth::errors::AuthError,
-    error::DomainError,
+    error::{DomainError, DomainResult},
     user::value_objects::{Email, Username},
 };
 
@@ -13,7 +13,7 @@ pub enum LoginIdentity {
 }
 
 impl LoginIdentity {
-    pub fn parse(raw: String) -> Result<Self, DomainError> {
+    pub fn parse(raw: String) -> DomainResult<Self> {
         if raw.contains("@") {
             Ok(Self::Email(Email::new(raw)?))
         } else {
@@ -26,13 +26,17 @@ impl LoginIdentity {
 pub struct PlainPassword(String);
 
 impl PlainPassword {
-    pub fn new(raw: String) -> Result<Self, DomainError> {
+    pub fn new(raw: String) -> DomainResult<Self> {
         let raw = raw.trim();
         if raw.len() < 8 {
-            return Err(AuthError::PasswordTooShort.into());
+            return Err(DomainError::Validation(
+                AuthError::PasswordIsTooShort.to_string(),
+            ));
         }
         if raw.len() > 20 {
-            return Err(AuthError::PasswordTooLong.into());
+            return Err(DomainError::Validation(
+                AuthError::PasswordIsTooLong.to_string(),
+            ));
         }
         Ok(Self(raw.to_owned()))
     }
