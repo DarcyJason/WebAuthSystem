@@ -28,6 +28,11 @@ pub struct PlainPassword(String);
 impl PlainPassword {
     pub fn new(raw: String) -> DomainResult<Self> {
         let raw = raw.trim();
+        if raw.is_empty() {
+            return Err(DomainError::Validation(
+                AuthError::PasswordIsRequired.to_string(),
+            ));
+        }
         if raw.len() < 8 {
             return Err(DomainError::Validation(
                 AuthError::PasswordIsTooShort.to_string(),

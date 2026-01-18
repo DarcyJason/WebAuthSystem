@@ -11,7 +11,7 @@ pub trait AuthRepository: Send + Sync {
         username: Username,
         email: Email,
         hash_password: HashPassword,
-    ) -> RepoResult<()>;
+    ) -> RepoResult<Option<User>>;
     async fn login(&self, identity: LoginIdentity) -> RepoResult<Option<User>>;
     async fn logout(&self, user_id: &str) -> RepoResult<()>;
     async fn forget_password(&self, email: &str) -> RepoResult<()>;

@@ -7,8 +7,9 @@ use crate::{
 impl TryFrom<LoginPayload> for LoginCommand {
     type Error = ApplicationError;
     fn try_from(payload: LoginPayload) -> Result<Self, Self::Error> {
-        let identity = LoginIdentity::parse(payload.username_or_email)?;
-        let password = PlainPassword::new(payload.password)?;
-        Ok(LoginCommand { identity, password })
+        Ok(LoginCommand {
+            identity: LoginIdentity::parse(payload.username_or_email)?,
+            password: PlainPassword::new(payload.password)?,
+        })
     }
 }

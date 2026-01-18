@@ -28,7 +28,7 @@ impl AuthRepository for SurrealAuthRepository {
         username: Username,
         email: Email,
         hash_password: HashPassword,
-    ) -> RepoResult<()> {
+    ) -> RepoResult<Option<User>> {
         let user = self.user_repo.find_by_username(&username).await?;
         if user.is_some() {
             return Err(DomainError::Repository("User already exists".to_string()));
@@ -37,8 +37,8 @@ impl AuthRepository for SurrealAuthRepository {
         if user.is_some() {
             return Err(DomainError::Repository("User already exists".to_string()));
         }
-        self.user_repo.save(username, email, hash_password).await?;
-        Ok(())
+        let user = self.user_repo.save(username, email, hash_password).await?;
+        Ok(user)
     }
 
     async fn login(&self, identity: LoginIdentity) -> RepoResult<Option<User>> {

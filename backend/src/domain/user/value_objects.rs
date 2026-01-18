@@ -79,6 +79,16 @@ impl HashPassword {
                 UserError::PasswordIsRequired.to_string(),
             ));
         }
+        if password.len() < 8 {
+            return Err(DomainError::Validation(
+                UserError::PasswordIsTooshort.to_string(),
+            ));
+        }
+        if password.len() > 20 {
+            return Err(DomainError::Validation(
+                UserError::PasswordIsTooLong.to_string(),
+            ));
+        }
         let salt = SaltString::generate(&mut OsRng);
         let argon2 = Argon2::default();
         let password_hash = argon2

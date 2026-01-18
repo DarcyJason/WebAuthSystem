@@ -14,18 +14,20 @@ use crate::{
     },
 };
 use axum::{Json, extract::State, response::IntoResponse};
-use tracing::instrument;
+use tracing::{info, instrument};
 
-#[instrument]
+#[instrument(skip(app_state))]
 pub async fn login_handler(
     State(app_state): State<Arc<AppState>>,
     Json(payload): Json<LoginPayload>,
 ) -> ApiResult<impl IntoResponse> {
+    info!("Start handling login");
     let cmd = LoginCommand::try_from(payload)?;
     let user_repo = SurrealUserRepository::new(app_state.surreal.clone());
     let auth_repo = SurrealAuthRepository::new(user_repo);
     let case = LoginCase::new(auth_repo);
     let (message, data) = case.execute(cmd).await?;
     let response = ApiResponse::<LoginResult>::ok(200, message, data);
+    info!("Finish handling login");
     Ok(response)
 }
