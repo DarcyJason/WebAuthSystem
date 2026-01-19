@@ -42,55 +42,42 @@ impl From<RegisterRequestError> for ApiError {
     fn from(err: RegisterRequestError) -> Self {
         match err {
             RegisterRequestError::UsernameRequired => ApiError::BadRequest {
-                code: 400,
                 message: err.to_string(),
             },
             RegisterRequestError::UsernameTooLong => ApiError::BadRequest {
-                code: 400,
                 message: err.to_string(),
             },
             RegisterRequestError::EmailRequired => ApiError::BadRequest {
-                code: 400,
                 message: err.to_string(),
             },
             RegisterRequestError::PasswordRequired => ApiError::BadRequest {
-                code: 400,
                 message: err.to_string(),
             },
             RegisterRequestError::PasswordTooShort => ApiError::BadRequest {
-                code: 400,
                 message: err.to_string(),
             },
             RegisterRequestError::PasswordTooLong => ApiError::BadRequest {
-                code: 400,
                 message: err.to_string(),
             },
             RegisterRequestError::ConfirmPasswordRequired => ApiError::BadRequest {
-                code: 400,
                 message: err.to_string(),
             },
             RegisterRequestError::ConfirmPasswordTooShort => ApiError::BadRequest {
-                code: 400,
                 message: err.to_string(),
             },
             RegisterRequestError::ConfirmPasswordTooLong => ApiError::BadRequest {
-                code: 400,
                 message: err.to_string(),
             },
             RegisterRequestError::UsernameInvalid => ApiError::BadRequest {
-                code: 400,
                 message: err.to_string(),
             },
             RegisterRequestError::EmailInvalid => ApiError::BadRequest {
-                code: 400,
                 message: err.to_string(),
             },
             RegisterRequestError::PasswordInvalid => ApiError::BadRequest {
-                code: 400,
                 message: err.to_string(),
             },
             RegisterRequestError::PasswordsNotMatched => ApiError::BadRequest {
-                code: 400,
                 message: err.to_string(),
             },
         }

@@ -13,8 +13,8 @@ pub async fn redis_health_handler(
     info!("Start handling redis health");
     let redis_health_repo = RedisHealthRepository::new(app_state.redis.clone());
     let case = RedisHealthCase::new(redis_health_repo);
-    let (message, data) = case.execute().await?;
-    let response = ApiResponse::<()>::ok(200, message, data);
+    let data = case.execute().await?;
+    let response = ApiResponse::<()>::ok(200, "Redis is healthy", data);
     info!("Finish handling redis health");
     Ok(response)
 }

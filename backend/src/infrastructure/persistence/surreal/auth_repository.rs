@@ -1,5 +1,6 @@
+use crate::domain::auth::errors::AuthError;
 use crate::domain::auth::value_objects::login_identity::LoginIdentity;
-use crate::domain::error::{DomainError, RepoResult};
+use crate::domain::error::RepoResult;
 use crate::domain::user::value_objects::email::Email;
 use crate::domain::user::value_objects::hash_password::HashPassword;
 use crate::domain::user::value_objects::useranme::Username;
@@ -33,11 +34,11 @@ impl AuthRepository for SurrealAuthRepository {
     ) -> RepoResult<Option<User>> {
         let user = self.user_repo.find_by_username(&username).await?;
         if user.is_some() {
-            return Err(DomainError::Repository("User already exists".to_string()));
+            return Err(AuthError::UserAlreadyExists.into());
         }
         let user = self.user_repo.find_by_email(&email).await?;
         if user.is_some() {
-            return Err(DomainError::Repository("User already exists".to_string()));
+            return Err(AuthError::UserAlreadyExists.into());
         }
         let user = self.user_repo.save(username, email, hash_password).await?;
         Ok(user)

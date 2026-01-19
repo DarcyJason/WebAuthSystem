@@ -1,4 +1,4 @@
-use crate::domain::error::RepoResult;
+use crate::domain::error::{DomainError, RepoResult};
 use crate::domain::user::entities::User;
 use crate::domain::user::value_objects::email::Email;
 use crate::domain::user::value_objects::hash_password::HashPassword;
@@ -47,10 +47,8 @@ impl UserRepository for SurrealUserRepository {
             .bind(("email", email.to_string()))
             .bind(("hash_password", hash_password.to_string()))
             .await
-            .map_err(|e| crate::domain::error::DomainError::Repository(e.to_string()))?;
-        let user: Option<User> = result
-            .take(0)
-            .map_err(|e| crate::domain::error::DomainError::Repository(e.to_string()))?;
+            .map_err(|_| DomainError::RepositoryError)?;
+        let user: Option<User> = result.take(0).map_err(|_| DomainError::RepositoryError)?;
         Ok(user)
     }
     async fn find_by_id(&self, id: &RecordId) -> RepoResult<Option<User>> {
@@ -63,10 +61,8 @@ impl UserRepository for SurrealUserRepository {
             .query(sql)
             .bind(("id", id.to_string()))
             .await
-            .map_err(|e| crate::domain::error::DomainError::Repository(e.to_string()))?;
-        let user: Option<User> = result
-            .take(0)
-            .map_err(|e| crate::domain::error::DomainError::Repository(e.to_string()))?;
+            .map_err(|_| DomainError::RepositoryError)?;
+        let user: Option<User> = result.take(0).map_err(|_| DomainError::RepositoryError)?;
         Ok(user)
     }
     async fn find_by_username(&self, username: &Username) -> RepoResult<Option<User>> {
@@ -79,10 +75,8 @@ impl UserRepository for SurrealUserRepository {
             .query(sql)
             .bind(("username", username.to_string()))
             .await
-            .map_err(|e| crate::domain::error::DomainError::Repository(e.to_string()))?;
-        let user: Option<User> = result
-            .take(0)
-            .map_err(|e| crate::domain::error::DomainError::Repository(e.to_string()))?;
+            .map_err(|_| DomainError::RepositoryError)?;
+        let user: Option<User> = result.take(0).map_err(|_| DomainError::RepositoryError)?;
         Ok(user)
     }
     async fn find_by_email(&self, email: &Email) -> RepoResult<Option<User>> {
@@ -95,10 +89,8 @@ impl UserRepository for SurrealUserRepository {
             .query(sql)
             .bind(("email", email.to_string()))
             .await
-            .map_err(|e| crate::domain::error::DomainError::Repository(e.to_string()))?;
-        let user: Option<User> = result
-            .take(0)
-            .map_err(|e| crate::domain::error::DomainError::Repository(e.to_string()))?;
+            .map_err(|_| DomainError::RepositoryError)?;
+        let user: Option<User> = result.take(0).map_err(|_| DomainError::RepositoryError)?;
         Ok(user)
     }
 }

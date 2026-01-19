@@ -16,7 +16,6 @@ pub enum HashPasswordError {
 pub struct HashPassword(String);
 impl HashPassword {
     pub fn new(password: String) -> Result<Self, HashPasswordError> {
-        let password = password.trim().to_string();
         let salt = SaltString::generate(&mut OsRng);
         let argon2 = Argon2::default();
         let password_hash = argon2

@@ -3,7 +3,10 @@ use crate::{
         commands::auth::register::RegisterCommand, errors::ApplicationError,
         queries::auth::register::RegisterResult,
     },
-    domain::auth::repositories::AuthRepository,
+    domain::{
+        auth::{errors::AuthError, repositories::AuthRepository},
+        error::DomainError,
+    },
 };
 
 #[derive(Debug, Clone)]
@@ -26,7 +29,12 @@ where
             .auth_repo
             .register(cmd.username, cmd.email, cmd.hash_password)
             .await
-            .map_err(|_| ApplicationError::InfrastructureError)?
+            .map_err(|e| match e {
+                DomainError::AuthError(AuthError::UserAlreadyExists) => {
+                    ApplicationError::UserAlreadyExists
+                }
+                _ => ApplicationError::InfrastructureError,
+            })?
             .ok_or(ApplicationError::InvalidCredentials)?;
         Ok(RegisterResult::from(user))
     }

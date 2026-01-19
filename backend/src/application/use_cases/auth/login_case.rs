@@ -24,12 +24,12 @@ where
             .login(cmd.identity)
             .await
             .map_err(|_| ApplicationError::InfrastructureError)?
-            .ok_or(ApplicationError::InvalidCredentials)?;
-        let matched = !user
+            .ok_or(ApplicationError::UsernotFound)?;
+        let is_matched = !user
             .hash_password()
             .verify_password(cmd.password.expose())
             .map_err(|_| ApplicationError::DomainError)?;
-        if !matched {
+        if is_matched {
             return Err(ApplicationError::InvalidCredentials);
         }
         Ok(LoginResult::from(user))

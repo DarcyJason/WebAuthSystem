@@ -26,27 +26,21 @@ impl From<LoginRequestError> for ApiError {
     fn from(err: LoginRequestError) -> Self {
         match err {
             LoginRequestError::LoginIdentityRequired => ApiError::BadRequest {
-                code: 400,
                 message: err.to_string(),
             },
             LoginRequestError::PasswordRequired => ApiError::BadRequest {
-                code: 400,
                 message: err.to_string(),
             },
             LoginRequestError::PasswordTooShort => ApiError::BadRequest {
-                code: 400,
                 message: err.to_string(),
             },
             LoginRequestError::PasswordTooLong => ApiError::BadRequest {
-                code: 400,
                 message: err.to_string(),
             },
             LoginRequestError::LoginIdentityIsInvalid => ApiError::BadRequest {
-                code: 400,
                 message: err.to_string(),
             },
             LoginRequestError::PasswordIsInvalid => ApiError::BadRequest {
-                code: 400,
                 message: err.to_string(),
             },
         }

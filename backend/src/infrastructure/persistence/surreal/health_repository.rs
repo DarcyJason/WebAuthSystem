@@ -1,5 +1,4 @@
 use crate::domain::error::{DomainError, RepoResult};
-use crate::domain::health::errors::HealthError;
 use crate::domain::health::repositories::HealthRepository;
 use async_trait::async_trait;
 
@@ -25,13 +24,11 @@ impl HealthRepository for SurrealHealthRepository {
             .get("http://localhost:10086/health")
             .send()
             .await
-            .map_err(|e| DomainError::Validation(e.to_string()))?;
+            .map_err(|_| DomainError::RepositoryError)?;
         if result.status().is_success() {
             Ok(())
         } else {
-            Err(DomainError::Validation(
-                HealthError::SurrealDBIsUnhealthy.to_string(),
-            ))
+            Err(DomainError::RepositoryError)
         }
     }
 }

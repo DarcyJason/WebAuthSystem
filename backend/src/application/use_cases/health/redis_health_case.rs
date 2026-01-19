@@ -15,11 +15,11 @@ where
     pub fn new(redis_health_repo: R) -> Self {
         RedisHealthCase { redis_health_repo }
     }
-    pub async fn execute(&self) -> Result<(&str, ()), ApplicationError> {
+    pub async fn execute(&self) -> Result<(), ApplicationError> {
         self.redis_health_repo
             .check()
             .await
             .map_err(|_| ApplicationError::InfrastructureError)?;
-        Ok(("Redis is healthy", ()))
+        Ok(())
     }
 }

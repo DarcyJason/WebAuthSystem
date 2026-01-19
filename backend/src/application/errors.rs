@@ -10,4 +10,8 @@ pub enum ApplicationError {
     InfrastructureError,
     #[error("invalid credentials")]
     InvalidCredentials,
+    #[error("user not found")]
+    UsernotFound,
+    #[error("user already exists")]
+    UserAlreadyExists,
 }

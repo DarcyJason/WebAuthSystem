@@ -10,7 +10,6 @@ pub enum EmailError {
 pub struct Email(String);
 impl Email {
     pub fn new(email: String) -> Result<Self, EmailError> {
-        let email = email.trim().to_string();
         if !email.contains("@") {
             return Err(EmailError::EmailIsInvalid);
         }
