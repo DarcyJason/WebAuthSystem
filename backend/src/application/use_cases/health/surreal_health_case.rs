@@ -22,7 +22,7 @@ where
         self.surreal_health_repo
             .check()
             .await
-            .map_err(|_| ApplicationError::Infrastructure)?;
+            .map_err(|_| ApplicationError::InfrastructureError)?;
         Ok(("SurrealDB is healthy", ()))
     }
 }

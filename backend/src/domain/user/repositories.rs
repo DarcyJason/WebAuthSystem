@@ -3,7 +3,9 @@ use surrealdb::RecordId;
 
 use crate::domain::error::RepoResult;
 use crate::domain::user::entities::User;
-use crate::domain::user::value_objects::{Email, HashPassword, Username};
+use crate::domain::user::value_objects::email::Email;
+use crate::domain::user::value_objects::hash_password::HashPassword;
+use crate::domain::user::value_objects::useranme::Username;
 
 #[async_trait]
 pub trait UserRepository: Send + Sync {

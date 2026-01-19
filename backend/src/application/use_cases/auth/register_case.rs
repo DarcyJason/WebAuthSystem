@@ -21,15 +21,13 @@ where
     pub fn new(auth_repo: R) -> Self {
         RegisterCase { auth_repo }
     }
-    pub async fn execute(
-        &self,
-        cmd: RegisterCommand,
-    ) -> Result<(&str, RegisterResult), ApplicationError> {
+    pub async fn execute(&self, cmd: RegisterCommand) -> Result<RegisterResult, ApplicationError> {
         let user = self
             .auth_repo
             .register(cmd.username, cmd.email, cmd.hash_password)
-            .await?
-            .ok_or(ApplicationError::Infrastructure)?;
-        Ok(("register success", RegisterResult::from(user)))
+            .await
+            .map_err(|_| ApplicationError::InfrastructureError)?
+            .ok_or(ApplicationError::InvalidCredentials)?;
+        Ok(RegisterResult::from(user))
     }
 }

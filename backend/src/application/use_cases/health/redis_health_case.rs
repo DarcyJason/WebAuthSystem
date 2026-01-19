@@ -19,7 +19,7 @@ where
         self.redis_health_repo
             .check()
             .await
-            .map_err(|_| ApplicationError::Infrastructure)?;
+            .map_err(|_| ApplicationError::InfrastructureError)?;
         Ok(("Redis is healthy", ()))
     }
 }

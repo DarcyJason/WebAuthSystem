@@ -6,3 +6,5 @@ use crate::domain::error::RepoResult;
 pub trait HealthRepository: Send + Sync {
     async fn check(&self) -> RepoResult<()>;
 }
+
+pub trait HealthCache: Send + Sync {}

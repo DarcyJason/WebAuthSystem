@@ -26,8 +26,8 @@ pub async fn login_handler(
     let user_repo = SurrealUserRepository::new(app_state.surreal.clone());
     let auth_repo = SurrealAuthRepository::new(user_repo);
     let case = LoginCase::new(auth_repo);
-    let (message, data) = case.execute(cmd).await?;
-    let response = ApiResponse::<LoginResult>::ok(200, message, data);
+    let data = case.execute(cmd).await?;
+    let response = ApiResponse::<LoginResult>::ok(200, "Login success", data);
     info!("Finish handling login");
     Ok(response)
 }

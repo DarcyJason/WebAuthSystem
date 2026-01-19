@@ -1,6 +1,8 @@
-use crate::domain::auth::value_objects::LoginIdentity;
+use crate::domain::auth::value_objects::login_identity::LoginIdentity;
 use crate::domain::error::{DomainError, RepoResult};
-use crate::domain::user::value_objects::{Email, HashPassword, Username};
+use crate::domain::user::value_objects::email::Email;
+use crate::domain::user::value_objects::hash_password::HashPassword;
+use crate::domain::user::value_objects::useranme::Username;
 use crate::{
     domain::{
         auth::repositories::AuthRepository,

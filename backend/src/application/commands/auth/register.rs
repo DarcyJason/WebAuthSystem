@@ -1,6 +1,8 @@
 use serde::Deserialize;
 
-use crate::domain::user::value_objects::{Email, HashPassword, Username};
+use crate::domain::user::value_objects::{
+    email::Email, hash_password::HashPassword, useranme::Username,
+};
 
 #[derive(Debug, Deserialize)]
 pub struct RegisterCommand {

@@ -1,28 +1,35 @@
-use crate::application::errors::ApplicationError;
-use crate::domain::error::DomainError;
-use crate::presentation::http::v1::response::ApiResponse;
+use crate::{application::errors::ApplicationError, presentation::http::v1::response::ApiResponse};
 use axum::response::IntoResponse;
-use tracing::error;
 
-pub type ApiResult<T> = Result<T, ApplicationError>;
+pub type ApiResult<T> = Result<T, ApiError>;
 
-impl IntoResponse for ApplicationError {
+pub enum ApiError {
+    BadRequest { code: u16, message: String },
+    Unauthorized,
+    InternalServerError,
+}
+
+impl IntoResponse for ApiError {
     fn into_response(self) -> axum::response::Response {
-        error!("Application error: {:?}", self);
-        let (code, message) = match self {
-            ApplicationError::DomainError(domain_err) => match domain_err {
-                DomainError::NotFound(msg) => (404, msg),
-                DomainError::Conflict(msg) => (409, msg),
-                DomainError::Validation(msg) => (400, msg),
-                DomainError::Unauthorized => (401, "Unauthorized".to_string()),
-                DomainError::Forbidden => (403, "Forbidden".to_string()),
-                DomainError::Invariant(msg) => (400, msg),
-                DomainError::Repository(msg) => (500, msg),
-            },
-            ApplicationError::Infrastructure => (500, "Infrastructure error".to_string()),
-            ApplicationError::Unauthorized => (401, "Unauthorized".to_string()),
-            ApplicationError::Unexpected => (500, "Unexpected error".to_string()),
-        };
-        ApiResponse::<()>::err(code, message).into_response()
+        match self {
+            ApiError::BadRequest { code, message } => {
+                ApiResponse::<()>::err(code, message).into_response()
+            }
+            ApiError::Unauthorized => {
+                ApiResponse::<()>::err(401, "invalid credentials").into_response()
+            }
+            ApiError::InternalServerError => {
+                ApiResponse::<()>::err(500, "internal server error").into_response()
+            }
+        }
+    }
+}
+
+impl From<ApplicationError> for ApiError {
+    fn from(err: ApplicationError) -> Self {
+        match err {
+            ApplicationError::InvalidCredentials => ApiError::Unauthorized,
+            _ => ApiError::InternalServerError,
+        }
     }
 }

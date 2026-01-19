@@ -2,6 +2,7 @@ use crate::application::commands::auth::login::LoginCommand;
 use crate::application::errors::ApplicationError;
 use crate::application::queries::auth::login::LoginResult;
 use crate::domain::auth::repositories::AuthRepository;
+use crate::domain::user::entities::User;
 
 pub struct LoginCase<R>
 where
@@ -17,16 +18,20 @@ where
     pub fn new(auth_repo: R) -> Self {
         LoginCase { auth_repo }
     }
-    pub async fn execute(
-        &self,
-        cmd: LoginCommand,
-    ) -> Result<(&str, LoginResult), ApplicationError> {
-        let user = self
+    pub async fn execute(&self, cmd: LoginCommand) -> Result<LoginResult, ApplicationError> {
+        let user: User = self
             .auth_repo
             .login(cmd.identity)
-            .await?
-            .ok_or(ApplicationError::Infrastructure)?;
-        user.hash_password().verify_password(&cmd.password)?;
-        Ok(("login success", LoginResult::from(user)))
+            .await
+            .map_err(|_| ApplicationError::InfrastructureError)?
+            .ok_or(ApplicationError::InvalidCredentials)?;
+        let matched = !user
+            .hash_password()
+            .verify_password(cmd.password.expose())
+            .map_err(|_| ApplicationError::DomainError)?;
+        if !matched {
+            return Err(ApplicationError::InvalidCredentials);
+        }
+        Ok(LoginResult::from(user))
     }
 }

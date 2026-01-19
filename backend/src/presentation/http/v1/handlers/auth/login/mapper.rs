@@ -1,15 +1,75 @@
+use thiserror::Error;
+
 use crate::{
-    application::{commands::auth::login::LoginCommand, errors::ApplicationError},
-    domain::auth::value_objects::{LoginIdentity, PlainPassword},
-    presentation::http::v1::handlers::auth::login::payload::LoginPayload,
+    application::commands::auth::login::LoginCommand,
+    domain::auth::value_objects::{login_identity::LoginIdentity, plain_password::PlainPassword},
+    presentation::http::v1::{errors::ApiError, handlers::auth::login::payload::LoginPayload},
 };
 
+#[derive(Debug, Error)]
+pub enum LoginRequestError {
+    #[error("username or email is required")]
+    LoginIdentityRequired,
+    #[error("password is required")]
+    PasswordRequired,
+    #[error("password is too short")]
+    PasswordTooShort,
+    #[error("password is too long")]
+    PasswordTooLong,
+    #[error("username or email is invalid")]
+    LoginIdentityIsInvalid,
+    #[error("password is invalid")]
+    PasswordIsInvalid,
+}
+
+impl From<LoginRequestError> for ApiError {
+    fn from(err: LoginRequestError) -> Self {
+        match err {
+            LoginRequestError::LoginIdentityRequired => ApiError::BadRequest {
+                code: 400,
+                message: err.to_string(),
+            },
+            LoginRequestError::PasswordRequired => ApiError::BadRequest {
+                code: 400,
+                message: err.to_string(),
+            },
+            LoginRequestError::PasswordTooShort => ApiError::BadRequest {
+                code: 400,
+                message: err.to_string(),
+            },
+            LoginRequestError::PasswordTooLong => ApiError::BadRequest {
+                code: 400,
+                message: err.to_string(),
+            },
+            LoginRequestError::LoginIdentityIsInvalid => ApiError::BadRequest {
+                code: 400,
+                message: err.to_string(),
+            },
+            LoginRequestError::PasswordIsInvalid => ApiError::BadRequest {
+                code: 400,
+                message: err.to_string(),
+            },
+        }
+    }
+}
+
 impl TryFrom<LoginPayload> for LoginCommand {
-    type Error = ApplicationError;
+    type Error = LoginRequestError;
     fn try_from(payload: LoginPayload) -> Result<Self, Self::Error> {
+        if payload.username_or_email.is_empty() {
+            return Err(LoginRequestError::LoginIdentityRequired);
+        }
+        if payload.password.is_empty() {
+            return Err(LoginRequestError::PasswordRequired);
+        }
+        if payload.password.len() < 8 {
+            return Err(LoginRequestError::PasswordTooShort);
+        }
         Ok(LoginCommand {
-            identity: LoginIdentity::parse(payload.username_or_email)?,
-            password: PlainPassword::new(payload.password)?,
+            identity: LoginIdentity::parse(payload.username_or_email)
+                .map_err(|_| LoginRequestError::LoginIdentityIsInvalid)?,
+            password: PlainPassword::new(payload.password)
+                .map_err(|_| LoginRequestError::PasswordIsInvalid)?,
         })
     }
 }
