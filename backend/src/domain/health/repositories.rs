@@ -7,4 +7,7 @@ pub trait HealthRepository: Send + Sync {
     async fn check(&self) -> RepoResult<()>;
 }
 
-pub trait HealthCache: Send + Sync {}
+#[async_trait]
+pub trait HealthCache: Send + Sync {
+    async fn check(&self) -> RepoResult<()>;
+}
