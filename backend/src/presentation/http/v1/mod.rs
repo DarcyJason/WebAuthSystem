@@ -5,6 +5,7 @@ pub mod handlers;
 pub mod logger;
 pub mod logo;
 pub mod middlewares;
+pub mod openapi;
 pub mod response;
 pub mod routers;
 pub mod state;

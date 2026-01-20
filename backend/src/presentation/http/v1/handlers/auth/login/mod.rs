@@ -1,3 +1,4 @@
 pub mod login_handler;
 pub mod mapper;
-pub mod payload;
+pub mod request;
+pub mod response;

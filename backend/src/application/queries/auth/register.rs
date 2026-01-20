@@ -1,8 +1,5 @@
-use serde::Serialize;
-
 use crate::domain::user::entities::User;
 
-#[derive(Debug, Serialize)]
 pub struct RegisterResult {
     pub user_id: String,
     pub username: String,

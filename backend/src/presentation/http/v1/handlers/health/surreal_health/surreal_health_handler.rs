@@ -6,6 +6,9 @@ use axum::response::IntoResponse;
 use tracing::{info, instrument};
 
 #[instrument]
+#[utoipa::path(get, path = "/api/v1/health/surreal", responses(
+    (status = 200, description = "SurrealDB is healthy")
+), tag = "Health")]
 pub async fn surreal_health_handler() -> ApiResult<impl IntoResponse> {
     info!("Start handling surreal health");
     let surreal_health_repo = SurrealHealthRepository::new();

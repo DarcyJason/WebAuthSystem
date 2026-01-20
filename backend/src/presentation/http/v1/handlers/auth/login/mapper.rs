@@ -3,7 +3,7 @@ use thiserror::Error;
 use crate::{
     application::commands::auth::login::LoginCommand,
     domain::auth::value_objects::{login_identity::LoginIdentity, plain_password::PlainPassword},
-    presentation::http::v1::{errors::ApiError, handlers::auth::login::payload::LoginPayload},
+    presentation::http::v1::{errors::ApiError, handlers::auth::login::request::LoginRequest},
 };
 
 #[derive(Debug, Error)]
@@ -47,22 +47,22 @@ impl From<LoginRequestError> for ApiError {
     }
 }
 
-impl TryFrom<LoginPayload> for LoginCommand {
+impl TryFrom<LoginRequest> for LoginCommand {
     type Error = LoginRequestError;
-    fn try_from(payload: LoginPayload) -> Result<Self, Self::Error> {
-        if payload.username_or_email.is_empty() {
+    fn try_from(request: LoginRequest) -> Result<Self, Self::Error> {
+        if request.username_or_email.is_empty() {
             return Err(LoginRequestError::LoginIdentityRequired);
         }
-        if payload.password.is_empty() {
+        if request.password.is_empty() {
             return Err(LoginRequestError::PasswordRequired);
         }
-        if payload.password.len() < 8 {
+        if request.password.len() < 8 {
             return Err(LoginRequestError::PasswordTooShort);
         }
         Ok(LoginCommand {
-            identity: LoginIdentity::parse(payload.username_or_email)
+            identity: LoginIdentity::parse(request.username_or_email)
                 .map_err(|_| LoginRequestError::LoginIdentityIsInvalid)?,
-            password: PlainPassword::new(payload.password)
+            password: PlainPassword::new(request.password)
                 .map_err(|_| LoginRequestError::PasswordIsInvalid)?,
         })
     }

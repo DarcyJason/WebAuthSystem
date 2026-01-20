@@ -4,7 +4,7 @@ use crate::{
     application::commands::auth::register::RegisterCommand,
     domain::user::value_objects::{email::Email, hash_password::HashPassword, username::Username},
     presentation::http::v1::{
-        errors::ApiError, handlers::auth::register::payload::RegisterPaylaod,
+        errors::ApiError, handlers::auth::register::request::RegisterRequest,
     },
 };
 
@@ -84,44 +84,44 @@ impl From<RegisterRequestError> for ApiError {
     }
 }
 
-impl TryFrom<RegisterPaylaod> for RegisterCommand {
+impl TryFrom<RegisterRequest> for RegisterCommand {
     type Error = RegisterRequestError;
-    fn try_from(payload: RegisterPaylaod) -> Result<Self, Self::Error> {
-        if payload.username.is_empty() {
+    fn try_from(request: RegisterRequest) -> Result<Self, Self::Error> {
+        if request.username.is_empty() {
             return Err(RegisterRequestError::UsernameRequired);
         }
-        if payload.username.len() > 20 {
+        if request.username.len() > 20 {
             return Err(RegisterRequestError::UsernameTooLong);
         }
-        if payload.email.is_empty() {
+        if request.email.is_empty() {
             return Err(RegisterRequestError::EmailRequired);
         }
-        if payload.password.is_empty() {
+        if request.password.is_empty() {
             return Err(RegisterRequestError::PasswordRequired);
         }
-        if payload.password.len() < 8 {
+        if request.password.len() < 8 {
             return Err(RegisterRequestError::PasswordTooShort);
         }
-        if payload.password.len() > 20 {
+        if request.password.len() > 20 {
             return Err(RegisterRequestError::PasswordTooLong);
         }
-        if payload.confirm_password.is_empty() {
+        if request.confirm_password.is_empty() {
             return Err(RegisterRequestError::ConfirmPasswordRequired);
         }
-        if payload.confirm_password.len() < 8 {
+        if request.confirm_password.len() < 8 {
             return Err(RegisterRequestError::ConfirmPasswordTooShort);
         }
-        if payload.confirm_password.len() > 20 {
+        if request.confirm_password.len() > 20 {
             return Err(RegisterRequestError::ConfirmPasswordTooLong);
         }
-        if payload.password != payload.confirm_password {
+        if request.password != request.confirm_password {
             return Err(RegisterRequestError::PasswordsNotMatched);
         }
         Ok(RegisterCommand {
-            username: Username::new(payload.username)
+            username: Username::new(request.username)
                 .map_err(|_| RegisterRequestError::UsernameInvalid)?,
-            email: Email::new(payload.email).map_err(|_| RegisterRequestError::EmailInvalid)?,
-            hash_password: HashPassword::new(payload.password)
+            email: Email::new(request.email).map_err(|_| RegisterRequestError::EmailInvalid)?,
+            hash_password: HashPassword::new(request.password)
                 .map_err(|_| RegisterRequestError::PasswordInvalid)?,
         })
     }

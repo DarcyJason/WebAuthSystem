@@ -4,7 +4,8 @@ use serde::{Deserialize, Serialize};
 pub struct ServerConfig {
     pub is_development_mode: bool,
     pub frontend_address: String,
-    pub backend_address: String,
+    pub backend_ip: String,
+    pub backend_port: u16,
 }
 
 impl Default for ServerConfig {
@@ -12,7 +13,8 @@ impl Default for ServerConfig {
         ServerConfig {
             is_development_mode: true,
             frontend_address: "http://localhost:5173".to_string(),
-            backend_address: "0.0.0.0:7878".to_string(),
+            backend_ip: "0.0.0.0".to_string(),
+            backend_port: 7878,
         }
     }
 }

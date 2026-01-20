@@ -7,6 +7,9 @@ use std::sync::Arc;
 use tracing::{info, instrument};
 
 #[instrument(skip(app_state))]
+#[utoipa::path(get, path = "/api/v1/health/redis", responses(
+    (status = 200, description = "Redis is healthy")
+), tag = "Health")]
 pub async fn redis_health_handler(
     State(app_state): State<Arc<AppState>>,
 ) -> ApiResult<impl IntoResponse> {

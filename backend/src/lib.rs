@@ -24,7 +24,11 @@ pub async fn run() -> anyhow::Result<()> {
     show_brand_logo();
     let config = Config::new()?;
     let frontend_address = config.server.frontend_address.clone();
-    let backend_address = config.server.backend_address.clone();
+    let backend_address = format!(
+        "{}:{}",
+        config.server.backend_ip.clone(),
+        config.server.backend_port
+    );
     let resend = Resend::new(&config.resend.api_key);
     let surreal = SurrealClient::new(&config.surreal).await?;
     let redis = RedisClient::new(&config.redis).await?;
@@ -33,7 +37,14 @@ pub async fn run() -> anyhow::Result<()> {
         .layer(TraceLayer::new_for_http())
         .layer(cors(frontend_address));
     let listener = TcpListener::bind(backend_address.clone()).await?;
-    info!("Axum server is listening on {}", backend_address);
+    info!(
+        "Axum server is listening on http://localhost:{}",
+        config.server.backend_port
+    );
+    info!(
+        "Swagger UI is at http://localhost:{}/swagger",
+        config.server.backend_port
+    );
     axum::serve(listener, routers)
         .with_graceful_shutdown(async {
             let _ = tokio::signal::ctrl_c()
