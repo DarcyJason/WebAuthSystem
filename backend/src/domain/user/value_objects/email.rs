@@ -3,15 +3,19 @@ use std::fmt::Display;
 use serde::{Deserialize, Serialize};
 
 pub enum EmailError {
-    EmailIsInvalid,
+    EmailRequired,
+    EmailInvalid,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Email(String);
 impl Email {
     pub fn new(email: String) -> Result<Self, EmailError> {
+        if email.is_empty() {
+            return Err(EmailError::EmailRequired);
+        }
         if !email.contains("@") {
-            return Err(EmailError::EmailIsInvalid);
+            return Err(EmailError::EmailInvalid);
         }
         Ok(Email(email))
     }

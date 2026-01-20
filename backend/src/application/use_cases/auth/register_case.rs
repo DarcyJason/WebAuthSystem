@@ -6,6 +6,7 @@ use crate::{
     domain::{
         auth::{errors::AuthError, repositories::AuthRepository},
         error::DomainError,
+        user::value_objects::hash_password::HashPassword,
     },
 };
 
@@ -25,9 +26,11 @@ where
         RegisterCase { auth_repo }
     }
     pub async fn execute(&self, cmd: RegisterCommand) -> Result<RegisterResult, ApplicationError> {
+        let hash_password = HashPassword::new(cmd.password)
+            .map_err(|_| ApplicationError::ParseHashedPasswordError)?;
         let user = self
             .auth_repo
-            .register(cmd.username, cmd.email, cmd.hash_password)
+            .register(cmd.username, cmd.email, hash_password)
             .await
             .map_err(|e| match e {
                 DomainError::AuthError(AuthError::UserAlreadyExists) => {

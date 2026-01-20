@@ -3,7 +3,8 @@ use std::fmt::Display;
 use serde::{Deserialize, Serialize};
 
 pub enum UsernameError {
-    UsernameIsInvalid,
+    UsernameInvalid,
+    UsernameTooLong,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -11,7 +12,10 @@ pub struct Username(String);
 impl Username {
     pub fn new(username: String) -> Result<Self, UsernameError> {
         if username.contains("@") {
-            return Err(UsernameError::UsernameIsInvalid);
+            return Err(UsernameError::UsernameInvalid);
+        }
+        if username.len() > 20 {
+            return Err(UsernameError::UsernameTooLong);
         }
         Ok(Username(username))
     }

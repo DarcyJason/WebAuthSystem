@@ -8,6 +8,7 @@ use crate::domain::user::value_objects::{
 pub enum LoginIdentityError {
     UsernameError(UsernameError),
     EmailError(EmailError),
+    LoginIdentityRequired,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -18,6 +19,9 @@ pub enum LoginIdentity {
 
 impl LoginIdentity {
     pub fn parse(raw: String) -> Result<Self, LoginIdentityError> {
+        if raw.is_empty() {
+            return Err(LoginIdentityError::LoginIdentityRequired);
+        }
         if raw.contains("@") {
             Ok(Self::Email(
                 Email::new(raw).map_err(LoginIdentityError::EmailError)?,

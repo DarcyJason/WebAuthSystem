@@ -14,4 +14,8 @@ pub enum ApplicationError {
     UserNotFound,
     #[error("user already exists")]
     UserAlreadyExists,
+    #[error("hash password error")]
+    HashPasswordError,
+    #[error("parse hashed password error")]
+    ParseHashedPasswordError,
 }

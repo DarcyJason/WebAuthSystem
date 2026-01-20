@@ -27,8 +27,8 @@ where
             .ok_or(ApplicationError::UserNotFound)?;
         let is_matched = !user
             .hash_password()
-            .verify_password(cmd.password.expose())
-            .map_err(|_| ApplicationError::DomainError)?;
+            .verify_password(cmd.password)
+            .map_err(|_| ApplicationError::ParseHashedPasswordError)?;
         if is_matched {
             return Err(ApplicationError::InvalidCredentials);
         }
