@@ -10,7 +10,6 @@ pub enum UsernameError {
 pub struct Username(String);
 impl Username {
     pub fn new(username: String) -> Result<Self, UsernameError> {
-        let username = username.trim().to_string();
         if username.contains("@") {
             return Err(UsernameError::UsernameIsInvalid);
         }

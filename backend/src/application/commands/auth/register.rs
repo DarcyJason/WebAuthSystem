@@ -1,7 +1,7 @@
 use serde::Deserialize;
 
 use crate::domain::user::value_objects::{
-    email::Email, hash_password::HashPassword, useranme::Username,
+    email::Email, hash_password::HashPassword, username::Username,
 };
 
 #[derive(Debug, Deserialize)]

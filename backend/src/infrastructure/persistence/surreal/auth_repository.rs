@@ -3,24 +3,22 @@ use crate::domain::auth::value_objects::login_identity::LoginIdentity;
 use crate::domain::error::RepoResult;
 use crate::domain::user::value_objects::email::Email;
 use crate::domain::user::value_objects::hash_password::HashPassword;
-use crate::domain::user::value_objects::useranme::Username;
-use crate::{
-    domain::{
-        auth::repositories::AuthRepository,
-        user::{entities::User, repositories::UserRepository},
-    },
-    infrastructure::persistence::surreal::user_repository::SurrealUserRepository,
+use crate::domain::user::value_objects::username::Username;
+use crate::domain::{
+    auth::repositories::AuthRepository,
+    user::{entities::User, repositories::UserRepository},
 };
+use crate::infrastructure::persistence::surreal::client::SurrealClient;
 use async_trait::async_trait;
 
 #[derive(Debug, Clone)]
 pub struct SurrealAuthRepository {
-    user_repo: SurrealUserRepository,
+    surreal: SurrealClient,
 }
 
 impl SurrealAuthRepository {
-    pub fn new(user_repo: SurrealUserRepository) -> Self {
-        SurrealAuthRepository { user_repo }
+    pub fn new(surreal: SurrealClient) -> Self {
+        SurrealAuthRepository { surreal }
     }
 }
 
@@ -32,22 +30,28 @@ impl AuthRepository for SurrealAuthRepository {
         email: Email,
         hash_password: HashPassword,
     ) -> RepoResult<Option<User>> {
-        let user = self.user_repo.find_by_username(&username).await?;
+        let user = self
+            .surreal
+            .user_repo()
+            .find_by_username_or_email(&username, &email)
+            .await?;
         if user.is_some() {
             return Err(AuthError::UserAlreadyExists.into());
         }
-        let user = self.user_repo.find_by_email(&email).await?;
-        if user.is_some() {
-            return Err(AuthError::UserAlreadyExists.into());
-        }
-        let user = self.user_repo.save(username, email, hash_password).await?;
+        let user = self
+            .surreal
+            .user_repo()
+            .save(username, email, hash_password)
+            .await?;
         Ok(user)
     }
 
     async fn login(&self, identity: LoginIdentity) -> RepoResult<Option<User>> {
         let user = match identity {
-            LoginIdentity::Username(username) => self.user_repo.find_by_username(&username).await?,
-            LoginIdentity::Email(email) => self.user_repo.find_by_email(&email).await?,
+            LoginIdentity::Username(username) => {
+                self.surreal.user_repo().find_by_username(&username).await?
+            }
+            LoginIdentity::Email(email) => self.surreal.user_repo().find_by_email(&email).await?,
         };
         Ok(user)
     }

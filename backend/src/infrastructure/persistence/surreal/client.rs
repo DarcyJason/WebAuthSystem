@@ -1,4 +1,7 @@
 use crate::infrastructure::config::surreal::SurrealConfig;
+use crate::infrastructure::persistence::surreal::auth_repository::SurrealAuthRepository;
+use crate::infrastructure::persistence::surreal::health_repository::SurrealHealthRepository;
+use crate::infrastructure::persistence::surreal::user_repository::SurrealUserRepository;
 use surrealdb::Surreal;
 use surrealdb::engine::remote::ws::{Client, Ws};
 use surrealdb::opt::auth::Root;
@@ -22,5 +25,14 @@ impl SurrealClient {
             .use_db(&config.database)
             .await?;
         Ok(SurrealClient { client })
+    }
+    pub fn health_repo() -> SurrealHealthRepository {
+        SurrealHealthRepository::new()
+    }
+    pub fn user_repo(&self) -> SurrealUserRepository {
+        SurrealUserRepository::new(self.clone())
+    }
+    pub fn auth_repo(&self) -> SurrealAuthRepository {
+        SurrealAuthRepository::new(self.clone())
     }
 }

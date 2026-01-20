@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use surrealdb::RecordId;
 
 use crate::domain::user::value_objects::{
-    email::Email, hash_password::HashPassword, useranme::Username,
+    email::Email, hash_password::HashPassword, username::Username,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

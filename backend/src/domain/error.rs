@@ -12,16 +12,12 @@ pub enum DomainError {
 
 impl From<UserError> for DomainError {
     fn from(err: UserError) -> Self {
-        match err {
-            _ => DomainError::UserError(err),
-        }
+        DomainError::UserError(err)
     }
 }
 
 impl From<AuthError> for DomainError {
     fn from(err: AuthError) -> Self {
-        match err {
-            _ => DomainError::AuthError(err),
-        }
+        DomainError::AuthError(err)
     }
 }

@@ -10,8 +10,8 @@ pub async fn surreal_health_handler() -> ApiResult<impl IntoResponse> {
     info!("Start handling surreal health");
     let surreal_health_repo = SurrealHealthRepository::new();
     let case = SurrealHealthCase::new(surreal_health_repo);
-    let data = case.execute().await?;
-    let response = ApiResponse::<()>::ok(200, "SurrealDB is healthy", data);
+    case.execute().await?;
+    let response = ApiResponse::<()>::ok(200, "SurrealDB is healthy", ());
     info!("Finish handling surreal health");
     Ok(response)
 }

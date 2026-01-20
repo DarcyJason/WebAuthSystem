@@ -24,7 +24,7 @@ where
             .login(cmd.identity)
             .await
             .map_err(|_| ApplicationError::InfrastructureError)?
-            .ok_or(ApplicationError::UsernotFound)?;
+            .ok_or(ApplicationError::UserNotFound)?;
         let is_matched = !user
             .hash_password()
             .verify_password(cmd.password.expose())

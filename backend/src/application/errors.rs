@@ -11,7 +11,7 @@ pub enum ApplicationError {
     #[error("invalid credentials")]
     InvalidCredentials,
     #[error("user not found")]
-    UsernotFound,
+    UserNotFound,
     #[error("user already exists")]
     UserAlreadyExists,
 }

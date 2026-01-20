@@ -5,7 +5,7 @@ use crate::domain::error::RepoResult;
 use crate::domain::user::entities::User;
 use crate::domain::user::value_objects::email::Email;
 use crate::domain::user::value_objects::hash_password::HashPassword;
-use crate::domain::user::value_objects::useranme::Username;
+use crate::domain::user::value_objects::username::Username;
 
 #[async_trait]
 pub trait UserRepository: Send + Sync {
@@ -18,6 +18,11 @@ pub trait UserRepository: Send + Sync {
     async fn find_by_id(&self, id: &RecordId) -> RepoResult<Option<User>>;
     async fn find_by_username(&self, username: &Username) -> RepoResult<Option<User>>;
     async fn find_by_email(&self, email: &Email) -> RepoResult<Option<User>>;
+    async fn find_by_username_or_email(
+        &self,
+        username: &Username,
+        email: &Email,
+    ) -> RepoResult<Option<User>>;
 }
 
 pub trait UserCache: Send + Sync {}

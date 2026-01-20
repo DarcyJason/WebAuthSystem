@@ -2,7 +2,7 @@ use crate::domain::error::{DomainError, RepoResult};
 use crate::domain::user::entities::User;
 use crate::domain::user::value_objects::email::Email;
 use crate::domain::user::value_objects::hash_password::HashPassword;
-use crate::domain::user::value_objects::useranme::Username;
+use crate::domain::user::value_objects::username::Username;
 use crate::{
     domain::user::repositories::UserRepository,
     infrastructure::persistence::surreal::client::SurrealClient,
@@ -87,6 +87,25 @@ impl UserRepository for SurrealUserRepository {
             .surreal
             .client
             .query(sql)
+            .bind(("email", email.to_string()))
+            .await
+            .map_err(|_| DomainError::RepositoryError)?;
+        let user: Option<User> = result.take(0).map_err(|_| DomainError::RepositoryError)?;
+        Ok(user)
+    }
+    async fn find_by_username_or_email(
+        &self,
+        username: &Username,
+        email: &Email,
+    ) -> RepoResult<Option<User>> {
+        let sql = r#"
+            SELECT * FROM user WHERE username = $username OR email = $email;
+        "#;
+        let mut result = self
+            .surreal
+            .client
+            .query(sql)
+            .bind(("username", username.to_string()))
             .bind(("email", email.to_string()))
             .await
             .map_err(|_| DomainError::RepositoryError)?;

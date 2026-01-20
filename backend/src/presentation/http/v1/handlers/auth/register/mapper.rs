@@ -2,7 +2,7 @@ use thiserror::Error;
 
 use crate::{
     application::commands::auth::register::RegisterCommand,
-    domain::user::value_objects::{email::Email, hash_password::HashPassword, useranme::Username},
+    domain::user::value_objects::{email::Email, hash_password::HashPassword, username::Username},
     presentation::http::v1::{
         errors::ApiError, handlers::auth::register::payload::RegisterPaylaod,
     },

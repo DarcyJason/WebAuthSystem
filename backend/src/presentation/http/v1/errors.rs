@@ -35,7 +35,7 @@ impl From<ApplicationError> for ApiError {
     fn from(err: ApplicationError) -> Self {
         match err {
             ApplicationError::InvalidCredentials => ApiError::Unauthorized,
-            ApplicationError::UsernotFound => ApiError::NotFound {
+            ApplicationError::UserNotFound => ApiError::NotFound {
                 message: err.to_string(),
             },
             ApplicationError::UserAlreadyExists => ApiError::Conflict {

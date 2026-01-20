@@ -5,9 +5,7 @@ use crate::{
         commands::auth::register::RegisterCommand, queries::auth::register::RegisterResult,
         use_cases::auth::register_case::RegisterCase,
     },
-    infrastructure::persistence::surreal::{
-        auth_repository::SurrealAuthRepository, user_repository::SurrealUserRepository,
-    },
+    infrastructure::persistence::surreal::auth_repository::SurrealAuthRepository,
     presentation::http::v1::{
         errors::ApiResult, handlers::auth::register::payload::RegisterPaylaod,
         response::ApiResponse, state::AppState,
@@ -23,8 +21,7 @@ pub async fn register_handler(
 ) -> ApiResult<impl IntoResponse> {
     info!("Start handling register");
     let cmd = RegisterCommand::try_from(payload)?;
-    let user_repo = SurrealUserRepository::new(app_state.surreal.clone());
-    let auth_repo = SurrealAuthRepository::new(user_repo);
+    let auth_repo = SurrealAuthRepository::new(app_state.surreal.clone());
     let case = RegisterCase::new(auth_repo);
     let data = case.execute(cmd).await?;
     let response = ApiResponse::<RegisterResult>::ok(200, "register success", data);

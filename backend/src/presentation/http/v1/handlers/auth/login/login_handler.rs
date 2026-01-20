@@ -5,9 +5,7 @@ use crate::{
         commands::auth::login::LoginCommand, queries::auth::login::LoginResult,
         use_cases::auth::login_case::LoginCase,
     },
-    infrastructure::persistence::surreal::{
-        auth_repository::SurrealAuthRepository, user_repository::SurrealUserRepository,
-    },
+    infrastructure::persistence::surreal::auth_repository::SurrealAuthRepository,
     presentation::http::v1::{
         errors::ApiResult, handlers::auth::login::payload::LoginPayload, response::ApiResponse,
         state::AppState,
@@ -23,8 +21,7 @@ pub async fn login_handler(
 ) -> ApiResult<impl IntoResponse> {
     info!("Start handling login");
     let cmd = LoginCommand::try_from(payload)?;
-    let user_repo = SurrealUserRepository::new(app_state.surreal.clone());
-    let auth_repo = SurrealAuthRepository::new(user_repo);
+    let auth_repo = SurrealAuthRepository::new(app_state.surreal.clone());
     let case = LoginCase::new(auth_repo);
     let data = case.execute(cmd).await?;
     let response = ApiResponse::<LoginResult>::ok(200, "Login success", data);
