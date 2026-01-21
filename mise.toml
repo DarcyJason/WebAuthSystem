@@ -6,10 +6,23 @@ MISE_EXPERIMENTAL = true
 [monorepo]
 config_roots = [
     "backend",
+    "docker",
+    "frontend"
 ]
 
 [tools]
 rust = "1.92.0"
 
 [tasks.backend]
+depends = [
+    "//docker:surrealdb-start",
+    "//docker:redis-start",
+]
 run = "mise run //backend:run"
+depends_post = [
+    "//docker:surrealdb-stop",
+    "//docker:redis-stop",
+]
+
+[tasks.frontend]
+run = "mise run //frontend:run"

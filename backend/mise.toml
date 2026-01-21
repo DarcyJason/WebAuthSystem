@@ -1,13 +1,5 @@
 [tasks.run]
-depends = [
-    "surrealdb-start",
-    "redis-start",
-]
 run = "cargo run"
-depends_post = [
-    "surrealdb-stop",
-    "redis-stop",
-]
 
 [tasks.check]
 run = [
