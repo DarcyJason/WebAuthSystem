@@ -5,6 +5,8 @@ use crate::infrastructure::persistence::surreal::user_repository::SurrealUserRep
 use surrealdb::Surreal;
 use surrealdb::engine::remote::ws::{Client, Ws};
 use surrealdb::opt::auth::Root;
+use surrealdb_migrations::MigrationRunner;
+use tracing::info;
 
 #[derive(Debug, Clone)]
 pub struct SurrealClient {
@@ -24,6 +26,11 @@ impl SurrealClient {
             .use_ns(&config.namespace)
             .use_db(&config.database)
             .await?;
+        MigrationRunner::new(&client)
+            .up()
+            .await
+            .expect("Failed to apply migrations");
+        info!("SurrealDB migrations applied successfully");
         Ok(SurrealClient { client })
     }
     pub fn health_repo() -> SurrealHealthRepository {
