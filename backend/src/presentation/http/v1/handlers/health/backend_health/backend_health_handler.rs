@@ -7,8 +7,8 @@ use tracing::{info, instrument};
     (status = 200, description = "Healthy")
 ), tag = "Health")]
 pub async fn backend_health_handler() -> ApiResult<impl IntoResponse> {
-    info!("Start handling backend health");
+    info!("Start handling backend health successfully");
     let response = ApiResponse::<()>::ok(200, "Healthy", ());
-    info!("Finish handling backend health");
+    info!("Finish handling backend health successfully");
     Ok(response)
 }

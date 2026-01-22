@@ -2,7 +2,7 @@ use serde::Deserialize;
 use utoipa::ToSchema;
 
 #[derive(Debug, Deserialize, ToSchema)]
-pub struct RegisterRequest {
+pub struct RegisterRequestPayload {
     pub username: String,
     pub email: String,
     pub password: String,

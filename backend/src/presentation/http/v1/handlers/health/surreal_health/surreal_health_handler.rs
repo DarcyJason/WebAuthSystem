@@ -10,11 +10,11 @@ use tracing::{info, instrument};
     (status = 200, description = "SurrealDB is healthy")
 ), tag = "Health")]
 pub async fn surreal_health_handler() -> ApiResult<impl IntoResponse> {
-    info!("Start handling surreal health");
+    info!("Start handling surreal health successfully");
     let surreal_health_repo = SurrealHealthRepository::new();
     let case = SurrealHealthCase::new(surreal_health_repo);
     case.execute().await?;
     let response = ApiResponse::<()>::ok(200, "SurrealDB is healthy", ());
-    info!("Finish handling surreal health");
+    info!("Finish handling surreal health successfully");
     Ok(response)
 }

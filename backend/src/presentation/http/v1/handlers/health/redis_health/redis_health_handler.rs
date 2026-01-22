@@ -13,11 +13,11 @@ use tracing::{info, instrument};
 pub async fn redis_health_handler(
     State(app_state): State<Arc<AppState>>,
 ) -> ApiResult<impl IntoResponse> {
-    info!("Start handling redis health");
+    info!("Start handling redis health successfully");
     let redis_health_cache = RedisHealthCache::new(app_state.redis.clone());
     let case = RedisHealthCase::new(redis_health_cache);
     case.execute().await?;
     let response = ApiResponse::<()>::ok(200, "Redis is healthy", ());
-    info!("Finish handling redis health");
+    info!("Finish handling redis health successfully");
     Ok(response)
 }

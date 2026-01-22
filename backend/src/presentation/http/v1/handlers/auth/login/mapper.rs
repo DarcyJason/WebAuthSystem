@@ -1,16 +1,20 @@
 use thiserror::Error;
 
+use crate::application::queries::auth::login::LoginResult;
+use crate::presentation::http::v1::handlers::auth::login::response::LoginResponseData;
 use crate::{
     application::commands::auth::login::LoginCommand,
     domain::auth::value_objects::{
         login_identity::{LoginIdentity, LoginIdentityError},
         plain_password::{PlainPassword, PlainPasswordError},
     },
-    presentation::http::v1::{errors::ApiError, handlers::auth::login::request::LoginRequest},
+    presentation::http::v1::{
+        errors::ApiError, handlers::auth::login::request::LoginRequestPayload,
+    },
 };
 
 #[derive(Debug, Error)]
-pub enum LoginRequestError {
+pub enum LoginRequestPayloadError {
     #[error("username or email is required")]
     LoginIdentityRequired,
     #[error("username or email is invalid")]
@@ -31,8 +35,8 @@ pub enum LoginRequestError {
     PasswordMissingSpecial,
 }
 
-impl From<LoginRequestError> for ApiError {
-    fn from(err: LoginRequestError) -> Self {
+impl From<LoginRequestPayloadError> for ApiError {
+    fn from(err: LoginRequestPayloadError) -> Self {
         match err {
             _ => ApiError::BadRequest {
                 message: err.to_string(),
@@ -41,26 +45,42 @@ impl From<LoginRequestError> for ApiError {
     }
 }
 
-impl TryFrom<LoginRequest> for LoginCommand {
-    type Error = LoginRequestError;
-    fn try_from(request: LoginRequest) -> Result<Self, Self::Error> {
-        let identity = LoginIdentity::parse(request.username_or_email).map_err(|e| match e {
-            LoginIdentityError::LoginIdentityRequired => LoginRequestError::LoginIdentityRequired,
-            _ => LoginRequestError::LoginIdentityInvalid,
+impl TryFrom<LoginRequestPayload> for LoginCommand {
+    type Error = LoginRequestPayloadError;
+    fn try_from(payload: LoginRequestPayload) -> Result<Self, Self::Error> {
+        let identity = LoginIdentity::parse(payload.username_or_email).map_err(|e| match e {
+            LoginIdentityError::LoginIdentityRequired => {
+                LoginRequestPayloadError::LoginIdentityRequired
+            }
+            _ => LoginRequestPayloadError::LoginIdentityInvalid,
         })?;
-        let password = PlainPassword::new(request.password).map_err(|e| match e {
-            PlainPasswordError::PasswordRequired => LoginRequestError::PasswordRequired,
-            PlainPasswordError::PasswordTooShort => LoginRequestError::PasswordTooShort,
-            PlainPasswordError::PasswordTooLong => LoginRequestError::PasswordTooLong,
-            PlainPasswordError::PasswordMissingDigit => LoginRequestError::PasswordMissingDigit,
+        let password = PlainPassword::new(payload.password).map_err(|e| match e {
+            PlainPasswordError::PasswordRequired => LoginRequestPayloadError::PasswordRequired,
+            PlainPasswordError::PasswordTooShort => LoginRequestPayloadError::PasswordTooShort,
+            PlainPasswordError::PasswordTooLong => LoginRequestPayloadError::PasswordTooLong,
+            PlainPasswordError::PasswordMissingDigit => {
+                LoginRequestPayloadError::PasswordMissingDigit
+            }
             PlainPasswordError::PasswordMissingLowerCase => {
-                LoginRequestError::PasswordMissingLowercase
+                LoginRequestPayloadError::PasswordMissingLowercase
             }
             PlainPasswordError::PasswordMissingUpperCase => {
-                LoginRequestError::PasswordMissingUpperCase
+                LoginRequestPayloadError::PasswordMissingUpperCase
             }
-            PlainPasswordError::PasswordMissingSpetial => LoginRequestError::PasswordMissingSpecial,
+            PlainPasswordError::PasswordMissingSpetial => {
+                LoginRequestPayloadError::PasswordMissingSpecial
+            }
         })?;
         Ok(LoginCommand { identity, password })
+    }
+}
+
+impl From<LoginResult> for LoginResponseData {
+    fn from(result: LoginResult) -> Self {
+        LoginResponseData {
+            user_id: result.user_id.to_string(),
+            username: result.username.to_string(),
+            email: result.email.to_string(),
+        }
     }
 }

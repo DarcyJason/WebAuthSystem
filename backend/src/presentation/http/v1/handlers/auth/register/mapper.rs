@@ -1,5 +1,7 @@
 use thiserror::Error;
 
+use crate::application::queries::auth::register::RegisterResult;
+use crate::presentation::http::v1::handlers::auth::register::response::RegisterResponseData;
 use crate::{
     application::commands::auth::register::RegisterCommand,
     domain::{
@@ -10,12 +12,12 @@ use crate::{
         },
     },
     presentation::http::v1::{
-        errors::ApiError, handlers::auth::register::request::RegisterRequest,
+        errors::ApiError, handlers::auth::register::request::RegisterRequestPayload,
     },
 };
 
 #[derive(Debug, Error)]
-pub enum RegisterRequestError {
+pub enum RegisterRequestPayloadError {
     #[error("username is required")]
     UsernameRequired,
     #[error("username is too long")]
@@ -58,8 +60,8 @@ pub enum RegisterRequestError {
     PasswordsNotMatched,
 }
 
-impl From<RegisterRequestError> for ApiError {
-    fn from(err: RegisterRequestError) -> Self {
+impl From<RegisterRequestPayloadError> for ApiError {
+    fn from(err: RegisterRequestPayloadError) -> Self {
         match err {
             _ => ApiError::BadRequest {
                 message: err.to_string(),
@@ -68,61 +70,75 @@ impl From<RegisterRequestError> for ApiError {
     }
 }
 
-impl TryFrom<RegisterRequest> for RegisterCommand {
-    type Error = RegisterRequestError;
-    fn try_from(request: RegisterRequest) -> Result<Self, Self::Error> {
-        let username = Username::new(request.username).map_err(|e| match e {
-            UsernameError::UsernameInvalid => RegisterRequestError::UsernameInvalid,
-            UsernameError::UsernameTooLong => RegisterRequestError::UsernameTooLong,
+impl TryFrom<RegisterRequestPayload> for RegisterCommand {
+    type Error = RegisterRequestPayloadError;
+    fn try_from(payload: RegisterRequestPayload) -> Result<Self, Self::Error> {
+        let username = Username::new(payload.username).map_err(|e| match e {
+            UsernameError::UsernameInvalid => RegisterRequestPayloadError::UsernameInvalid,
+            UsernameError::UsernameTooLong => RegisterRequestPayloadError::UsernameTooLong,
         })?;
-        let email = Email::new(request.email).map_err(|e| match e {
-            EmailError::EmailRequired => RegisterRequestError::EmailRequired,
-            EmailError::EmailInvalid => RegisterRequestError::EmailInvalid,
+        let email = Email::new(payload.email).map_err(|e| match e {
+            EmailError::EmailRequired => RegisterRequestPayloadError::EmailRequired,
+            EmailError::EmailInvalid => RegisterRequestPayloadError::EmailInvalid,
         })?;
-        let password = PlainPassword::new(request.password).map_err(|e| match e {
-            PlainPasswordError::PasswordRequired => RegisterRequestError::PasswordRequired,
-            PlainPasswordError::PasswordTooShort => RegisterRequestError::PasswordTooShort,
-            PlainPasswordError::PasswordTooLong => RegisterRequestError::PasswordTooLong,
-            PlainPasswordError::PasswordMissingDigit => RegisterRequestError::PasswordMissingDigit,
+        let password = PlainPassword::new(payload.password).map_err(|e| match e {
+            PlainPasswordError::PasswordRequired => RegisterRequestPayloadError::PasswordRequired,
+            PlainPasswordError::PasswordTooShort => RegisterRequestPayloadError::PasswordTooShort,
+            PlainPasswordError::PasswordTooLong => RegisterRequestPayloadError::PasswordTooLong,
+            PlainPasswordError::PasswordMissingDigit => {
+                RegisterRequestPayloadError::PasswordMissingDigit
+            }
             PlainPasswordError::PasswordMissingLowerCase => {
-                RegisterRequestError::PasswordMissingLowerCase
+                RegisterRequestPayloadError::PasswordMissingLowerCase
             }
             PlainPasswordError::PasswordMissingUpperCase => {
-                RegisterRequestError::PasswordMissingUpperCase
+                RegisterRequestPayloadError::PasswordMissingUpperCase
             }
             PlainPasswordError::PasswordMissingSpetial => {
-                RegisterRequestError::PassowrdMissingSpecial
+                RegisterRequestPayloadError::PassowrdMissingSpecial
             }
         })?;
         let confirm_password =
-            PlainPassword::new(request.confirm_password).map_err(|e| match e {
+            PlainPassword::new(payload.confirm_password).map_err(|e| match e {
                 PlainPasswordError::PasswordRequired => {
-                    RegisterRequestError::ConfirmPasswordRequired
+                    RegisterRequestPayloadError::ConfirmPasswordRequired
                 }
                 PlainPasswordError::PasswordTooShort => {
-                    RegisterRequestError::ConfirmPasswordTooShort
+                    RegisterRequestPayloadError::ConfirmPasswordTooShort
                 }
-                PlainPasswordError::PasswordTooLong => RegisterRequestError::ConfirmPasswordTooLong,
+                PlainPasswordError::PasswordTooLong => {
+                    RegisterRequestPayloadError::ConfirmPasswordTooLong
+                }
                 PlainPasswordError::PasswordMissingDigit => {
-                    RegisterRequestError::ConfirmPasswordMissingDigit
+                    RegisterRequestPayloadError::ConfirmPasswordMissingDigit
                 }
                 PlainPasswordError::PasswordMissingLowerCase => {
-                    RegisterRequestError::ConfirmPasswordMissingLowerCase
+                    RegisterRequestPayloadError::ConfirmPasswordMissingLowerCase
                 }
                 PlainPasswordError::PasswordMissingUpperCase => {
-                    RegisterRequestError::ConfirmPasswordMissingUpperCase
+                    RegisterRequestPayloadError::ConfirmPasswordMissingUpperCase
                 }
                 PlainPasswordError::PasswordMissingSpetial => {
-                    RegisterRequestError::ConfirmPassowrdMissingSpecial
+                    RegisterRequestPayloadError::ConfirmPassowrdMissingSpecial
                 }
             })?;
         if password != confirm_password {
-            return Err(RegisterRequestError::PasswordsNotMatched);
+            return Err(RegisterRequestPayloadError::PasswordsNotMatched);
         }
         Ok(RegisterCommand {
             username,
             email,
             password,
         })
+    }
+}
+
+impl From<RegisterResult> for RegisterResponseData {
+    fn from(result: RegisterResult) -> Self {
+        RegisterResponseData {
+            user_id: result.user_id.to_string(),
+            username: result.username.to_string(),
+            email: result.email.to_string(),
+        }
     }
 }
