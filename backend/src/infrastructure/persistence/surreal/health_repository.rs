@@ -1,4 +1,4 @@
-use crate::domain::error::{DomainError, RepoResult};
+use crate::domain::errors::{DomainError, RepoResult};
 use crate::domain::health::repositories::HealthRepository;
 use async_trait::async_trait;
 

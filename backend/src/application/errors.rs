@@ -18,4 +18,8 @@ pub enum ApplicationError {
     HashPasswordError,
     #[error("parse hashed password error")]
     ParseHashedPasswordError,
+    #[error("generate access_token error")]
+    GenerateAccessTokenError,
+    #[error("generate refresh_token error")]
+    GenerateRefreshTokenError,
 }

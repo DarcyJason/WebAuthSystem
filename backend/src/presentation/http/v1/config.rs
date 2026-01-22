@@ -1,15 +1,17 @@
+use crate::infrastructure::config::jwt::JwtConfig;
 use crate::infrastructure::config::redis::RedisConfig;
 use crate::infrastructure::config::resend::ResendConfig;
 use crate::infrastructure::config::server::ServerConfig;
 use crate::infrastructure::config::surreal::SurrealConfig;
 use dotenvy::dotenv;
-use figment2::Figment;
 use figment2::providers::{Env, Serialized};
+use figment2::Figment;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct Config {
     pub server: ServerConfig,
+    pub jwt: JwtConfig,
     pub resend: ResendConfig,
     pub surreal: SurrealConfig,
     pub redis: RedisConfig,

@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use crate::infrastructure::token::token_repositoy::TokenRepository;
 use crate::presentation::http::v1::handlers::auth::login::request::LoginRequestPayload;
 use crate::{
     application::{commands::auth::login::LoginCommand, use_cases::auth::login_case::LoginCase},
@@ -9,7 +10,10 @@ use crate::{
         response::ApiResponse, state::AppState,
     },
 };
+use axum::http::header::{AUTHORIZATION, SET_COOKIE};
+use axum::http::HeaderValue;
 use axum::{extract::State, response::IntoResponse, Json};
+use axum_extra::extract::cookie::Cookie;
 use tracing::{info, instrument};
 
 #[instrument(skip(app_state))]
@@ -23,10 +27,26 @@ pub async fn login_handler(
     info!("Start handling login successfully");
     let cmd = LoginCommand::try_from(payload)?;
     let auth_repo = SurrealAuthRepository::new(app_state.surreal.clone());
-    let case = LoginCase::new(auth_repo);
+    let token_repo = TokenRepository::new(&app_state.config.jwt.secret.clone());
+    let case = LoginCase::new(auth_repo, token_repo);
     let login_result = case.execute(cmd).await?;
-    let login_response_data = LoginResponseData::from(login_result);
+    let login_response_data = LoginResponseData::from(login_result.clone());
     let response = ApiResponse::<LoginResponseData>::ok(200, "Login success", login_response_data);
+    let mut response = Json(response).into_response();
+    response.headers_mut().insert(
+        AUTHORIZATION,
+        HeaderValue::from_str(&format!("Bearer {}", login_result.access_token.as_str())).unwrap(),
+    );
+    response.headers_mut().append(
+        SET_COOKIE,
+        HeaderValue::from_str(
+            &Cookie::build(("refresh_token", login_result.refresh_token.as_str()))
+                .http_only(true)
+                .secure(true)
+                .to_string(),
+        )
+        .unwrap(),
+    );
     info!("Finish handling login successfully");
     Ok(response)
 }

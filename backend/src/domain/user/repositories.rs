@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use surrealdb::RecordId;
 
-use crate::domain::error::RepoResult;
+use crate::domain::errors::RepoResult;
 use crate::domain::user::entities::User;
 use crate::domain::user::value_objects::email::Email;
 use crate::domain::user::value_objects::hash_password::HashPassword;

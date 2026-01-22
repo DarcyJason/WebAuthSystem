@@ -1,4 +1,4 @@
-use crate::domain::error::{DomainError, RepoResult};
+use crate::domain::errors::{DomainError, RepoResult};
 use crate::domain::user::entities::User;
 use crate::domain::user::value_objects::email::Email;
 use crate::domain::user::value_objects::hash_password::HashPassword;

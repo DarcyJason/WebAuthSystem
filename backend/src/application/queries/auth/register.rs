@@ -1,8 +1,9 @@
-use surrealdb::RecordId;
 use crate::domain::user::entities::User;
 use crate::domain::user::value_objects::email::Email;
 use crate::domain::user::value_objects::username::Username;
+use surrealdb::RecordId;
 
+#[derive(Debug, Clone)]
 pub struct RegisterResult {
     pub user_id: RecordId,
     pub username: Username,

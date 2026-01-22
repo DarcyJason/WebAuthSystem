@@ -5,7 +5,7 @@ use crate::{
     },
     domain::{
         auth::{errors::AuthError, repositories::AuthRepository},
-        error::DomainError,
+        errors::DomainError,
         user::value_objects::hash_password::HashPassword,
     },
 };

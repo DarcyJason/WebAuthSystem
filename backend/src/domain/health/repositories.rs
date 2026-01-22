@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 
-use crate::domain::error::RepoResult;
+use crate::domain::errors::RepoResult;
 
 #[async_trait]
 pub trait HealthRepository: Send + Sync {

@@ -2,7 +2,7 @@ use async_trait::async_trait;
 
 use crate::{
     domain::{
-        error::{DomainError, RepoResult},
+        errors::{DomainError, RepoResult},
         health::repositories::HealthCache,
     },
     infrastructure::cache::redis::client::RedisClient,
