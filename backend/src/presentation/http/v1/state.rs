@@ -1,20 +1,25 @@
 use crate::infrastructure::cache::redis::client::RedisClient;
 use crate::infrastructure::persistence::surreal::client::SurrealClient;
-use crate::presentation::http::v1::config::Config;
+use crate::presentation::http::v1::config::AppConfig;
 use resend_rs::Resend;
 
 #[derive(Debug, Clone)]
 pub struct AppState {
-    pub config: Config,
+    pub app_config: AppConfig,
     pub resend: Resend,
     pub surreal: SurrealClient,
     pub redis: RedisClient,
 }
 
 impl AppState {
-    pub fn new(config: Config, resend: Resend, surreal: SurrealClient, redis: RedisClient) -> Self {
+    pub fn new(
+        app_config: AppConfig,
+        resend: Resend,
+        surreal: SurrealClient,
+        redis: RedisClient,
+    ) -> Self {
         AppState {
-            config,
+            app_config,
             resend,
             surreal,
             redis,

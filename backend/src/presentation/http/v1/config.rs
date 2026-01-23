@@ -9,7 +9,7 @@ use figment2::Figment;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
-pub struct Config {
+pub struct AppConfig {
     pub server: ServerConfig,
     pub jwt: JwtConfig,
     pub resend: ResendConfig,
@@ -17,11 +17,11 @@ pub struct Config {
     pub redis: RedisConfig,
 }
 
-impl Config {
+impl AppConfig {
     pub fn new() -> Result<Self, Box<figment2::Error>> {
         dotenv().ok();
         Figment::new()
-            .merge(Serialized::defaults(Config::default()))
+            .merge(Serialized::defaults(AppConfig::default()))
             .merge(Env::prefixed(""))
             .extract()
             .map_err(Box::new)

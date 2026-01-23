@@ -12,6 +12,8 @@ config_roots = [
 
 [tools]
 rust = "1.92.0"
+node = "22.21.1"
+pnpm = "10.27.0"
 
 [tasks.backend]
 depends = [
@@ -25,4 +27,7 @@ depends_post = [
 ]
 
 [tasks.frontend]
+depends = [
+    "//frontend:install"
+]
 run = "mise run //frontend:run"

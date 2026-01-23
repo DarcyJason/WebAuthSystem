@@ -20,7 +20,6 @@ redis = { version = "1.0.2", features = ["aio", "tokio-comp"] }
 reqwest = "0.13.1"
 resend-rs = "0.19.0"
 serde = { version = "1.0.228", features = ["derive"] }
-serde_json = "1.0.149"
 surrealdb = { version = "2.4.1" }
 surrealdb-migrations = "2.4.0"
 thiserror = { version = "2.0.17", features = ["std"] }
@@ -31,4 +30,3 @@ tracing-subscriber = { version = "0.3.22", features = ["env-filter", "fmt", "tim
 utoipa = { version = "5.4.0", features = ["axum_extras"] }
 utoipa-swagger-ui = { version = "9.0.2", features = ["axum"] }
 uuid = { version = "1.19.0", features = ["v4"] }
-validator = { version = "0.20.0", features = ["derive"] }

@@ -2,8 +2,6 @@ use crate::domain::{auth::errors::AuthError, user::errors::UserError};
 
 pub type DomainResult<T> = Result<T, DomainError>;
 
-pub type RepoResult<T> = Result<T, DomainError>;
-
 pub enum DomainError {
     UserError(UserError),
     AuthError(AuthError),

@@ -16,7 +16,7 @@ pub fn create_routers(app_state: Arc<AppState>) -> Router {
         .merge(health_routers(app_state.clone()))
         .merge(auth_routers(app_state.clone()));
     let mut all_routers = Router::new().nest("/api/v1", v1_routers);
-    if app_state.config.server.is_development_mode.clone() {
+    if app_state.app_config.server.is_development_mode.clone() {
         all_routers = all_routers
             .merge(SwaggerUi::new("/swagger").url("/api-doc/openapi.json", ApiDoc::openapi()));
     }

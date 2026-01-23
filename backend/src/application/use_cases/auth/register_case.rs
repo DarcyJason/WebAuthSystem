@@ -4,11 +4,12 @@ use crate::{
         queries::auth::register::RegisterResult,
     },
     domain::{
-        auth::{errors::AuthError, repositories::AuthRepository},
-        errors::DomainError,
+        auth::{ repositories::AuthRepository},
         user::value_objects::hash_password::HashPassword,
     },
 };
+use crate::infrastructure::errors::InfrastructureError;
+use crate::infrastructure::persistence::surreal::errors::SurrealDBError;
 
 #[derive(Debug, Clone)]
 pub struct RegisterCase<R>
@@ -33,9 +34,7 @@ where
             .register(cmd.username, cmd.email, hash_password)
             .await
             .map_err(|e| match e {
-                DomainError::AuthError(AuthError::UserAlreadyExists) => {
-                    ApplicationError::UserAlreadyExists
-                }
+                InfrastructureError::SurrealDBError(SurrealDBError::RepositoryError(msg)) if msg == "User already exists" => ApplicationError::UserAlreadyExists,
                 _ => ApplicationError::InfrastructureError,
             })?
             .ok_or(ApplicationError::InvalidCredentials)?;

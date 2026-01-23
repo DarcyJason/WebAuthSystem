@@ -1,10 +1,10 @@
-use crate::domain::auth::errors::AuthError;
 use crate::domain::auth::repositories::AuthTokenRepository;
 use crate::domain::auth::value_objects::access_token::AccessToken;
 use crate::domain::auth::value_objects::refresh_token::RefreshToken;
-use crate::domain::errors::RepoResult;
+use crate::infrastructure::errors::InfraResult;
 use crate::infrastructure::token::claims::AccessClaims;
-use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header};
+use crate::infrastructure::token::errors::TokenError;
+use jsonwebtoken::{DecodingKey, EncodingKey, Header, decode, encode};
 use surrealdb::RecordId;
 use uuid::Uuid;
 
@@ -21,7 +21,7 @@ impl TokenRepository {
 }
 
 impl AuthTokenRepository for TokenRepository {
-    fn generate_access_token(&self, user_id: RecordId) -> RepoResult<AccessToken> {
+    fn generate_access_token(&self, user_id: RecordId) -> InfraResult<AccessToken> {
         let claims = AccessClaims {
             sub: user_id.to_string(),
             exp: 15,
@@ -31,13 +31,13 @@ impl AuthTokenRepository for TokenRepository {
             &claims,
             &EncodingKey::from_secret(&self.secret.as_bytes()),
         )
-        .map_err(|_| AuthError::EncodeJWTError)?;
+        .map_err(|_| TokenError::EncodeJWTError)?;
         Ok(AccessToken::new(token))
     }
-    fn generate_refresh_token(&self) -> RepoResult<RefreshToken> {
+    fn generate_refresh_token(&self) -> InfraResult<RefreshToken> {
         Ok(RefreshToken::new(Uuid::new_v4().to_string()))
     }
-    fn verify_access_token(&self, token: &str) -> RepoResult<bool> {
+    fn verify_access_token(&self, token: &str) -> InfraResult<bool> {
         Ok(decode::<AccessClaims>(
             token,
             &DecodingKey::from_secret(&self.secret.as_bytes()),

@@ -1,8 +1,9 @@
-use crate::domain::errors::{DomainError, RepoResult};
 use crate::domain::user::entities::User;
 use crate::domain::user::value_objects::email::Email;
 use crate::domain::user::value_objects::hash_password::HashPassword;
 use crate::domain::user::value_objects::username::Username;
+use crate::infrastructure::errors::InfraResult;
+use crate::infrastructure::persistence::surreal::errors::SurrealDBError;
 use crate::{
     domain::user::repositories::UserRepository,
     infrastructure::persistence::surreal::client::SurrealClient,
@@ -28,7 +29,7 @@ impl UserRepository for SurrealUserRepository {
         username: Username,
         email: Email,
         hash_password: HashPassword,
-    ) -> RepoResult<Option<User>> {
+    ) -> InfraResult<Option<User>> {
         let sql = r#"
             CREATE user CONTENT {
                 id: rand::uuid::v4(),
@@ -47,11 +48,13 @@ impl UserRepository for SurrealUserRepository {
             .bind(("email", email.to_string()))
             .bind(("hash_password", hash_password.to_string()))
             .await
-            .map_err(|_| DomainError::RepositoryError)?;
-        let user: Option<User> = result.take(0).map_err(|_| DomainError::RepositoryError)?;
+            .map_err(|_| SurrealDBError::ExecuteQueryError)?;
+        let user: Option<User> = result
+            .take(0)
+            .map_err(|_| SurrealDBError::ParseRecordToUserError)?;
         Ok(user)
     }
-    async fn find_by_id(&self, id: &RecordId) -> RepoResult<Option<User>> {
+    async fn find_by_id(&self, id: &RecordId) -> InfraResult<Option<User>> {
         let sql = r#"
             SELECT * FROM user WHERE id = type::thing($id);
         "#;
@@ -61,11 +64,13 @@ impl UserRepository for SurrealUserRepository {
             .query(sql)
             .bind(("id", id.to_string()))
             .await
-            .map_err(|_| DomainError::RepositoryError)?;
-        let user: Option<User> = result.take(0).map_err(|_| DomainError::RepositoryError)?;
+            .map_err(|_| SurrealDBError::ExecuteQueryError)?;
+        let user: Option<User> = result
+            .take(0)
+            .map_err(|_| SurrealDBError::ParseRecordToUserError)?;
         Ok(user)
     }
-    async fn find_by_username(&self, username: &Username) -> RepoResult<Option<User>> {
+    async fn find_by_username(&self, username: &Username) -> InfraResult<Option<User>> {
         let sql = r#"
             SELECT * FROM user WHERE username = $username;
         "#;
@@ -75,11 +80,13 @@ impl UserRepository for SurrealUserRepository {
             .query(sql)
             .bind(("username", username.to_string()))
             .await
-            .map_err(|_| DomainError::RepositoryError)?;
-        let user: Option<User> = result.take(0).map_err(|_| DomainError::RepositoryError)?;
+            .map_err(|_| SurrealDBError::ExecuteQueryError)?;
+        let user: Option<User> = result
+            .take(0)
+            .map_err(|_| SurrealDBError::ParseRecordToUserError)?;
         Ok(user)
     }
-    async fn find_by_email(&self, email: &Email) -> RepoResult<Option<User>> {
+    async fn find_by_email(&self, email: &Email) -> InfraResult<Option<User>> {
         let sql = r#"
             SELECT * FROM user WHERE email = $email;
         "#;
@@ -89,15 +96,17 @@ impl UserRepository for SurrealUserRepository {
             .query(sql)
             .bind(("email", email.to_string()))
             .await
-            .map_err(|_| DomainError::RepositoryError)?;
-        let user: Option<User> = result.take(0).map_err(|_| DomainError::RepositoryError)?;
+            .map_err(|_| SurrealDBError::ExecuteQueryError)?;
+        let user: Option<User> = result
+            .take(0)
+            .map_err(|_| SurrealDBError::ParseRecordToUserError)?;
         Ok(user)
     }
     async fn find_by_username_or_email(
         &self,
         username: &Username,
         email: &Email,
-    ) -> RepoResult<Option<User>> {
+    ) -> InfraResult<Option<User>> {
         let sql = r#"
             SELECT * FROM user WHERE username = $username OR email = $email;
         "#;
@@ -108,8 +117,10 @@ impl UserRepository for SurrealUserRepository {
             .bind(("username", username.to_string()))
             .bind(("email", email.to_string()))
             .await
-            .map_err(|_| DomainError::RepositoryError)?;
-        let user: Option<User> = result.take(0).map_err(|_| DomainError::RepositoryError)?;
+            .map_err(|_| SurrealDBError::ExecuteQueryError)?;
+        let user: Option<User> = result
+            .take(0)
+            .map_err(|_| SurrealDBError::ParseRecordToUserError)?;
         Ok(user)
     }
 }

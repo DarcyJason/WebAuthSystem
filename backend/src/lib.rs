@@ -1,5 +1,5 @@
 use crate::infrastructure::cache::redis::client::RedisClient;
-use crate::presentation::http::v1::config::Config;
+use crate::presentation::http::v1::config::AppConfig;
 use crate::presentation::http::v1::logo::show_brand_logo;
 use crate::presentation::http::v1::middlewares::cors::cors;
 use crate::presentation::http::v1::routers::create_routers;
@@ -22,28 +22,28 @@ pub mod presentation;
 pub async fn run() -> anyhow::Result<()> {
     logger();
     show_brand_logo();
-    let config = Config::new()?;
-    let frontend_address = config.server.frontend_address.clone();
+    let app_config = AppConfig::new()?;
+    let frontend_address = app_config.server.frontend_address.clone();
     let backend_address = format!(
         "{}:{}",
-        config.server.backend_ip.clone(),
-        config.server.backend_port
+        app_config.server.backend_ip.clone(),
+        app_config.server.backend_port
     );
-    let resend = Resend::new(&config.resend.api_key);
-    let surreal = SurrealClient::new(&config.surreal).await?;
-    let redis = RedisClient::new(&config.redis).await?;
-    let app_state = AppState::new(config.clone(), resend, surreal, redis);
+    let resend = Resend::new(&app_config.resend.api_key);
+    let surreal = SurrealClient::new(&app_config.surreal).await?;
+    let redis = RedisClient::new(&app_config.redis).await?;
+    let app_state = AppState::new(app_config.clone(), resend, surreal, redis);
     let routers = create_routers(Arc::new(app_state))
         .layer(TraceLayer::new_for_http())
         .layer(cors(frontend_address));
     let listener = TcpListener::bind(backend_address.clone()).await?;
     info!(
         "Axum server is listening on http://localhost:{}",
-        config.server.backend_port
+        app_config.server.backend_port
     );
     info!(
         "Swagger UI is at http://localhost:{}/swagger",
-        config.server.backend_port
+        app_config.server.backend_port
     );
     axum::serve(listener, routers)
         .with_graceful_shutdown(async {

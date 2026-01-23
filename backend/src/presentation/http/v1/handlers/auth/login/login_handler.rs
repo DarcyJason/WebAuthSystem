@@ -27,7 +27,7 @@ pub async fn login_handler(
     info!("Start handling login successfully");
     let cmd = LoginCommand::try_from(payload)?;
     let auth_repo = SurrealAuthRepository::new(app_state.surreal.clone());
-    let token_repo = TokenRepository::new(&app_state.config.jwt.secret.clone());
+    let token_repo = TokenRepository::new(&app_state.app_config.jwt.secret.clone());
     let case = LoginCase::new(auth_repo, token_repo);
     let login_result = case.execute(cmd).await?;
     let login_response_data = LoginResponseData::from(login_result.clone());
