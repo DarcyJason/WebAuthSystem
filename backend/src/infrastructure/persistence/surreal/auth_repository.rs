@@ -1,15 +1,11 @@
 use crate::domain::auth::value_objects::login_identity::LoginIdentity;
+use crate::domain::user::entities::User;
 use crate::domain::user::value_objects::email::Email;
 use crate::domain::user::value_objects::hash_password::HashPassword;
 use crate::domain::user::value_objects::username::Username;
-use crate::domain::{
-    auth::repositories::AuthRepository,
-    user::{entities::User, repositories::UserRepository},
-};
 use crate::infrastructure::errors::InfraResult;
 use crate::infrastructure::persistence::surreal::client::SurrealClient;
 use crate::infrastructure::persistence::surreal::errors::SurrealDBError;
-use async_trait::async_trait;
 
 #[derive(Debug, Clone)]
 pub struct SurrealAuthRepository {
@@ -20,11 +16,7 @@ impl SurrealAuthRepository {
     pub fn new(surreal: SurrealClient) -> Self {
         SurrealAuthRepository { surreal }
     }
-}
-
-#[async_trait]
-impl AuthRepository for SurrealAuthRepository {
-    async fn register(
+    pub async fn register(
         &self,
         username: Username,
         email: Email,
@@ -36,7 +28,7 @@ impl AuthRepository for SurrealAuthRepository {
             .find_by_username_or_email(&username, &email)
             .await?;
         if user.is_some() {
-            return Err(SurrealDBError::RepositoryError("User already exists".to_string()).into());
+            return Err(SurrealDBError::RepositoryError("user already exists".to_string()).into());
         }
         let user = self
             .surreal
@@ -46,25 +38,28 @@ impl AuthRepository for SurrealAuthRepository {
         Ok(user)
     }
 
-    async fn login(&self, identity: LoginIdentity) -> InfraResult<Option<User>> {
+    pub async fn login(&self, identity: LoginIdentity) -> InfraResult<Option<User>> {
         let user = match identity {
             LoginIdentity::Username(username) => {
                 self.surreal.user_repo().find_by_username(&username).await?
             }
             LoginIdentity::Email(email) => self.surreal.user_repo().find_by_email(&email).await?,
         };
+        if user.is_none() {
+            return Err(SurrealDBError::RepositoryError("user not found".to_string()).into());
+        }
         Ok(user)
     }
 
-    async fn logout(&self, _user_id: &str) -> InfraResult<()> {
+    pub async fn logout(&self, _user_id: &str) -> InfraResult<()> {
         todo!("Implement logout logic")
     }
 
-    async fn forget_password(&self, _email: &str) -> InfraResult<()> {
+    pub async fn forget_password(&self, _email: &str) -> InfraResult<()> {
         todo!("Implement forget password logic")
     }
 
-    async fn reset_password(&self, _token: &str, _new_password: &str) -> InfraResult<()> {
+    pub async fn reset_password(&self, _token: &str, _new_password: &str) -> InfraResult<()> {
         todo!("Implement reset password logic")
     }
 }

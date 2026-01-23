@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use crate::domain::auth::repositories::{AuthTokenRepositoryAdapter, SurrealAuthRepositoryAdapter};
 use crate::infrastructure::token::token_repositoy::TokenRepository;
 use crate::presentation::http::v1::handlers::auth::login::request::LoginRequestPayload;
 use crate::{
@@ -10,9 +11,9 @@ use crate::{
         response::ApiResponse, state::AppState,
     },
 };
-use axum::http::header::{AUTHORIZATION, SET_COOKIE};
 use axum::http::HeaderValue;
-use axum::{extract::State, response::IntoResponse, Json};
+use axum::http::header::{AUTHORIZATION, SET_COOKIE};
+use axum::{Json, extract::State, response::IntoResponse};
 use axum_extra::extract::cookie::Cookie;
 use tracing::{info, instrument};
 
@@ -26,9 +27,11 @@ pub async fn login_handler(
 ) -> ApiResult<impl IntoResponse> {
     info!("Start handling login successfully");
     let cmd = LoginCommand::try_from(payload)?;
-    let auth_repo = SurrealAuthRepository::new(app_state.surreal.clone());
+    let surreal_auth_repo = SurrealAuthRepository::new(app_state.surreal.clone());
+    let surreal_auth_repo_adapter = SurrealAuthRepositoryAdapter::new(surreal_auth_repo);
     let token_repo = TokenRepository::new(&app_state.app_config.jwt.secret.clone());
-    let case = LoginCase::new(auth_repo, token_repo);
+    let auth_token_repo_adapter = AuthTokenRepositoryAdapter::new(Arc::new(token_repo));
+    let case = LoginCase::new(surreal_auth_repo_adapter, auth_token_repo_adapter);
     let login_result = case.execute(cmd).await?;
     let login_response_data = LoginResponseData::from(login_result.clone());
     let response = ApiResponse::<LoginResponseData>::ok(200, "Login success", login_response_data);

@@ -1,15 +1,16 @@
+use crate::application::errors::ApplicationResult;
 use crate::{
     application::{
         commands::auth::register::RegisterCommand, errors::ApplicationError,
         queries::auth::register::RegisterResult,
     },
     domain::{
-        auth::{ repositories::AuthRepository},
+        auth::{errors::AuthError, repositories::AuthRepository},
+        errors::DomainError,
         user::value_objects::hash_password::HashPassword,
     },
 };
-use crate::infrastructure::errors::InfrastructureError;
-use crate::infrastructure::persistence::surreal::errors::SurrealDBError;
+use tracing::error;
 
 #[derive(Debug, Clone)]
 pub struct RegisterCase<R>
@@ -26,7 +27,7 @@ where
     pub fn new(auth_repo: R) -> Self {
         RegisterCase { auth_repo }
     }
-    pub async fn execute(&self, cmd: RegisterCommand) -> Result<RegisterResult, ApplicationError> {
+    pub async fn execute(&self, cmd: RegisterCommand) -> ApplicationResult<RegisterResult> {
         let hash_password = HashPassword::new(cmd.password)
             .map_err(|_| ApplicationError::ParseHashedPasswordError)?;
         let user = self
@@ -34,10 +35,16 @@ where
             .register(cmd.username, cmd.email, hash_password)
             .await
             .map_err(|e| match e {
-                InfrastructureError::SurrealDBError(SurrealDBError::RepositoryError(msg)) if msg == "User already exists" => ApplicationError::UserAlreadyExists,
-                _ => ApplicationError::InfrastructureError,
+                DomainError::AuthError(AuthError::UserAlreadyExists) => {
+                    error!("Handle register failed: user already exists");
+                    ApplicationError::UserAlreadyExists
+                }
+                _ => {
+                    error!("Handle register failed: SurrealDB query error");
+                    ApplicationError::InfrastructureError
+                }
             })?
-            .ok_or(ApplicationError::InvalidCredentials)?;
+            .ok_or(ApplicationError::InfrastructureError)?;
         Ok(RegisterResult::from(user))
     }
 }

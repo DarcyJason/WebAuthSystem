@@ -1,4 +1,3 @@
-use crate::domain::auth::repositories::AuthTokenRepository;
 use crate::domain::auth::value_objects::access_token::AccessToken;
 use crate::domain::auth::value_objects::refresh_token::RefreshToken;
 use crate::infrastructure::errors::InfraResult;
@@ -18,10 +17,7 @@ impl TokenRepository {
             secret: secret.to_string(),
         }
     }
-}
-
-impl AuthTokenRepository for TokenRepository {
-    fn generate_access_token(&self, user_id: RecordId) -> InfraResult<AccessToken> {
+    pub fn generate_access_token(&self, user_id: RecordId) -> InfraResult<AccessToken> {
         let claims = AccessClaims {
             sub: user_id.to_string(),
             exp: 15,
@@ -34,10 +30,10 @@ impl AuthTokenRepository for TokenRepository {
         .map_err(|_| TokenError::EncodeJWTError)?;
         Ok(AccessToken::new(token))
     }
-    fn generate_refresh_token(&self) -> InfraResult<RefreshToken> {
+    pub fn generate_refresh_token(&self) -> InfraResult<RefreshToken> {
         Ok(RefreshToken::new(Uuid::new_v4().to_string()))
     }
-    fn verify_access_token(&self, token: &str) -> InfraResult<bool> {
+    pub fn verify_access_token(&self, token: &str) -> InfraResult<bool> {
         Ok(decode::<AccessClaims>(
             token,
             &DecodingKey::from_secret(&self.secret.as_bytes()),

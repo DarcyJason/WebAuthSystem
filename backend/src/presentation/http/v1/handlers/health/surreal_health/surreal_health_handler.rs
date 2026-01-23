@@ -1,4 +1,5 @@
 use crate::application::use_cases::health::surreal_health_case::SurrealHealthCase;
+use crate::domain::health::repositories::SurrealHealthRepositoryAdapter;
 use crate::infrastructure::persistence::surreal::health_repository::SurrealHealthRepository;
 use crate::presentation::http::v1::errors::ApiResult;
 use crate::presentation::http::v1::response::ApiResponse;
@@ -12,7 +13,8 @@ use tracing::{info, instrument};
 pub async fn surreal_health_handler() -> ApiResult<impl IntoResponse> {
     info!("Start handling surreal health successfully");
     let surreal_health_repo = SurrealHealthRepository::new();
-    let case = SurrealHealthCase::new(surreal_health_repo);
+    let surreal_health_repo_adapter = SurrealHealthRepositoryAdapter::new(surreal_health_repo);
+    let case = SurrealHealthCase::new(surreal_health_repo_adapter);
     case.execute().await?;
     let response = ApiResponse::<()>::ok(200, "SurrealDB is healthy", ());
     info!("Finish handling surreal health successfully");

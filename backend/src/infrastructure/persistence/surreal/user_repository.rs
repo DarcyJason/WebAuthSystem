@@ -3,12 +3,8 @@ use crate::domain::user::value_objects::email::Email;
 use crate::domain::user::value_objects::hash_password::HashPassword;
 use crate::domain::user::value_objects::username::Username;
 use crate::infrastructure::errors::InfraResult;
+use crate::infrastructure::persistence::surreal::client::SurrealClient;
 use crate::infrastructure::persistence::surreal::errors::SurrealDBError;
-use crate::{
-    domain::user::repositories::UserRepository,
-    infrastructure::persistence::surreal::client::SurrealClient,
-};
-use async_trait::async_trait;
 use surrealdb::RecordId;
 
 #[derive(Debug, Clone)]
@@ -20,11 +16,7 @@ impl SurrealUserRepository {
     pub fn new(surreal: SurrealClient) -> Self {
         SurrealUserRepository { surreal }
     }
-}
-
-#[async_trait]
-impl UserRepository for SurrealUserRepository {
-    async fn save(
+    pub async fn save(
         &self,
         username: Username,
         email: Email,
@@ -54,7 +46,7 @@ impl UserRepository for SurrealUserRepository {
             .map_err(|_| SurrealDBError::ParseRecordToUserError)?;
         Ok(user)
     }
-    async fn find_by_id(&self, id: &RecordId) -> InfraResult<Option<User>> {
+    pub async fn find_by_id(&self, id: &RecordId) -> InfraResult<Option<User>> {
         let sql = r#"
             SELECT * FROM user WHERE id = type::thing($id);
         "#;
@@ -70,7 +62,7 @@ impl UserRepository for SurrealUserRepository {
             .map_err(|_| SurrealDBError::ParseRecordToUserError)?;
         Ok(user)
     }
-    async fn find_by_username(&self, username: &Username) -> InfraResult<Option<User>> {
+    pub async fn find_by_username(&self, username: &Username) -> InfraResult<Option<User>> {
         let sql = r#"
             SELECT * FROM user WHERE username = $username;
         "#;
@@ -86,7 +78,7 @@ impl UserRepository for SurrealUserRepository {
             .map_err(|_| SurrealDBError::ParseRecordToUserError)?;
         Ok(user)
     }
-    async fn find_by_email(&self, email: &Email) -> InfraResult<Option<User>> {
+    pub async fn find_by_email(&self, email: &Email) -> InfraResult<Option<User>> {
         let sql = r#"
             SELECT * FROM user WHERE email = $email;
         "#;
@@ -102,7 +94,7 @@ impl UserRepository for SurrealUserRepository {
             .map_err(|_| SurrealDBError::ParseRecordToUserError)?;
         Ok(user)
     }
-    async fn find_by_username_or_email(
+    pub async fn find_by_username_or_email(
         &self,
         username: &Username,
         email: &Email,

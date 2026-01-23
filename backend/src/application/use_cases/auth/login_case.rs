@@ -1,8 +1,10 @@
 use crate::application::commands::auth::login::LoginCommand;
-use crate::application::errors::ApplicationError;
+use crate::application::errors::{ApplicationError, ApplicationResult};
 use crate::application::queries::auth::login::LoginResult;
+use crate::domain::auth::errors::AuthError;
 use crate::domain::auth::repositories::{AuthRepository, AuthTokenRepository};
-use crate::domain::user::entities::User;
+use crate::domain::errors::DomainError;
+use tracing::error;
 
 pub struct LoginCase<R, T>
 where
@@ -24,28 +26,53 @@ where
             token_repo,
         }
     }
-    pub async fn execute(&self, cmd: LoginCommand) -> Result<LoginResult, ApplicationError> {
-        let user: User = self
+    pub async fn execute(&self, cmd: LoginCommand) -> ApplicationResult<LoginResult> {
+        let user = self
             .auth_repo
             .login(cmd.identity)
             .await
-            .map_err(|_| ApplicationError::InfrastructureError)?
-            .ok_or(ApplicationError::UserNotFound)?;
-        let is_matched = user
-            .hash_password()
-            .verify_password(cmd.password)
-            .map_err(|_| ApplicationError::ParseHashedPasswordError)?;
+            .map_err(|e| match e {
+                DomainError::AuthError(AuthError::UserNotFound) => {
+                    error!("Handle login failed: User not found");
+                    ApplicationError::UserNotFound
+                }
+                _ => {
+                    error!("Handle login failed: SurrealDB query error");
+                    ApplicationError::InfrastructureError
+                }
+            })?
+            .ok_or(ApplicationError::InfrastructureError)?;
+        let is_matched =
+            user.hash_password()
+                .verify_password(cmd.password)
+                .map_err(|e| match e {
+                    _ => {
+                        error!("Handle login failed: parse hashed password error");
+                        ApplicationError::ParseHashedPasswordError
+                    }
+                })?;
         if !is_matched {
+            error!("Handle login failed: invalid credentials");
             return Err(ApplicationError::InvalidCredentials);
         }
         let access_token = self
             .token_repo
             .generate_access_token(user.id().to_owned())
-            .map_err(|_| ApplicationError::GenerateAccessTokenError)?;
+            .map_err(|e| match e {
+                _ => {
+                    error!("Handle login failed: generate access token error");
+                    ApplicationError::GenerateAccessTokenError
+                }
+            })?;
         let refresh_token = self
             .token_repo
             .generate_refresh_token()
-            .map_err(|_| ApplicationError::GenerateRefreshTokenError)?;
+            .map_err(|e| match e {
+                _ => {
+                    error!("Handle login failed: generate refresh token error");
+                    ApplicationError::GenerateRefreshTokenError
+                }
+            })?;
         Ok(LoginResult::from(user, access_token, refresh_token))
     }
 }

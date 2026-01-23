@@ -1,6 +1,5 @@
 use crate::{application::errors::ApplicationError, presentation::http::v1::response::ApiResponse};
 use axum::response::IntoResponse;
-use tracing::error;
 
 pub type ApiResult<T> = Result<T, ApiError>;
 
@@ -14,7 +13,6 @@ pub enum ApiError {
 
 impl IntoResponse for ApiError {
     fn into_response(self) -> axum::response::Response {
-        error!("Handle it Failed");
         match self {
             ApiError::BadRequest { message } => {
                 ApiResponse::<()>::err(400, message).into_response()

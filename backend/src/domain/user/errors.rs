@@ -1,3 +1,4 @@
 pub enum UserError {
-    CreateFailed,
+    CreateUserFailed,
+    UserNotFound,
 }

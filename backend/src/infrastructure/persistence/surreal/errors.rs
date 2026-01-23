@@ -1,5 +1,5 @@
 pub enum SurrealDBError {
-    SendRequestError,
+    RequestHealthEndpointError,
     ConnectionError,
     ExecuteQueryError,
     ParseRecordToUserError,

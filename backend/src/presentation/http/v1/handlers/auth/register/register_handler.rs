@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use crate::domain::auth::repositories::SurrealAuthRepositoryAdapter;
 use crate::{
     application::{
         commands::auth::register::RegisterCommand, use_cases::auth::register_case::RegisterCase,
@@ -14,7 +15,7 @@ use crate::{
         state::AppState,
     },
 };
-use axum::{extract::State, response::IntoResponse, Json};
+use axum::{Json, extract::State, response::IntoResponse};
 use tracing::{info, instrument};
 
 #[instrument(skip(app_state))]
@@ -27,8 +28,9 @@ pub async fn register_handler(
 ) -> ApiResult<impl IntoResponse> {
     info!("Start handling register successfully");
     let cmd = RegisterCommand::try_from(payload)?;
-    let auth_repo = SurrealAuthRepository::new(app_state.surreal.clone());
-    let case = RegisterCase::new(auth_repo);
+    let surreal_auth_repo = SurrealAuthRepository::new(app_state.surreal.clone());
+    let surreal_auth_repo_adapter = SurrealAuthRepositoryAdapter::new(surreal_auth_repo);
+    let case = RegisterCase::new(surreal_auth_repo_adapter);
     let register_result = case.execute(cmd).await?;
     let register_response_data = RegisterResponseData::from(register_result);
     let response =

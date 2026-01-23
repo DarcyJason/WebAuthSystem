@@ -1,6 +1,8 @@
 pub enum AuthError {
     InvalidCredentials,
     UserAlreadyExists,
-    EncodeJWTError,
-    DecodeJWTError,
+    UserNotFound,
+    GenerateAccessTokenFailed,
+    GenerateRefreshTokenFailed,
+    VerifyAccessTokenFailed,
 }
