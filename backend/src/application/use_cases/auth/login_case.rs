@@ -7,21 +7,21 @@ use crate::domain::auth::repositories::token::AuthTokenRepository;
 use crate::domain::errors::DomainError;
 use tracing::error;
 
-pub struct LoginCase<R, T>
+pub struct LoginCase<SA, T>
 where
-    R: AuthRepository,
+    SA: AuthRepository,
     T: AuthTokenRepository,
 {
-    auth_repo: R,
+    auth_repo: SA,
     token_repo: T,
 }
 
-impl<R, T> LoginCase<R, T>
+impl<SA, T> LoginCase<SA, T>
 where
-    R: AuthRepository,
+    SA: AuthRepository,
     T: AuthTokenRepository,
 {
-    pub fn new(auth_repo: R, token_repo: T) -> Self {
+    pub fn new(auth_repo: SA, token_repo: T) -> Self {
         LoginCase {
             auth_repo,
             token_repo,
@@ -38,7 +38,10 @@ where
                     ApplicationError::UserNotFound
                 }
                 _ => {
-                    error!("Handle login failed: SurrealDB query error");
+                    error!(
+                        "Handle login failed: SurrealDB query error: {}",
+                        e.to_string()
+                    );
                     ApplicationError::InfrastructureError
                 }
             })?

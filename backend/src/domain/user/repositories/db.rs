@@ -7,7 +7,6 @@ use crate::domain::user::value_objects::username::Username;
 use crate::infrastructure::persistence::surreal::errors::SurrealDBError;
 use crate::infrastructure::persistence::surreal::user_repository::SurrealUserRepository;
 use async_trait::async_trait;
-use surrealdb::RecordId;
 
 #[async_trait]
 pub trait UserRepository: Send + Sync + 'static {
@@ -17,7 +16,7 @@ pub trait UserRepository: Send + Sync + 'static {
         email: Email,
         hash_password: HashPassword,
     ) -> DomainResult<Option<User>>;
-    async fn find_by_id(&self, id: &RecordId) -> DomainResult<Option<User>>;
+    async fn find_by_id(&self, id: &str) -> DomainResult<Option<User>>;
     async fn find_by_username(&self, username: &Username) -> DomainResult<Option<User>>;
     async fn find_by_email(&self, email: &Email) -> DomainResult<Option<User>>;
     async fn find_by_username_or_email(
@@ -55,7 +54,7 @@ impl UserRepository for SurrealUserRepositoryAdapter {
                 _ => DomainError::DBUnavailable,
             })
     }
-    async fn find_by_id(&self, id: &RecordId) -> DomainResult<Option<User>> {
+    async fn find_by_id(&self, id: &str) -> DomainResult<Option<User>> {
         self.inner.find_by_id(id).await.map_err(|e| match e {
             SurrealDBError::ParseRecordToUserError => {
                 DomainError::UserError(UserError::UserNotFound)

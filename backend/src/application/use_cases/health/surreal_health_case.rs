@@ -2,18 +2,18 @@ use crate::application::errors::ApplicationError;
 use crate::domain::health::repositories::db::HealthRepository;
 
 #[derive(Debug, Clone)]
-pub struct SurrealHealthCase<R>
+pub struct SurrealHealthCase<SH>
 where
-    R: HealthRepository,
+    SH: HealthRepository,
 {
-    surreal_health_repo: R,
+    surreal_health_repo: SH,
 }
 
-impl<R> SurrealHealthCase<R>
+impl<SH> SurrealHealthCase<SH>
 where
-    R: HealthRepository,
+    SH: HealthRepository,
 {
-    pub fn new(surreal_health_repo: R) -> Self {
+    pub fn new(surreal_health_repo: SH) -> Self {
         SurrealHealthCase {
             surreal_health_repo,
         }

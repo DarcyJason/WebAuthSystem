@@ -32,12 +32,13 @@ impl TokenRepository {
     pub fn generate_refresh_token(&self) -> Result<RefreshToken, TokenError> {
         Ok(RefreshToken::new(Uuid::new_v4().to_string()))
     }
-    pub fn verify_access_token(&self, token: &str) -> Result<bool, TokenError> {
-        Ok(decode::<AccessClaims>(
+    pub fn decode_access_token(&self, token: &str) -> Result<AccessClaims, TokenError> {
+        let token_data = decode::<AccessClaims>(
             token,
             &DecodingKey::from_secret(self.secret.as_bytes()),
             &Default::default(),
         )
-        .is_ok())
+        .map_err(|_| TokenError::DecodeJWTError)?;
+        Ok(token_data.claims)
     }
 }

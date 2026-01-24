@@ -1,18 +1,18 @@
 use crate::application::errors::ApplicationError;
 use crate::domain::health::repositories::cache::HealthCache;
 
-pub struct RedisHealthCase<R>
+pub struct RedisHealthCase<RC>
 where
-    R: HealthCache,
+    RC: HealthCache,
 {
-    redis_health_cache: R,
+    redis_health_cache: RC,
 }
 
-impl<R> RedisHealthCase<R>
+impl<RC> RedisHealthCase<RC>
 where
-    R: HealthCache,
+    RC: HealthCache,
 {
-    pub fn new(redis_health_cache: R) -> Self {
+    pub fn new(redis_health_cache: RC) -> Self {
         RedisHealthCase { redis_health_cache }
     }
     pub async fn execute(&self) -> Result<(), ApplicationError> {

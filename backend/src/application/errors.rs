@@ -22,4 +22,6 @@ pub enum ApplicationError {
     GenerateAccessTokenError,
     #[error("generate refresh_token error")]
     GenerateRefreshTokenError,
+    #[error("access token is invalid")]
+    AccessTokenInvalid,
 }

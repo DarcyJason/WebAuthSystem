@@ -4,7 +4,6 @@ use crate::domain::user::value_objects::hash_password::HashPassword;
 use crate::domain::user::value_objects::username::Username;
 use crate::infrastructure::persistence::surreal::client::SurrealClient;
 use crate::infrastructure::persistence::surreal::errors::SurrealDBError;
-use surrealdb::RecordId;
 
 #[derive(Debug, Clone)]
 pub struct SurrealUserRepository {
@@ -45,9 +44,9 @@ impl SurrealUserRepository {
             .map_err(|_| SurrealDBError::ParseRecordToUserError)?;
         Ok(user)
     }
-    pub async fn find_by_id(&self, id: &RecordId) -> Result<Option<User>, SurrealDBError> {
+    pub async fn find_by_id(&self, id: &str) -> Result<Option<User>, SurrealDBError> {
         let sql = r#"
-            SELECT * FROM user WHERE id = type::thing($id);
+            SELECT * FROM user WHERE id = type::record($id);
         "#;
         let mut result = self
             .surreal

@@ -13,18 +13,18 @@ use crate::{
 use tracing::error;
 
 #[derive(Debug, Clone)]
-pub struct RegisterCase<R>
+pub struct RegisterCase<SA>
 where
-    R: AuthRepository,
+    SA: AuthRepository,
 {
-    auth_repo: R,
+    auth_repo: SA,
 }
 
-impl<R> RegisterCase<R>
+impl<SA> RegisterCase<SA>
 where
-    R: AuthRepository,
+    SA: AuthRepository,
 {
-    pub fn new(auth_repo: R) -> Self {
+    pub fn new(auth_repo: SA) -> Self {
         RegisterCase { auth_repo }
     }
     pub async fn execute(&self, cmd: RegisterCommand) -> ApplicationResult<RegisterResult> {

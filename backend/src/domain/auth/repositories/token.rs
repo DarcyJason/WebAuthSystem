@@ -2,6 +2,7 @@ use crate::domain::auth::errors::AuthError;
 use crate::domain::auth::value_objects::access_token::AccessToken;
 use crate::domain::auth::value_objects::refresh_token::RefreshToken;
 use crate::domain::errors::{DomainError, DomainResult};
+use crate::infrastructure::token::claims::AccessClaims;
 use crate::infrastructure::token::token_repositoy::TokenRepository;
 use async_trait::async_trait;
 use std::sync::Arc;
@@ -10,7 +11,7 @@ use surrealdb::RecordId;
 pub trait AuthTokenRepository: Send + Sync + 'static {
     fn generate_access_token(&self, user_id: RecordId) -> DomainResult<AccessToken>;
     fn generate_refresh_token(&self) -> DomainResult<RefreshToken>;
-    fn verify_access_token(&self, token: &str) -> DomainResult<bool>;
+    fn decode_access_token(&self, token: &str) -> DomainResult<AccessClaims>;
 }
 
 pub struct AuthTokenRepositoryAdapter {
@@ -35,9 +36,9 @@ impl AuthTokenRepository for AuthTokenRepositoryAdapter {
             .generate_refresh_token()
             .map_err(|_| DomainError::AuthError(AuthError::GenerateRefreshTokenFailed))
     }
-    fn verify_access_token(&self, token: &str) -> DomainResult<bool> {
+    fn decode_access_token(&self, token: &str) -> DomainResult<AccessClaims> {
         self.inner
-            .verify_access_token(token)
+            .decode_access_token(token)
             .map_err(|_| DomainError::AuthError(AuthError::VerifyAccessTokenFailed))
     }
 }

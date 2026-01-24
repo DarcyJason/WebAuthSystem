@@ -1,10 +1,9 @@
-use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
-use surrealdb::RecordId;
-
 use crate::domain::user::value_objects::{
     email::Email, hash_password::HashPassword, username::Username,
 };
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
+use surrealdb::RecordId;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct User {
