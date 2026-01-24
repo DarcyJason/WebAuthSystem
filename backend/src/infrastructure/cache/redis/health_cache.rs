@@ -1,12 +1,4 @@
-use async_trait::async_trait;
-
-use crate::{
-    domain::health::repositories::HealthCache,
-    infrastructure::{
-        cache::redis::{client::RedisClient, errors::RedisError},
-        errors::InfraResult,
-    },
-};
+use crate::infrastructure::cache::redis::{client::RedisClient, errors::RedisError};
 
 #[derive(Debug, Clone)]
 pub struct RedisHealthCache {
@@ -17,11 +9,7 @@ impl RedisHealthCache {
     pub fn new(redis: RedisClient) -> Self {
         RedisHealthCache { redis }
     }
-}
-
-#[async_trait]
-impl HealthCache for RedisHealthCache {
-    async fn check(&self) -> InfraResult<()> {
+    pub async fn check(&self) -> Result<(), RedisError> {
         let result: String = redis::cmd("PING")
             .query_async(&mut self.redis.client.clone())
             .await
@@ -29,7 +17,7 @@ impl HealthCache for RedisHealthCache {
         if result == "PONG" {
             Ok(())
         } else {
-            Err(RedisError::ConnectionError.into())
+            Err(RedisError::ConnectionError)
         }
     }
 }

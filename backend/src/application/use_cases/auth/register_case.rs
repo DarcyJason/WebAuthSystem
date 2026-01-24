@@ -1,12 +1,12 @@
 use crate::application::errors::ApplicationResult;
+use crate::domain::auth::repositories::db::AuthRepository;
 use crate::{
     application::{
         commands::auth::register::RegisterCommand, errors::ApplicationError,
         queries::auth::register::RegisterResult,
     },
     domain::{
-        auth::{errors::AuthError, repositories::AuthRepository},
-        errors::DomainError,
+        auth::errors::AuthError, errors::DomainError,
         user::value_objects::hash_password::HashPassword,
     },
 };

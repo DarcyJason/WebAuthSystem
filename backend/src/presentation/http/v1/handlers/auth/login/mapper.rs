@@ -37,10 +37,8 @@ pub enum LoginRequestPayloadError {
 
 impl From<LoginRequestPayloadError> for ApiError {
     fn from(err: LoginRequestPayloadError) -> Self {
-        match err {
-            _ => ApiError::BadRequest {
-                message: err.to_string(),
-            },
+        ApiError::BadRequest {
+            message: err.to_string(),
         }
     }
 }

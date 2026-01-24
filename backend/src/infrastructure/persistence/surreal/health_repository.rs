@@ -1,4 +1,3 @@
-use crate::infrastructure::errors::InfraResult;
 use crate::infrastructure::persistence::surreal::errors::SurrealDBError;
 
 #[derive(Debug, Clone)]
@@ -8,7 +7,7 @@ impl SurrealHealthRepository {
     pub fn new() -> Self {
         SurrealHealthRepository {}
     }
-    pub async fn check(&self) -> InfraResult<()> {
+    pub async fn check(&self) -> Result<(), SurrealDBError> {
         let result = reqwest::Client::new()
             .get("http://localhost:10086/health")
             .send()
@@ -17,7 +16,7 @@ impl SurrealHealthRepository {
         if result.status().is_success() {
             Ok(())
         } else {
-            Err(SurrealDBError::ConnectionError.into())
+            Err(SurrealDBError::ConnectionError)
         }
     }
 }

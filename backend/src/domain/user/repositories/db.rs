@@ -4,14 +4,13 @@ use crate::domain::user::errors::UserError;
 use crate::domain::user::value_objects::email::Email;
 use crate::domain::user::value_objects::hash_password::HashPassword;
 use crate::domain::user::value_objects::username::Username;
-use crate::infrastructure::errors::InfrastructureError;
 use crate::infrastructure::persistence::surreal::errors::SurrealDBError;
 use crate::infrastructure::persistence::surreal::user_repository::SurrealUserRepository;
 use async_trait::async_trait;
 use surrealdb::RecordId;
 
 #[async_trait]
-pub trait UserRepository: Send + Sync {
+pub trait UserRepository: Send + Sync + 'static {
     async fn save(
         &self,
         username: Username,
@@ -50,7 +49,7 @@ impl UserRepository for SurrealUserRepositoryAdapter {
             .save(username, email, hash_password)
             .await
             .map_err(|e| match e {
-                InfrastructureError::SurrealDBError(SurrealDBError::ParseRecordToUserError) => {
+                SurrealDBError::ParseRecordToUserError => {
                     DomainError::UserError(UserError::CreateUserFailed)
                 }
                 _ => DomainError::DBUnavailable,
@@ -58,7 +57,7 @@ impl UserRepository for SurrealUserRepositoryAdapter {
     }
     async fn find_by_id(&self, id: &RecordId) -> DomainResult<Option<User>> {
         self.inner.find_by_id(id).await.map_err(|e| match e {
-            InfrastructureError::SurrealDBError(SurrealDBError::ParseRecordToUserError) => {
+            SurrealDBError::ParseRecordToUserError => {
                 DomainError::UserError(UserError::UserNotFound)
             }
             _ => DomainError::DBUnavailable,
@@ -69,7 +68,7 @@ impl UserRepository for SurrealUserRepositoryAdapter {
             .find_by_username(username)
             .await
             .map_err(|e| match e {
-                InfrastructureError::SurrealDBError(SurrealDBError::ParseRecordToUserError) => {
+                SurrealDBError::ParseRecordToUserError => {
                     DomainError::UserError(UserError::UserNotFound)
                 }
                 _ => DomainError::DBUnavailable,
@@ -77,7 +76,7 @@ impl UserRepository for SurrealUserRepositoryAdapter {
     }
     async fn find_by_email(&self, email: &Email) -> DomainResult<Option<User>> {
         self.inner.find_by_email(email).await.map_err(|e| match e {
-            InfrastructureError::SurrealDBError(SurrealDBError::ParseRecordToUserError) => {
+            SurrealDBError::ParseRecordToUserError => {
                 DomainError::UserError(UserError::UserNotFound)
             }
             _ => DomainError::DBUnavailable,
@@ -92,12 +91,10 @@ impl UserRepository for SurrealUserRepositoryAdapter {
             .find_by_username_or_email(username, email)
             .await
             .map_err(|e| match e {
-                InfrastructureError::SurrealDBError(SurrealDBError::ParseRecordToUserError) => {
+                SurrealDBError::ParseRecordToUserError => {
                     DomainError::UserError(UserError::UserNotFound)
                 }
                 _ => DomainError::DBUnavailable,
             })
     }
 }
-
-pub trait UserCache: Send + Sync {}

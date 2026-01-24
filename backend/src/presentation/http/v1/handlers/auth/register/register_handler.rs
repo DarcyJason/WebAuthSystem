@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::domain::auth::repositories::SurrealAuthRepositoryAdapter;
+use crate::domain::auth::repositories::db::SurrealAuthRepositoryAdapter;
 use crate::{
     application::{
         commands::auth::register::RegisterCommand, use_cases::auth::register_case::RegisterCase,

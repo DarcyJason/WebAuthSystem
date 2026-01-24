@@ -1,12 +1,11 @@
 use crate::domain::errors::{DomainError, DomainResult};
 use crate::domain::health::errors::HealthError;
-use crate::infrastructure::errors::{InfraResult, InfrastructureError};
 use crate::infrastructure::persistence::surreal::errors::SurrealDBError;
 use crate::infrastructure::persistence::surreal::health_repository::SurrealHealthRepository;
 use async_trait::async_trait;
 
 #[async_trait]
-pub trait HealthRepository: Send + Sync {
+pub trait HealthRepository: Send + Sync + 'static {
     async fn check(&self) -> DomainResult<()>;
 }
 
@@ -24,18 +23,13 @@ impl SurrealHealthRepositoryAdapter {
 impl HealthRepository for SurrealHealthRepositoryAdapter {
     async fn check(&self) -> DomainResult<()> {
         self.inner.check().await.map_err(|e| match e {
-            InfrastructureError::SurrealDBError(SurrealDBError::RequestHealthEndpointError) => {
+            SurrealDBError::RequestHealthEndpointError => {
                 DomainError::HealthError(HealthError::RequestSurrealDBHealthEndpointError)
             }
-            InfrastructureError::SurrealDBError(SurrealDBError::ConnectionError) => {
+            SurrealDBError::ConnectionError => {
                 DomainError::HealthError(HealthError::SurrealDBConnectionError)
             }
             _ => DomainError::DBUnavailable,
         })
     }
-}
-
-#[async_trait]
-pub trait HealthCache: Send + Sync {
-    async fn check(&self) -> InfraResult<()>;
 }

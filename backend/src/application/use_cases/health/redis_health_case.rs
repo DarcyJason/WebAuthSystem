@@ -1,5 +1,5 @@
 use crate::application::errors::ApplicationError;
-use crate::domain::health::repositories::HealthCache;
+use crate::domain::health::repositories::cache::HealthCache;
 
 pub struct RedisHealthCase<R>
 where

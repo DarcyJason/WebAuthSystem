@@ -3,7 +3,6 @@ use crate::domain::user::entities::User;
 use crate::domain::user::value_objects::email::Email;
 use crate::domain::user::value_objects::hash_password::HashPassword;
 use crate::domain::user::value_objects::username::Username;
-use crate::infrastructure::errors::InfraResult;
 use crate::infrastructure::persistence::surreal::client::SurrealClient;
 use crate::infrastructure::persistence::surreal::errors::SurrealDBError;
 
@@ -21,14 +20,16 @@ impl SurrealAuthRepository {
         username: Username,
         email: Email,
         hash_password: HashPassword,
-    ) -> InfraResult<Option<User>> {
+    ) -> Result<Option<User>, SurrealDBError> {
         let user = self
             .surreal
             .user_repo()
             .find_by_username_or_email(&username, &email)
             .await?;
         if user.is_some() {
-            return Err(SurrealDBError::RepositoryError("user already exists".to_string()).into());
+            return Err(SurrealDBError::RepositoryError(
+                "user already exists".to_string(),
+            ));
         }
         let user = self
             .surreal
@@ -38,7 +39,7 @@ impl SurrealAuthRepository {
         Ok(user)
     }
 
-    pub async fn login(&self, identity: LoginIdentity) -> InfraResult<Option<User>> {
+    pub async fn login(&self, identity: LoginIdentity) -> Result<Option<User>, SurrealDBError> {
         let user = match identity {
             LoginIdentity::Username(username) => {
                 self.surreal.user_repo().find_by_username(&username).await?
@@ -46,20 +47,26 @@ impl SurrealAuthRepository {
             LoginIdentity::Email(email) => self.surreal.user_repo().find_by_email(&email).await?,
         };
         if user.is_none() {
-            return Err(SurrealDBError::RepositoryError("user not found".to_string()).into());
+            return Err(SurrealDBError::RepositoryError(
+                "user not found".to_string(),
+            ));
         }
         Ok(user)
     }
 
-    pub async fn logout(&self, _user_id: &str) -> InfraResult<()> {
+    pub async fn logout(&self, _user_id: &str) -> Result<(), SurrealDBError> {
         todo!("Implement logout logic")
     }
 
-    pub async fn forget_password(&self, _email: &str) -> InfraResult<()> {
+    pub async fn forget_password(&self, _email: &str) -> Result<(), SurrealDBError> {
         todo!("Implement forget password logic")
     }
 
-    pub async fn reset_password(&self, _token: &str, _new_password: &str) -> InfraResult<()> {
+    pub async fn reset_password(
+        &self,
+        _token: &str,
+        _new_password: &str,
+    ) -> Result<(), SurrealDBError> {
         todo!("Implement reset password logic")
     }
 }

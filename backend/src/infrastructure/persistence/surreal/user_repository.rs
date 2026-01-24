@@ -2,7 +2,6 @@ use crate::domain::user::entities::User;
 use crate::domain::user::value_objects::email::Email;
 use crate::domain::user::value_objects::hash_password::HashPassword;
 use crate::domain::user::value_objects::username::Username;
-use crate::infrastructure::errors::InfraResult;
 use crate::infrastructure::persistence::surreal::client::SurrealClient;
 use crate::infrastructure::persistence::surreal::errors::SurrealDBError;
 use surrealdb::RecordId;
@@ -21,7 +20,7 @@ impl SurrealUserRepository {
         username: Username,
         email: Email,
         hash_password: HashPassword,
-    ) -> InfraResult<Option<User>> {
+    ) -> Result<Option<User>, SurrealDBError> {
         let sql = r#"
             CREATE user CONTENT {
                 id: rand::uuid::v4(),
@@ -46,7 +45,7 @@ impl SurrealUserRepository {
             .map_err(|_| SurrealDBError::ParseRecordToUserError)?;
         Ok(user)
     }
-    pub async fn find_by_id(&self, id: &RecordId) -> InfraResult<Option<User>> {
+    pub async fn find_by_id(&self, id: &RecordId) -> Result<Option<User>, SurrealDBError> {
         let sql = r#"
             SELECT * FROM user WHERE id = type::thing($id);
         "#;
@@ -62,7 +61,10 @@ impl SurrealUserRepository {
             .map_err(|_| SurrealDBError::ParseRecordToUserError)?;
         Ok(user)
     }
-    pub async fn find_by_username(&self, username: &Username) -> InfraResult<Option<User>> {
+    pub async fn find_by_username(
+        &self,
+        username: &Username,
+    ) -> Result<Option<User>, SurrealDBError> {
         let sql = r#"
             SELECT * FROM user WHERE username = $username;
         "#;
@@ -78,7 +80,7 @@ impl SurrealUserRepository {
             .map_err(|_| SurrealDBError::ParseRecordToUserError)?;
         Ok(user)
     }
-    pub async fn find_by_email(&self, email: &Email) -> InfraResult<Option<User>> {
+    pub async fn find_by_email(&self, email: &Email) -> Result<Option<User>, SurrealDBError> {
         let sql = r#"
             SELECT * FROM user WHERE email = $email;
         "#;
@@ -98,7 +100,7 @@ impl SurrealUserRepository {
         &self,
         username: &Username,
         email: &Email,
-    ) -> InfraResult<Option<User>> {
+    ) -> Result<Option<User>, SurrealDBError> {
         let sql = r#"
             SELECT * FROM user WHERE username = $username OR email = $email;
         "#;

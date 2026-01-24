@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
-use crate::domain::auth::repositories::{AuthTokenRepositoryAdapter, SurrealAuthRepositoryAdapter};
+use crate::domain::auth::repositories::db::SurrealAuthRepositoryAdapter;
+use crate::domain::auth::repositories::token::AuthTokenRepositoryAdapter;
 use crate::infrastructure::token::token_repositoy::TokenRepository;
 use crate::presentation::http::v1::handlers::auth::login::request::LoginRequestPayload;
 use crate::{

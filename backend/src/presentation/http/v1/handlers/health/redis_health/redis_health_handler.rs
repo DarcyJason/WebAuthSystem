@@ -1,4 +1,5 @@
 use crate::application::use_cases::health::redis_health_case::RedisHealthCase;
+use crate::domain::health::repositories::cache::RedisHealthCacheAdapter;
 use crate::infrastructure::cache::redis::health_cache::RedisHealthCache;
 use crate::presentation::http::v1::{errors::ApiResult, response::ApiResponse, state::AppState};
 use axum::extract::State;
@@ -15,7 +16,8 @@ pub async fn redis_health_handler(
 ) -> ApiResult<impl IntoResponse> {
     info!("Start handling redis health successfully");
     let redis_health_cache = RedisHealthCache::new(app_state.redis.clone());
-    let case = RedisHealthCase::new(redis_health_cache);
+    let redis_health_cache_adapter = RedisHealthCacheAdapter::new(redis_health_cache);
+    let case = RedisHealthCase::new(redis_health_cache_adapter);
     case.execute().await?;
     let response = ApiResponse::<()>::ok(200, "Redis is healthy", ());
     info!("Finish handling redis health successfully");

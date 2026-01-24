@@ -1,5 +1,5 @@
 use crate::application::use_cases::health::surreal_health_case::SurrealHealthCase;
-use crate::domain::health::repositories::SurrealHealthRepositoryAdapter;
+use crate::domain::health::repositories::db::SurrealHealthRepositoryAdapter;
 use crate::infrastructure::persistence::surreal::health_repository::SurrealHealthRepository;
 use crate::presentation::http::v1::errors::ApiResult;
 use crate::presentation::http::v1::response::ApiResponse;

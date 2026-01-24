@@ -1,5 +1,5 @@
 use crate::application::errors::ApplicationError;
-use crate::domain::health::repositories::HealthRepository;
+use crate::domain::health::repositories::db::HealthRepository;
 
 #[derive(Debug, Clone)]
 pub struct SurrealHealthCase<R>

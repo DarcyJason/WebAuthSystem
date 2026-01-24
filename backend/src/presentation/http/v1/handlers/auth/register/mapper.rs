@@ -62,10 +62,8 @@ pub enum RegisterRequestPayloadError {
 
 impl From<RegisterRequestPayloadError> for ApiError {
     fn from(err: RegisterRequestPayloadError) -> Self {
-        match err {
-            _ => ApiError::BadRequest {
-                message: err.to_string(),
-            },
+        ApiError::BadRequest {
+            message: err.to_string(),
         }
     }
 }
