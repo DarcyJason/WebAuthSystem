@@ -4,6 +4,7 @@ use crate::infrastructure::token::claims::AccessClaims;
 use crate::infrastructure::token::errors::TokenError;
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, decode, encode};
 use surrealdb::RecordId;
+use tracing::error;
 use uuid::Uuid;
 
 pub struct TokenRepository {
@@ -26,7 +27,10 @@ impl TokenRepository {
             &claims,
             &EncodingKey::from_secret(self.secret.as_bytes()),
         )
-        .map_err(|_| TokenError::EncodeJWTError)?;
+        .map_err(|e| {
+            error!("encode access_token error: {:?}", e);
+            TokenError::EncodeJWTError
+        })?;
         Ok(AccessToken::new(token))
     }
     pub fn generate_refresh_token(&self) -> Result<RefreshToken, TokenError> {
@@ -38,7 +42,10 @@ impl TokenRepository {
             &DecodingKey::from_secret(self.secret.as_bytes()),
             &Default::default(),
         )
-        .map_err(|_| TokenError::DecodeJWTError)?;
+        .map_err(|e| {
+            error!("decode access_token error: {:?}", e);
+            TokenError::DecodeJWTError
+        })?;
         Ok(token_data.claims)
     }
 }

@@ -1,4 +1,5 @@
 use crate::infrastructure::cache::redis::{client::RedisClient, errors::RedisError};
+use tracing::error;
 
 #[derive(Debug, Clone)]
 pub struct RedisHealthCache {
@@ -13,7 +14,10 @@ impl RedisHealthCache {
         let result: String = redis::cmd("PING")
             .query_async(&mut self.redis.client.clone())
             .await
-            .map_err(|_| RedisError::ExecuteCommandError)?;
+            .map_err(|e| {
+                error!("redis execute command error: {:?}", e);
+                RedisError::ExecuteCommandError
+            })?;
         if result == "PONG" {
             Ok(())
         } else {

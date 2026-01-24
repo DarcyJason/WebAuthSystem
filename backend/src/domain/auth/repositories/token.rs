@@ -39,6 +39,6 @@ impl AuthTokenRepository for AuthTokenRepositoryAdapter {
     fn decode_access_token(&self, token: &str) -> DomainResult<AccessClaims> {
         self.inner
             .decode_access_token(token)
-            .map_err(|_| DomainError::AuthError(AuthError::VerifyAccessTokenFailed))
+            .map_err(|_| DomainError::AuthError(AuthError::DecodeAccessTokenFailed))
     }
 }

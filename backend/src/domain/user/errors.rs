@@ -1,15 +1,9 @@
-use std::fmt::Display;
+use thiserror::Error;
 
+#[derive(Debug, Error)]
 pub enum UserError {
+    #[error("create user failed")]
     CreateUserFailed,
+    #[error("user not found")]
     UserNotFound,
-}
-
-impl Display for UserError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            UserError::CreateUserFailed => write!(f, "Failed to create user"),
-            UserError::UserNotFound => write!(f, "User not found"),
-        }
-    }
 }

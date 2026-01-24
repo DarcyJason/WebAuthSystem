@@ -1,23 +1,17 @@
-use std::fmt::Display;
+use thiserror::Error;
 
+#[derive(Debug, Error)]
 pub enum AuthError {
+    #[error("invalid Credentials")]
     InvalidCredentials,
+    #[error("user already exists")]
     UserAlreadyExists,
+    #[error("user not found")]
     UserNotFound,
+    #[error("generate access_token error")]
     GenerateAccessTokenFailed,
+    #[error("generate refresh_token error")]
     GenerateRefreshTokenFailed,
-    VerifyAccessTokenFailed,
-}
-
-impl Display for AuthError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            AuthError::InvalidCredentials => write!(f, "Invalid credentials"),
-            AuthError::UserAlreadyExists => write!(f, "User already exists"),
-            AuthError::UserNotFound => write!(f, "User not found"),
-            AuthError::GenerateAccessTokenFailed => write!(f, "Failed to generate access token"),
-            AuthError::GenerateRefreshTokenFailed => write!(f, "Failed to generate refresh token"),
-            AuthError::VerifyAccessTokenFailed => write!(f, "Failed to verify access token"),
-        }
-    }
+    #[error("decode access_token error")]
+    DecodeAccessTokenFailed,
 }

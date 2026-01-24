@@ -4,6 +4,7 @@ use crate::domain::user::value_objects::hash_password::HashPassword;
 use crate::domain::user::value_objects::username::Username;
 use crate::infrastructure::persistence::surreal::client::SurrealClient;
 use crate::infrastructure::persistence::surreal::errors::SurrealDBError;
+use tracing::error;
 
 #[derive(Debug, Clone)]
 pub struct SurrealUserRepository {
@@ -38,10 +39,14 @@ impl SurrealUserRepository {
             .bind(("email", email.to_string()))
             .bind(("hash_password", hash_password.to_string()))
             .await
-            .map_err(|_| SurrealDBError::ExecuteQueryError)?;
-        let user: Option<User> = result
-            .take(0)
-            .map_err(|_| SurrealDBError::ParseRecordToUserError)?;
+            .map_err(|e| {
+                error!("surrealdb execute query error: {:?}", e);
+                SurrealDBError::ExecuteQueryError
+            })?;
+        let user: Option<User> = result.take(0).map_err(|e| {
+            error!("surrealdb parse record to user error: {:?}", e);
+            SurrealDBError::ParseRecordToUserError
+        })?;
         Ok(user)
     }
     pub async fn find_by_id(&self, id: &str) -> Result<Option<User>, SurrealDBError> {
@@ -54,10 +59,14 @@ impl SurrealUserRepository {
             .query(sql)
             .bind(("id", id.to_string()))
             .await
-            .map_err(|_| SurrealDBError::ExecuteQueryError)?;
-        let user: Option<User> = result
-            .take(0)
-            .map_err(|_| SurrealDBError::ParseRecordToUserError)?;
+            .map_err(|e| {
+                error!("surrealdb execute query error: {:?}", e);
+                SurrealDBError::ExecuteQueryError
+            })?;
+        let user: Option<User> = result.take(0).map_err(|e| {
+            error!("surrealdb parse record to user error: {:?}", e);
+            SurrealDBError::ParseRecordToUserError
+        })?;
         Ok(user)
     }
     pub async fn find_by_username(
@@ -73,10 +82,14 @@ impl SurrealUserRepository {
             .query(sql)
             .bind(("username", username.to_string()))
             .await
-            .map_err(|_| SurrealDBError::ExecuteQueryError)?;
-        let user: Option<User> = result
-            .take(0)
-            .map_err(|_| SurrealDBError::ParseRecordToUserError)?;
+            .map_err(|e| {
+                error!("surrealdb execute query error: {:?}", e);
+                SurrealDBError::ExecuteQueryError
+            })?;
+        let user: Option<User> = result.take(0).map_err(|e| {
+            error!("surrealdb parse record to user error: {:?}", e);
+            SurrealDBError::ParseRecordToUserError
+        })?;
         Ok(user)
     }
     pub async fn find_by_email(&self, email: &Email) -> Result<Option<User>, SurrealDBError> {
@@ -89,10 +102,14 @@ impl SurrealUserRepository {
             .query(sql)
             .bind(("email", email.to_string()))
             .await
-            .map_err(|_| SurrealDBError::ExecuteQueryError)?;
-        let user: Option<User> = result
-            .take(0)
-            .map_err(|_| SurrealDBError::ParseRecordToUserError)?;
+            .map_err(|e| {
+                error!("surrealdb execute query error: {:?}", e);
+                SurrealDBError::ExecuteQueryError
+            })?;
+        let user: Option<User> = result.take(0).map_err(|e| {
+            error!("surrealdb parse record to user error: {:?}", e);
+            SurrealDBError::ParseRecordToUserError
+        })?;
         Ok(user)
     }
     pub async fn find_by_username_or_email(
@@ -110,10 +127,14 @@ impl SurrealUserRepository {
             .bind(("username", username.to_string()))
             .bind(("email", email.to_string()))
             .await
-            .map_err(|_| SurrealDBError::ExecuteQueryError)?;
-        let user: Option<User> = result
-            .take(0)
-            .map_err(|_| SurrealDBError::ParseRecordToUserError)?;
+            .map_err(|e| {
+                error!("surrealdb execute query error: {:?}", e);
+                SurrealDBError::ExecuteQueryError
+            })?;
+        let user: Option<User> = result.take(0).map_err(|e| {
+            error!("surrealdb parse record to user error: {:?}", e);
+            SurrealDBError::ParseRecordToUserError
+        })?;
         Ok(user)
     }
 }

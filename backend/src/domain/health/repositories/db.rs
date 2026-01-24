@@ -29,7 +29,7 @@ impl HealthRepository for SurrealHealthRepositoryAdapter {
             SurrealDBError::ConnectionError => {
                 DomainError::HealthError(HealthError::SurrealDBConnectionError)
             }
-            _ => DomainError::DBUnavailable,
+            _ => DomainError::SurrealDBUnavailable,
         })
     }
 }

@@ -48,7 +48,7 @@ impl AuthRepository for SurrealAuthRepositoryAdapter {
                 SurrealDBError::RepositoryError(msg) if msg == "user already exists" => {
                     DomainError::AuthError(AuthError::UserAlreadyExists)
                 }
-                _ => DomainError::DBUnavailable,
+                _ => DomainError::SurrealDBUnavailable,
             })
     }
     async fn login(&self, identity: LoginIdentity) -> DomainResult<Option<User>> {
@@ -56,7 +56,7 @@ impl AuthRepository for SurrealAuthRepositoryAdapter {
             SurrealDBError::RepositoryError(msg) if msg == "user not found" => {
                 DomainError::AuthError(AuthError::UserNotFound)
             }
-            _ => DomainError::DBUnavailable,
+            _ => DomainError::SurrealDBUnavailable,
         })
     }
     async fn logout(&self, _user_id: &str) -> DomainResult<()> {

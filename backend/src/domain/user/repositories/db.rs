@@ -51,7 +51,7 @@ impl UserRepository for SurrealUserRepositoryAdapter {
                 SurrealDBError::ParseRecordToUserError => {
                     DomainError::UserError(UserError::CreateUserFailed)
                 }
-                _ => DomainError::DBUnavailable,
+                _ => DomainError::SurrealDBUnavailable,
             })
     }
     async fn find_by_id(&self, id: &str) -> DomainResult<Option<User>> {
@@ -59,7 +59,7 @@ impl UserRepository for SurrealUserRepositoryAdapter {
             SurrealDBError::ParseRecordToUserError => {
                 DomainError::UserError(UserError::UserNotFound)
             }
-            _ => DomainError::DBUnavailable,
+            _ => DomainError::SurrealDBUnavailable,
         })
     }
     async fn find_by_username(&self, username: &Username) -> DomainResult<Option<User>> {
@@ -70,7 +70,7 @@ impl UserRepository for SurrealUserRepositoryAdapter {
                 SurrealDBError::ParseRecordToUserError => {
                     DomainError::UserError(UserError::UserNotFound)
                 }
-                _ => DomainError::DBUnavailable,
+                _ => DomainError::SurrealDBUnavailable,
             })
     }
     async fn find_by_email(&self, email: &Email) -> DomainResult<Option<User>> {
@@ -78,7 +78,7 @@ impl UserRepository for SurrealUserRepositoryAdapter {
             SurrealDBError::ParseRecordToUserError => {
                 DomainError::UserError(UserError::UserNotFound)
             }
-            _ => DomainError::DBUnavailable,
+            _ => DomainError::SurrealDBUnavailable,
         })
     }
     async fn find_by_username_or_email(
@@ -93,7 +93,7 @@ impl UserRepository for SurrealUserRepositoryAdapter {
                 SurrealDBError::ParseRecordToUserError => {
                     DomainError::UserError(UserError::UserNotFound)
                 }
-                _ => DomainError::DBUnavailable,
+                _ => DomainError::SurrealDBUnavailable,
             })
     }
 }

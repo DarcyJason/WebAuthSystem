@@ -1,4 +1,5 @@
 use crate::infrastructure::persistence::surreal::errors::SurrealDBError;
+use tracing::error;
 
 #[derive(Debug, Clone)]
 pub struct SurrealHealthRepository {}
@@ -12,7 +13,10 @@ impl SurrealHealthRepository {
             .get("http://localhost:10086/health")
             .send()
             .await
-            .map_err(|_| SurrealDBError::RequestHealthEndpointError)?;
+            .map_err(|e| {
+                error!("request surrealdb health endpoint error: {:?}", e);
+                SurrealDBError::RequestHealthEndpointError
+            })?;
         if result.status().is_success() {
             Ok(())
         } else {
