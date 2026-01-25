@@ -2,6 +2,7 @@ use crate::domain::auth::value_objects::access_token::AccessToken;
 use crate::domain::auth::value_objects::refresh_token::RefreshToken;
 use crate::infrastructure::token::claims::AccessClaims;
 use crate::infrastructure::token::errors::TokenError;
+use chrono::{Duration, Utc};
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, decode, encode};
 use surrealdb::RecordId;
 use tracing::error;
@@ -18,9 +19,13 @@ impl TokenRepository {
         }
     }
     pub fn generate_access_token(&self, user_id: RecordId) -> Result<AccessToken, TokenError> {
+        let now = Utc::now();
+        let iat = now.timestamp() as usize;
+        let exp = (now + Duration::minutes(15)).timestamp() as usize;
         let claims = AccessClaims {
             sub: user_id.to_string(),
-            exp: 15,
+            iat,
+            exp,
         };
         let token = encode(
             &Header::default(),
