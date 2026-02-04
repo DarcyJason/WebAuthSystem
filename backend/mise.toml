@@ -1,0 +1,24 @@
+[tasks.dev]
+run = "cargo run"
+
+[tasks.check]
+run = [
+    "cargo fmt -- --check",
+    "cargo clippy -- -D warnings",
+    "cargo check"
+]
+
+[tasks.build]
+run = "cargo build"
+
+[tasks.release]
+run = "cargo build --release"
+
+[tasks.fmt]
+run = "cargo fmt"
+
+[tasks.fix]
+run = "cargo fix"
+
+[tasks.clippy]
+run = "cargo clippy"

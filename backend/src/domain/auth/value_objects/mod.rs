@@ -1,0 +1,16 @@
+pub mod access_token;
+pub mod device_id;
+pub mod device_name;
+pub mod login_identity;
+pub mod mail_content;
+pub mod mail_id;
+pub mod mail_subject;
+pub mod plain_password;
+pub mod refresh_token;
+pub mod session_id;
+pub mod session_name;
+pub mod user_email;
+pub mod user_id;
+pub mod user_name;
+pub mod user_password_hash;
+pub mod user_status;

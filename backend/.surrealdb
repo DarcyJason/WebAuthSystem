@@ -1,0 +1,6 @@
+[db]
+    address = "ws://localhost:10086"
+    username = "root"
+    password = "root"
+    ns = "WebAuthSystem"
+    db = "backend"

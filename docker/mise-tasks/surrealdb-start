@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euxo pipefail
+
+docker run \
+    --name surrealdb \
+    -p 10086:8000 \
+    -v ./surrealdb:/data \
+    -d surrealdb/surrealdb:v2.4.0 \
+    start \
+    --user root \
+    --pass root \
+    rocksdb:/data/mydatabase.db

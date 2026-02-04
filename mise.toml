@@ -1,0 +1,31 @@
+experimental_monorepo_root = true
+
+[env]
+MISE_EXPERIMENTAL = true
+
+[monorepo]
+config_roots = [
+    "backend",
+    "docker",
+]
+
+[tools]
+rust = "1.93.0"
+node = "24.13.0"
+
+[tasks.backend]
+depends = [
+    "//docker:surrealdb-start",
+    "//docker:redis-start",
+]
+run = "mise run //backend:dev"
+depends_post = [
+    "//docker:surrealdb-stop",
+    "//docker:redis-stop",
+]
+
+[tasks.fix]
+run = [
+    "mise run //docker:surrealdb-stop",
+    "mise run //docker:redis-stop"
+]

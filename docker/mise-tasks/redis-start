@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -euxo pipefail
+
+docker run \
+    --name redis \
+	-p 6379:6379 \
+	-v ./redis:/data \
+	-d redis:8.4.0
