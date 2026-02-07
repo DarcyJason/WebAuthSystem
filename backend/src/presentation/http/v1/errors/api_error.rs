@@ -15,35 +15,6 @@ pub enum ApiError {
     InternalServerError { code: u16, message: String },
 }
 
-impl IntoResponse for ApiError {
-    fn into_response(self) -> Response {
-        match self {
-            ApiError::BadRequest { message } => {
-                ApiResponse::<EmptyResponseData>::err(400, message).into_response()
-            }
-            ApiError::Unauthorized { message } => {
-                ApiResponse::<EmptyResponseData>::err(401, message).into_response()
-            }
-            ApiError::Forbidden { message } => {
-                ApiResponse::<EmptyResponseData>::err(403, message).into_response()
-            }
-            ApiError::NotFound { message } => {
-                ApiResponse::<EmptyResponseData>::err(404, message).into_response()
-            }
-            ApiError::RequestTimeout { message } => {
-                ApiResponse::<EmptyResponseData>::err(408, message).into_response()
-            }
-            ApiError::Conflict { message } => {
-                ApiResponse::<EmptyResponseData>::err(409, message).into_response()
-            }
-
-            ApiError::InternalServerError { code, message } => {
-                ApiResponse::<EmptyResponseData>::err(code, message).into_response()
-            }
-        }
-    }
-}
-
 impl ApiError {
     pub fn bad_request(message: impl Into<String>) -> Self {
         Self::BadRequest {
@@ -74,6 +45,35 @@ impl ApiError {
         Self::InternalServerError {
             code,
             message: message.into(),
+        }
+    }
+}
+
+impl IntoResponse for ApiError {
+    fn into_response(self) -> Response {
+        match self {
+            ApiError::BadRequest { message } => {
+                ApiResponse::<EmptyResponseData>::err(400, message).into_response()
+            }
+            ApiError::Unauthorized { message } => {
+                ApiResponse::<EmptyResponseData>::err(401, message).into_response()
+            }
+            ApiError::Forbidden { message } => {
+                ApiResponse::<EmptyResponseData>::err(403, message).into_response()
+            }
+            ApiError::NotFound { message } => {
+                ApiResponse::<EmptyResponseData>::err(404, message).into_response()
+            }
+            ApiError::RequestTimeout { message } => {
+                ApiResponse::<EmptyResponseData>::err(408, message).into_response()
+            }
+            ApiError::Conflict { message } => {
+                ApiResponse::<EmptyResponseData>::err(409, message).into_response()
+            }
+
+            ApiError::InternalServerError { code, message } => {
+                ApiResponse::<EmptyResponseData>::err(code, message).into_response()
+            }
         }
     }
 }

@@ -19,4 +19,7 @@ impl UserName {
         }
         Ok(UserName(user_name))
     }
+    pub fn value(&self) -> &str {
+        &self.0
+    }
 }

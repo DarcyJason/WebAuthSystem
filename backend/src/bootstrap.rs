@@ -3,7 +3,7 @@ use std::sync::Arc;
 use crate::app_config::AppConfig;
 use crate::app_logo::show_app_logo;
 use crate::app_state::AppState;
-use crate::domain::auth::repositories::db::UserRepository;
+use crate::domain::auth::repositories::db::user_repo::UserRepository;
 use crate::domain::auth::services::mail_service::AuthMailService;
 use crate::domain::auth::services::password_service::AuthPasswordService;
 use crate::domain::auth::services::token_service::{

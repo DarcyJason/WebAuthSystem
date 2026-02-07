@@ -11,7 +11,7 @@ impl Timestamp {
     pub fn now() -> Self {
         Self(Utc::now())
     }
-    pub fn value(&self) -> DateTime<Utc> {
-        self.0
+    pub fn value(&self) -> &DateTime<Utc> {
+        &self.0
     }
 }

@@ -8,7 +8,7 @@ use crate::{
     },
     domain::auth::{
         entities::user::User,
-        repositories::db::UserRepository,
+        repositories::db::user_repo::UserRepository,
         services::{
             password_service::AuthPasswordService,
             token_service::{AuthAccessTokenService, AuthRefreshTokenService},

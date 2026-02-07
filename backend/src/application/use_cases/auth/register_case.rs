@@ -5,7 +5,7 @@ use crate::{
         results::commands_results::auth::register_result::RegisterResult,
     },
     domain::auth::{
-        entities::user::User, repositories::db::UserRepository,
+        entities::user::User, repositories::db::user_repo::UserRepository,
         services::password_service::AuthPasswordService,
     },
 };

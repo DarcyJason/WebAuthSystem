@@ -5,6 +5,7 @@ pub mod login_identity;
 pub mod mail_content;
 pub mod mail_id;
 pub mod mail_subject;
+pub mod mail_token;
 pub mod plain_password;
 pub mod refresh_token;
 pub mod session_id;

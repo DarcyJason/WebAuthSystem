@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::domain::auth::repositories::db::UserRepository;
+use crate::domain::auth::repositories::db::user_repo::UserRepository;
 use crate::domain::auth::services::mail_service::AuthMailService;
 use crate::domain::auth::services::password_service::AuthPasswordService;
 use crate::domain::auth::services::token_service::{
