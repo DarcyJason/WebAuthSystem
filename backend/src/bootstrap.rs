@@ -3,6 +3,7 @@ use std::sync::Arc;
 use crate::app_config::AppConfig;
 use crate::app_logo::show_app_logo;
 use crate::app_state::AppState;
+use crate::domain::auth::repositories::cache::email_verify_cache::EmailVerifyCache;
 use crate::domain::auth::repositories::db::user_repo::UserRepository;
 use crate::domain::auth::services::mail_service::AuthMailService;
 use crate::domain::auth::services::password_service::AuthPasswordService;
@@ -10,6 +11,7 @@ use crate::domain::auth::services::token_service::{
     AuthAccessTokenService, AuthRefreshTokenService,
 };
 use crate::infrastructure::caches::redis::client::RedisClient;
+use crate::infrastructure::caches::redis::email_verify_cache::RedisEmailVerifyCache;
 use crate::infrastructure::mail::MailService;
 use crate::infrastructure::observability::logger::init_logger;
 use crate::infrastructure::persistences::surrealdb::client::SurrealDBClient;
@@ -48,13 +50,15 @@ pub async fn bootstrap() -> anyhow::Result<()> {
         Arc::new(RefreshTokenService::new());
     let auth_password_service: Arc<dyn AuthPasswordService> = Arc::new(PasswordService::new());
     let auth_mail_service: Arc<dyn AuthMailService> = Arc::new(MailService::new(mail_client));
+    let email_verify_cache: Arc<dyn EmailVerifyCache> =
+        Arc::new(RedisEmailVerifyCache::new(redis_client));
     let app_state = AppState {
         user_repo,
         auth_access_token_service,
         auth_refresh_token_service,
         auth_password_service,
         auth_mail_service,
-        redis_client,
+        email_verify_cache,
     };
     let listener = TcpListener::bind(backend_address).await?;
     let mut app = build_routers(app_state)

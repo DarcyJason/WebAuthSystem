@@ -21,7 +21,7 @@ impl MailService {
 
 #[async_trait]
 impl AuthMailService for MailService {
-    async fn send_verification(
+    async fn send_email(
         &self,
         from: UserEmail,
         to: Vec<UserEmail>,
@@ -39,5 +39,4 @@ impl AuthMailService for MailService {
         };
         Ok(MailId::new(id))
     }
-    async fn verify(&self) {}
 }

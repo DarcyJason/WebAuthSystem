@@ -1,12 +1,12 @@
 use std::sync::Arc;
 
+use crate::domain::auth::repositories::cache::email_verify_cache::EmailVerifyCache;
 use crate::domain::auth::repositories::db::user_repo::UserRepository;
 use crate::domain::auth::services::mail_service::AuthMailService;
 use crate::domain::auth::services::password_service::AuthPasswordService;
 use crate::domain::auth::services::token_service::{
     AuthAccessTokenService, AuthRefreshTokenService,
 };
-use crate::infrastructure::caches::redis::client::RedisClient;
 
 #[derive(Clone)]
 pub struct AppState {
@@ -15,5 +15,5 @@ pub struct AppState {
     pub auth_refresh_token_service: Arc<dyn AuthRefreshTokenService>,
     pub auth_password_service: Arc<dyn AuthPasswordService>,
     pub auth_mail_service: Arc<dyn AuthMailService>,
-    pub redis_client: RedisClient,
+    pub email_verify_cache: Arc<dyn EmailVerifyCache>,
 }

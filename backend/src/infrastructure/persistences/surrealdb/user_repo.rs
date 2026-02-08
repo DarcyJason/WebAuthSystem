@@ -28,7 +28,7 @@ impl UserRepository for SurrealDBUserRepository {
             .insert("user")
             .content(user)
             .await
-            .map_err(|_| UserRepositoryError::InsertUserToSurrealDBFailed)?;
+            .map_err(|_| UserRepositoryError::PersistFailed)?;
         Ok(users.get(0).cloned())
     }
     async fn find_user_by_id(&self, user_id: &UserId) -> Result<Option<User>, UserRepositoryError> {
@@ -37,7 +37,7 @@ impl UserRepository for SurrealDBUserRepository {
             .client
             .select(user_id.value().to_owned())
             .await
-            .map_err(|_| UserRepositoryError::DeserializeRecordFailed)?;
+            .map_err(|_| UserRepositoryError::StorageUnavailable)?;
         Ok(existing_user)
     }
     async fn find_user_by_name(
@@ -53,10 +53,10 @@ impl UserRepository for SurrealDBUserRepository {
             .query(find_sql)
             .bind(("user_name", user_name.to_owned()))
             .await
-            .map_err(|_| UserRepositoryError::SurrealQLQueriedFailed)?;
+            .map_err(|_| UserRepositoryError::StorageUnavailable)?;
         let existing_user: Option<User> = result
             .take(0)
-            .map_err(|_| UserRepositoryError::DeserializeRecordFailed)?;
+            .map_err(|_| UserRepositoryError::DataCorrupted)?;
         Ok(existing_user)
     }
     async fn find_user_by_email(
@@ -72,10 +72,10 @@ impl UserRepository for SurrealDBUserRepository {
             .query(find_sql)
             .bind(("user_email", user_email.to_owned()))
             .await
-            .map_err(|_| UserRepositoryError::SurrealQLQueriedFailed)?;
+            .map_err(|_| UserRepositoryError::StorageUnavailable)?;
         let existing_user: Option<User> = result
             .take(0)
-            .map_err(|_| UserRepositoryError::DeserializeRecordFailed)?;
+            .map_err(|_| UserRepositoryError::DataCorrupted)?;
         Ok(existing_user)
     }
     async fn find_user_by_name_or_email(
@@ -93,10 +93,10 @@ impl UserRepository for SurrealDBUserRepository {
             .bind(("user_name", user_name.to_owned()))
             .bind(("user_email", user_email.to_owned()))
             .await
-            .map_err(|_| UserRepositoryError::SurrealQLQueriedFailed)?;
+            .map_err(|_| UserRepositoryError::StorageUnavailable)?;
         let existing_user: Option<User> = result
             .take(0)
-            .map_err(|_| UserRepositoryError::DeserializeRecordFailed)?;
+            .map_err(|_| UserRepositoryError::DataCorrupted)?;
         Ok(existing_user)
     }
 }

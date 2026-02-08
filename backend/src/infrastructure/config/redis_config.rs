@@ -8,7 +8,7 @@ pub struct RedisConfig {
 impl Default for RedisConfig {
     fn default() -> Self {
         RedisConfig {
-            address: "redis://127.0.0.1/".to_string(),
+            address: "redis://localhost:6379".to_string(),
         }
     }
 }

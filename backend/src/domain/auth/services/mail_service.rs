@@ -10,12 +10,11 @@ pub enum AuthMailServiceError {
 
 #[async_trait]
 pub trait AuthMailService: Send + Sync {
-    async fn send_verification(
+    async fn send_email(
         &self,
         from: UserEmail,
         to: Vec<UserEmail>,
         mail_subject: MailSubject,
         mail_content: MailContent,
     ) -> Result<MailId, AuthMailServiceError>;
-    async fn verify(&self);
 }

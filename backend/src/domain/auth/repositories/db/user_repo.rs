@@ -6,11 +6,9 @@ use crate::domain::auth::{
 };
 
 pub enum UserRepositoryError {
-    InsertUserToSurrealDBFailed,
-    CreateUserFailed,
-    SurrealQLQueriedFailed,
-    DeserializeRecordFailed,
-    UserNotFound,
+    StorageUnavailable,
+    PersistFailed,
+    DataCorrupted,
 }
 
 #[async_trait]
