@@ -18,11 +18,7 @@ pub struct User {
 }
 
 impl User {
-    pub fn new(
-        user_name: UserName,
-        user_email: UserEmail,
-        user_password_hash: UserPasswordHash,
-    ) -> User {
+    pub fn new(name: UserName, email: UserEmail, password_hash: UserPasswordHash) -> User {
         let user_id = UserId::new();
         let status = UserStatus::new(false);
         let now = Timestamp::now();
@@ -30,9 +26,9 @@ impl User {
         let updated_at = now;
         User {
             id: user_id,
-            name: user_name,
-            email: user_email,
-            password_hash: user_password_hash,
+            name,
+            email,
+            password_hash,
             status,
             created_at,
             updated_at,

@@ -3,10 +3,7 @@ use resend_rs::{Resend, types::CreateEmailBaseOptions};
 
 use crate::domain::auth::{
     services::mail_service::{AuthMailService, AuthMailServiceError},
-    value_objects::{
-        mail_content::MailContent, mail_id::MailId, mail_subject::MailSubject,
-        user_email::UserEmail,
-    },
+    value_objects::{mail_content::MailContent, mail_subject::MailSubject, user_email::UserEmail},
 };
 
 pub struct MailService {
@@ -27,16 +24,15 @@ impl AuthMailService for MailService {
         to: Vec<UserEmail>,
         mail_subject: MailSubject,
         mail_content: MailContent,
-    ) -> Result<MailId, AuthMailServiceError> {
+    ) -> Result<(), AuthMailServiceError> {
         let from = from.value().to_owned();
         let to: Vec<String> = to.iter().map(|to| to.value().to_owned()).collect();
         let subject = mail_subject.value().to_owned();
         let mail_content = mail_content.value().to_owned();
         let email = CreateEmailBaseOptions::new(from, to, subject).with_html(&mail_content);
-        let id = match self.mail_client.emails.send(email).await {
-            Ok(id) => id.id.to_string(),
-            Err(_) => return Err(AuthMailServiceError::SendEmailFailed),
-        };
-        Ok(MailId::new(id))
+        if self.mail_client.emails.send(email).await.is_err() {
+            return Err(AuthMailServiceError::SendEmailFailed);
+        }
+        Ok(())
     }
 }

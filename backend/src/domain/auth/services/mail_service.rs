@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 
 use crate::domain::auth::value_objects::{
-    mail_content::MailContent, mail_id::MailId, mail_subject::MailSubject, user_email::UserEmail,
+    mail_content::MailContent, mail_subject::MailSubject, user_email::UserEmail,
 };
 
 pub enum AuthMailServiceError {
@@ -16,5 +16,5 @@ pub trait AuthMailService: Send + Sync {
         to: Vec<UserEmail>,
         mail_subject: MailSubject,
         mail_content: MailContent,
-    ) -> Result<MailId, AuthMailServiceError>;
+    ) -> Result<(), AuthMailServiceError>;
 }

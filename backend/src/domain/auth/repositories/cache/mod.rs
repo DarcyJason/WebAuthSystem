@@ -1,1 +1,1 @@
-pub mod email_verify_cache;
+pub mod email_verification_cache;

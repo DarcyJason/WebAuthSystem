@@ -12,4 +12,7 @@ pub enum AppError {
     EncodeAccessTokenFailed,
     DecodeAccessTokenFailed,
     GenerateRefreshTokenFailed,
+    SystemOwnerEmailInvalid,
+    SendEmailVerificationFailed,
+    SaveEmailVerificationTokenFailed,
 }

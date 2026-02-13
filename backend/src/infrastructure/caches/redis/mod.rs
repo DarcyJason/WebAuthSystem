@@ -1,3 +1,3 @@
 pub mod client;
-pub mod email_verify_cache;
+pub mod email_verification_cache;
 pub mod refresh_token_cache;

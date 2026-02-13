@@ -26,6 +26,15 @@ impl From<AppError> for ApiError {
             AppError::GenerateRefreshTokenFailed => {
                 ApiError::internal_server_error(500, "Failed to generate refresh_token")
             }
+            AppError::SystemOwnerEmailInvalid => {
+                ApiError::internal_server_error(500, "System owner email invalid")
+            }
+            AppError::SendEmailVerificationFailed => {
+                ApiError::internal_server_error(500, "Failed to send email")
+            }
+            AppError::SaveEmailVerificationTokenFailed => {
+                ApiError::internal_server_error(500, "Failed to save email verification token")
+            }
         }
     }
 }

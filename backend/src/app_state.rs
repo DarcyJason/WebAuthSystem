@@ -1,6 +1,7 @@
 use std::sync::Arc;
+use tokio::sync::Mutex;
 
-use crate::domain::auth::repositories::cache::email_verify_cache::EmailVerifyCache;
+use crate::domain::auth::repositories::cache::email_verification_cache::EmailVerificationCache;
 use crate::domain::auth::repositories::db::user_repo::UserRepository;
 use crate::domain::auth::services::mail_service::AuthMailService;
 use crate::domain::auth::services::password_service::AuthPasswordService;
@@ -15,5 +16,5 @@ pub struct AppState {
     pub auth_refresh_token_service: Arc<dyn AuthRefreshTokenService>,
     pub auth_password_service: Arc<dyn AuthPasswordService>,
     pub auth_mail_service: Arc<dyn AuthMailService>,
-    pub email_verify_cache: Arc<dyn EmailVerifyCache>,
+    pub email_verification_cache: Arc<Mutex<dyn EmailVerificationCache>>,
 }

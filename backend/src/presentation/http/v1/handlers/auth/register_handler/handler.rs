@@ -25,8 +25,8 @@ pub async fn register_handler(
         app_state.auth_password_service.clone(),
     );
     let register_result = case.execute(register_command).await?;
-    let responsedata = RegisterResponseData::from(register_result);
+    let response_data = RegisterResponseData::from(register_result);
     let response =
-        ApiResponse::<RegisterResponseData>::ok(200, "register successfully", responsedata);
+        ApiResponse::<RegisterResponseData>::ok(200, "register successfully", response_data);
     Ok(response)
 }

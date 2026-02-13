@@ -3,5 +3,5 @@ pub mod login_handler;
 pub mod logout_handler;
 pub mod register_handler;
 pub mod reset_password_handler;
-pub mod send_email_handler;
-pub mod verify_email_handler;
+pub mod send_email_verification_handler;
+pub mod validate_email_verification_handler;
