@@ -1,4 +1,4 @@
-use backend::bootstrap::bootstrap;
+use backend::bootstrap;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {

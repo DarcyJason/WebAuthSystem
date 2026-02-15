@@ -1,8 +1,7 @@
 use axum::{Router, routing::get};
 
-use crate::{
-    app_state::AppState,
-    presentation::http::v1::handlers::user::get_me_handler::handler::get_me_handler,
+use crate::presentation::http::v1::{
+    handlers::user::get_me_handler::handler::get_me_handler, states::app_state::AppState,
 };
 
 pub fn user_routers(app_state: AppState) -> Router {

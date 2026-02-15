@@ -1,13 +1,12 @@
 use axum::{extract::State, http::HeaderMap, response::IntoResponse};
 
 use crate::{
-    app_state::AppState,
     application::{
         queries::user::get_me_query::GetMeQuery, use_cases::user::get_me_case::GetMeCase,
     },
     presentation::http::v1::{
         errors::api_error::ApiResult, handlers::user::get_me_handler::response::GetMeResponseData,
-        response::ApiResponse,
+        response::ApiResponse, states::app_state::AppState,
     },
 };
 

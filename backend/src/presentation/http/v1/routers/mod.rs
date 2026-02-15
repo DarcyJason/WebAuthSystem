@@ -1,6 +1,6 @@
-use crate::{
-    app_state::AppState,
-    presentation::http::v1::routers::{auth::auth_routers, user::user_routers},
+use crate::presentation::http::v1::{
+    routers::{auth::auth_routers, user::user_routers},
+    states::app_state::AppState,
 };
 use axum::Router;
 

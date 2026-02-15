@@ -1,7 +1,6 @@
 use axum::{Json, extract::State, response::IntoResponse};
 
 use crate::{
-    app_state::AppState,
     application::{
         commands::auth::send_email_verification_command::SendEmailVerificationCommand,
         use_cases::auth::send_email_verification_case::SendEmailVerificationCase,
@@ -13,6 +12,7 @@ use crate::{
             response::SendEmailVerificationResponseData,
         },
         response::ApiResponse,
+        states::app_state::AppState,
     },
 };
 

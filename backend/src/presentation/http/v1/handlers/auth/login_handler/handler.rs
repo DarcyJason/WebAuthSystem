@@ -2,8 +2,8 @@ use axum::http::header::{AUTHORIZATION, SET_COOKIE};
 use axum::{Json, extract::State, http::HeaderValue, response::IntoResponse};
 use axum_extra::extract::cookie::Cookie;
 
+use crate::presentation::http::v1::states::app_state::AppState;
 use crate::{
-    app_state::AppState,
     application::{
         commands::auth::login_command::LoginCommand, use_cases::auth::login_case::LoginCase,
     },

@@ -1,7 +1,6 @@
 use axum::{Json, extract::State, response::IntoResponse};
 
 use crate::{
-    app_state::AppState,
     application::{
         commands::auth::register_command::RegisterCommand,
         use_cases::auth::register_case::RegisterCase,
@@ -12,6 +11,7 @@ use crate::{
             request::RegisterRequestPayload, response::RegisterResponseData,
         },
         response::ApiResponse,
+        states::app_state::AppState,
     },
 };
 
