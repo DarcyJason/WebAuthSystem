@@ -48,7 +48,7 @@ impl SendEmailVerificationCase {
             .map_err(|_| AppError::SaveEmailVerificationTokenFailed)?;
         self.auth_mail_service
             .send_email(
-                UserEmail::new("notnone@homeryland.com")
+                UserEmail::new("notnone@email.homeryland.com")
                     .map_err(|_| AppError::SystemOwnerEmailInvalid)?,
                 vec![user_email],
                 MailSubject::new("Email Verification"),
