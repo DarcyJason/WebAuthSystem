@@ -28,7 +28,7 @@ impl Config {
         dotenv().ok();
         Figment::new()
             .merge(Serialized::defaults(Config::default()))
-            .merge(Env::prefixed(""))
+            .merge(Env::prefixed("").split("__"))
             .extract()
             .map_err(Box::new)
     }

@@ -30,9 +30,12 @@ impl AuthMailService for MailService {
         let subject = mail_subject.value().to_owned();
         let mail_content = mail_content.value().to_owned();
         let email = CreateEmailBaseOptions::new(from, to, subject).with_html(&mail_content);
-        if self.mail_client.emails.send(email).await.is_err() {
-            return Err(AuthMailServiceError::SendEmailFailed);
+        match self.mail_client.emails.send(email).await {
+            Ok(_id) => Ok(()),
+            Err(e) => {
+                tracing::error!("{:?}", e);
+                return Err(AuthMailServiceError::SendEmailFailed);
+            }
         }
-        Ok(())
     }
 }

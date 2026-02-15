@@ -2,3 +2,6 @@ docker/surrealdb
 docker/redis
 
 .env
+
+.idea
+.vscode
