@@ -1,4 +1,4 @@
-use std::time::Duration;
+use std::{fmt::Display, time::Duration};
 
 use serde::{Deserialize, Serialize};
 
@@ -11,5 +11,11 @@ impl TTL {
     }
     pub fn value(&self) -> &Duration {
         &self.0
+    }
+}
+
+impl Display for TTL {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0.as_secs())
     }
 }

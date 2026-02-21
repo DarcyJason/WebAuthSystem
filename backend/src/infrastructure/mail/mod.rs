@@ -1,3 +1,5 @@
+pub mod verification_template;
+
 use async_trait::async_trait;
 use resend_rs::{Resend, types::CreateEmailBaseOptions};
 
