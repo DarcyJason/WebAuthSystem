@@ -10,8 +10,8 @@ impl VerificationToken {
     pub fn new() -> Self {
         VerificationToken(Uuid::new_v4().to_string())
     }
-    pub fn from(mail_token: impl Into<String>) -> Self {
-        VerificationToken(mail_token.into())
+    pub fn from(verification_token: impl Into<String>) -> Self {
+        VerificationToken(verification_token.into())
     }
     pub fn value(&self) -> &str {
         &self.0

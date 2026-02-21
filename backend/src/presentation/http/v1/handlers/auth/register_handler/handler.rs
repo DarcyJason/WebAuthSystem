@@ -19,13 +19,13 @@ pub async fn register_handler(
     State(app_state): State<AppState>,
     Json(payload): Json<RegisterRequestPayload>,
 ) -> ApiResult<impl IntoResponse> {
-    let register_command = RegisterCommand::try_from(payload)?;
+    let cmd = RegisterCommand::try_from(payload)?;
     let case = RegisterCase::new(
         app_state.user_repo.clone(),
         app_state.auth_password_service.clone(),
     );
-    let register_result = case.execute(register_command).await?;
-    let response_data = RegisterResponseData::from(register_result);
+    let result = case.execute(cmd).await?;
+    let response_data = RegisterResponseData::from(result);
     let response =
         ApiResponse::<RegisterResponseData>::ok(200, "register successfully", response_data);
     Ok(response)

@@ -20,17 +20,17 @@ pub async fn login_handler(
     State(app_state): State<AppState>,
     Json(payload): Json<LoginRequestPayload>,
 ) -> ApiResult<impl IntoResponse> {
-    let login_command = LoginCommand::try_from(payload)?;
+    let cmd = LoginCommand::try_from(payload)?;
     let case = LoginCase::new(
         app_state.user_repo.clone(),
         app_state.auth_access_token_service.clone(),
         app_state.auth_refresh_token_service.clone(),
         app_state.auth_password_service.clone(),
     );
-    let login_result = case.execute(login_command).await?;
-    let access_token = login_result.access_token.value();
-    let refresh_token = login_result.refresh_token.value();
-    let response_data = LoginResponseData::from(login_result.clone());
+    let result = case.execute(cmd).await?;
+    let access_token = result.access_token.value();
+    let refresh_token = result.refresh_token.value();
+    let response_data = LoginResponseData::from(result.clone());
     let response = ApiResponse::<LoginResponseData>::ok(200, "Login successfully", response_data);
     let mut response = Json(response).into_response();
     response.headers_mut().insert(
