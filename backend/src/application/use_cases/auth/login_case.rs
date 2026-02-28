@@ -7,7 +7,6 @@ use crate::{
         results::commands_results::auth::login_result::LoginResult,
     },
     domain::auth::{
-        entities::user::User,
         repositories::db::user_repo::UserRepository,
         services::{
             password_service::AuthPasswordService,
@@ -15,6 +14,7 @@ use crate::{
         },
         value_objects::login_identity::LoginIdentity,
     },
+    domain::user::entities::user::User,
 };
 
 pub struct LoginCase {

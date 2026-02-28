@@ -3,9 +3,12 @@ use argon2::{
     password_hash::{SaltString, rand_core::OsRng},
 };
 
-use crate::domain::auth::{
-    services::password_service::{AuthPasswordService, AuthPasswordServiceError},
-    value_objects::{plain_password::PlainPassword, user_password_hash::UserPasswordHash},
+use crate::domain::{
+    auth::{
+        services::password_service::{AuthPasswordService, AuthPasswordServiceError},
+        value_objects::plain_password::PlainPassword,
+    },
+    user::value_objects::user_password_hash::UserPasswordHash,
 };
 
 pub struct PasswordService {}

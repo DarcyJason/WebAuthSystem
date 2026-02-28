@@ -1,9 +1,7 @@
-use async_trait::async_trait;
-use crate::domain::{
-    auth::value_objects::{ user_email::UserEmail},
-    common::time::ttl::TTL,
-};
 use crate::domain::auth::value_objects::verification_token::VerificationToken;
+use crate::domain::common::time::ttl::TTL;
+use crate::domain::user::value_objects::user_email::UserEmail;
+use async_trait::async_trait;
 
 pub enum EmailVerificationCacheError {
     TokenStoreUnavailable,

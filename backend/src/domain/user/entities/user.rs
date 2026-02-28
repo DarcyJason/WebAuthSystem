@@ -1,9 +1,9 @@
-use crate::domain::auth::value_objects::user_email::UserEmail;
-use crate::domain::auth::value_objects::user_id::UserId;
-use crate::domain::auth::value_objects::user_name::UserName;
-use crate::domain::auth::value_objects::user_password_hash::UserPasswordHash;
-use crate::domain::auth::value_objects::user_status::UserStatus;
 use crate::domain::common::time::timestamp::Timestamp;
+use crate::domain::user::value_objects::user_email::UserEmail;
+use crate::domain::user::value_objects::user_id::UserId;
+use crate::domain::user::value_objects::user_name::UserName;
+use crate::domain::user::value_objects::user_password_hash::UserPasswordHash;
+use crate::domain::user::value_objects::user_status::UserStatus;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

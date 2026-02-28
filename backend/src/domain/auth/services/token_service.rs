@@ -1,7 +1,8 @@
 use serde::{Deserialize, Serialize};
 
-use crate::domain::auth::value_objects::{
-    access_token::AccessToken, refresh_token::RefreshToken, user_id::UserId,
+use crate::domain::{
+    auth::value_objects::{access_token::AccessToken, refresh_token::RefreshToken},
+    user::value_objects::user_id::UserId,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

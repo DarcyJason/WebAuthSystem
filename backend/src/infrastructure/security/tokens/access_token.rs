@@ -5,7 +5,7 @@ use crate::domain::auth::services::token_service::{
     AccessClaims, AuthAccessTokenService, AuthAccessTokenServiceError,
 };
 use crate::domain::auth::value_objects::access_token::AccessToken;
-use crate::domain::auth::value_objects::user_id::UserId;
+use crate::domain::user::value_objects::user_id::UserId;
 
 pub struct AccessTokenService {
     secret: String,

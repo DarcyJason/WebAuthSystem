@@ -1,5 +1,6 @@
-use crate::domain::auth::value_objects::{
-    plain_password::PlainPassword, user_password_hash::UserPasswordHash,
+use crate::domain::{
+    auth::value_objects::plain_password::PlainPassword,
+    user::value_objects::user_password_hash::UserPasswordHash,
 };
 
 pub enum AuthPasswordServiceError {

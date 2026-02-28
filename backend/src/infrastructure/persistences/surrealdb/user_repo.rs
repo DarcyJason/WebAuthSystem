@@ -1,9 +1,9 @@
 use async_trait::async_trait;
 
 use crate::{
-    domain::auth::{
+    domain::auth::repositories::db::user_repo::{UserRepository, UserRepositoryError},
+    domain::user::{
         entities::user::User,
-        repositories::db::user_repo::{UserRepository, UserRepositoryError},
         value_objects::{user_email::UserEmail, user_id::UserId, user_name::UserName},
     },
     infrastructure::persistences::surrealdb::client::SurrealDBClient,

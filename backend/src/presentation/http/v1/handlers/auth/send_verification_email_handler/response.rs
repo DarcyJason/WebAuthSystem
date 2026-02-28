@@ -2,4 +2,4 @@ use serde::Serialize;
 use utoipa::ToSchema;
 
 #[derive(Debug, Serialize, ToSchema)]
-pub struct SendEmailVerificationResponseData {}
+pub struct SendVerificationEmailResponseData {}

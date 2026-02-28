@@ -6,13 +6,13 @@ use crate::{
             repositories::cache::email_verification_cache::{
                 EmailVerificationCache, EmailVerificationCacheError,
             },
-            value_objects::{ user_email::UserEmail},
+            value_objects::verification_token::VerificationToken,
         },
         common::time::ttl::TTL,
+        user::value_objects::user_email::UserEmail,
     },
     infrastructure::caches::redis::client::RedisClient,
 };
-use crate::domain::auth::value_objects::verification_token::VerificationToken;
 
 pub struct RedisEmailVerificationCache {
     redis_client: RedisClient,

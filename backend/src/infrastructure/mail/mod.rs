@@ -3,9 +3,12 @@ pub mod verification_template;
 use async_trait::async_trait;
 use resend_rs::{Resend, types::CreateEmailBaseOptions};
 
-use crate::domain::auth::{
-    services::mail_service::{AuthMailService, AuthMailServiceError},
-    value_objects::{mail_content::MailContent, mail_subject::MailSubject, user_email::UserEmail},
+use crate::domain::{
+    auth::{
+        services::mail_service::{AuthMailService, AuthMailServiceError},
+        value_objects::{mail_content::MailContent, mail_subject::MailSubject},
+    },
+    user::value_objects::user_email::UserEmail,
 };
 
 pub struct MailService {

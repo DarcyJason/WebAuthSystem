@@ -1,6 +1,6 @@
 use crate::domain::{
-    auth::value_objects::{user_email::UserEmail, verification_token::VerificationToken},
-    common::time::ttl::TTL,
+    auth::value_objects::verification_token::VerificationToken, common::time::ttl::TTL,
+    user::value_objects::user_email::UserEmail,
 };
 
 pub fn build_verification_email(

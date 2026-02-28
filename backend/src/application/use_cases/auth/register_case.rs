@@ -5,9 +5,10 @@ use crate::{
         results::commands_results::auth::register_result::RegisterResult,
     },
     domain::auth::{
-        entities::user::User, repositories::db::user_repo::UserRepository,
+        repositories::db::user_repo::UserRepository,
         services::password_service::AuthPasswordService,
     },
+    domain::user::entities::user::User,
 };
 use std::sync::Arc;
 

@@ -1,4 +1,4 @@
-use crate::domain::auth::value_objects::user_email::UserEmail;
+use crate::domain::user::value_objects::user_email::UserEmail;
 
 #[derive(Debug, Clone)]
 pub struct RegisterResult {

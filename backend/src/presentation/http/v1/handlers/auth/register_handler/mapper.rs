@@ -5,8 +5,8 @@ use crate::{
         commands::auth::register_command::RegisterCommand,
         results::commands_results::auth::register_result::RegisterResult,
     },
-    domain::auth::value_objects::{
-        plain_password::{PlainPassword, PlainPasswordError},
+    domain::auth::value_objects::plain_password::{PlainPassword, PlainPasswordError},
+    domain::user::value_objects::{
         user_email::{UserEmail, UserEmailError},
         user_name::{UserName, UserNameError},
     },

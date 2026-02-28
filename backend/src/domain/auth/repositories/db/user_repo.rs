@@ -1,8 +1,8 @@
 use async_trait::async_trait;
 
-use crate::domain::auth::{
-    entities::user::User,
-    value_objects::{user_email::UserEmail, user_id::UserId, user_name::UserName},
+use crate::domain::user::entities::user::User;
+use crate::domain::user::value_objects::{
+    user_email::UserEmail, user_id::UserId, user_name::UserName,
 };
 
 pub enum UserRepositoryError {
