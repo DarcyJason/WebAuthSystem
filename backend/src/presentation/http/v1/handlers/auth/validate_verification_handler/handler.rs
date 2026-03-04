@@ -21,7 +21,10 @@ pub async fn validate_verification_handler(
     Json(payload): Json<ValidateEmailVerificationRequestPayload>,
 ) -> ApiResult<impl IntoResponse> {
     let cmd = ValidateVerificationCommand::try_from(payload)?;
-    let case = ValidateVerificationCase::new(app_state.email_verification_cache.clone());
+    let case = ValidateVerificationCase::new(
+        app_state.email_verification_cache.clone(),
+        app_state.user_repo.clone(),
+    );
     let result = case.execute(cmd).await?;
     let response_data = ValidateEmailVerificationResponseData::from(result);
     let response = ApiResponse::<ValidateEmailVerificationResponseData>::ok(

@@ -6,7 +6,7 @@ use surrealdb::opt::auth::Root;
 use surrealdb_migrations::MigrationRunner;
 use tracing::info;
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct SurrealDBClient {
     pub client: Surreal<Client>,
 }

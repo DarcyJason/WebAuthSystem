@@ -29,21 +29,13 @@ impl RegisterCase {
         let existing_user = self
             .user_repo
             .find_by_name_or_email(&cmd.name, &cmd.email)
-            .await
-            .map_err(|_| AppError::StorageError)?;
+            .await?;
         if existing_user.is_some() {
             return Err(AppError::UserAlreadyExists);
         }
-        let user_password_hash = self
-            .auth_password_service
-            .hash(cmd.plain_password)
-            .map_err(|_| AppError::HashPasswordFailed)?;
+        let user_password_hash = self.auth_password_service.hash(cmd.plain_password)?;
         let user = User::new(cmd.name, cmd.email, user_password_hash);
-        let created_result = self
-            .user_repo
-            .save(user)
-            .await
-            .map_err(|_| AppError::StorageError)?;
+        let created_result = self.user_repo.save(user).await?;
         let user = match created_result {
             Some(user) => user,
             None => return Err(AppError::CreateUserFailed),

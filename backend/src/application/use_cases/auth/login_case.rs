@@ -40,16 +40,10 @@ impl LoginCase {
     }
     pub async fn execute(&self, cmd: LoginCommand) -> AppResult<LoginResult> {
         let existing_user: Option<User> = match cmd.login_identity {
-            LoginIdentity::UserName(user_name) => self
-                .user_repo
-                .find_by_name(&user_name)
-                .await
-                .map_err(|_| AppError::StorageError)?,
-            LoginIdentity::UserEmail(user_email) => self
-                .user_repo
-                .find_by_email(&user_email)
-                .await
-                .map_err(|_| AppError::StorageError)?,
+            LoginIdentity::UserName(user_name) => self.user_repo.find_by_name(&user_name).await?,
+            LoginIdentity::UserEmail(user_email) => {
+                self.user_repo.find_by_email(&user_email).await?
+            }
         };
         let user = match existing_user {
             Some(user) => user,
@@ -60,19 +54,14 @@ impl LoginCase {
         }
         if !self
             .auth_password_service
-            .compare(cmd.plain_password, user.password_hash().to_owned())
-            .map_err(|_| AppError::ParseHashedPasswordFailed)?
+            .compare(cmd.plain_password, user.password_hash().to_owned())?
         {
             return Err(AppError::CredentialsInvalid);
         }
         let access_token = self
             .auth_access_token_service
-            .encode_access_token(user.id().to_owned())
-            .map_err(|_| AppError::EncodeAccessTokenFailed)?;
-        let refresh_token = self
-            .auth_refresh_token_service
-            .generate_refresh_token()
-            .map_err(|_| AppError::GenerateRefreshTokenFailed)?;
+            .encode_access_token(user.id().to_owned())?;
+        let refresh_token = self.auth_refresh_token_service.generate_refresh_token()?;
         Ok(LoginResult {
             user_email: user.email().to_owned(),
             access_token,

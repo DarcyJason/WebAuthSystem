@@ -24,41 +24,44 @@ impl RedisEmailVerificationTokenRepository {
 #[async_trait]
 impl EmailVerificationTokenRepository for RedisEmailVerificationTokenRepository {
     async fn save_email_verification_token(
-        &mut self,
-        user_email: UserEmail,
+        &self,
+        user_email: &UserEmail,
         mail_token: VerificationToken,
         ttl: TTL,
     ) -> Result<(), EmailVerificationTokenRepositoryError> {
+        let mut conn = self.redis_client.client.clone();
         let result: () = redis::cmd("SET")
             .arg(format!("email_verify:{}", user_email.value()))
             .arg(mail_token.value())
             .arg("EX")
             .arg(ttl.value().as_secs())
-            .query_async(&mut self.redis_client.client)
+            .query_async(&mut conn)
             .await
             .map_err(|_| EmailVerificationTokenRepositoryError::TokenStoreUnavailable)?;
         Ok(result)
     }
     async fn get_email_verification_token(
-        &mut self,
-        user_email: UserEmail,
+        &self,
+        user_email: &UserEmail,
     ) -> Result<Option<VerificationToken>, EmailVerificationTokenRepositoryError> {
+        let mut conn = self.redis_client.client.clone();
         let key = format!("email_verify:{}", user_email.value());
         let result: Option<String> = redis::cmd("GET")
             .arg(key)
-            .query_async(&mut self.redis_client.client)
+            .query_async(&mut conn)
             .await
             .map_err(|_| EmailVerificationTokenRepositoryError::TokenNotFound)?;
         let result = result.map(VerificationToken::from);
         Ok(result)
     }
     async fn delete_email_verification_token(
-        &mut self,
-        user_email: UserEmail,
+        &self,
+        user_email: &UserEmail,
     ) -> Result<(), EmailVerificationTokenRepositoryError> {
+        let mut conn = self.redis_client.client.clone();
         let result: () = redis::cmd("DEL")
             .arg(format!("email_verify:{}", user_email.value()))
-            .query_async(&mut self.redis_client.client)
+            .query_async(&mut conn)
             .await
             .map_err(|_| EmailVerificationTokenRepositoryError::TokenRemoveFailed)?;
         Ok(result)

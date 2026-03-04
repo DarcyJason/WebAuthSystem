@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use thiserror::Error;
 
 use crate::domain::{
     auth::value_objects::{access_token::AccessToken, refresh_token::RefreshToken},
@@ -14,8 +15,11 @@ pub struct AccessClaims {
     pub exp: usize,
 }
 
+#[derive(Debug, Error)]
 pub enum AuthAccessTokenServiceError {
+    #[error("encode access token failed")]
     EncodeAccessTokenFailed,
+    #[error("decode access token failed")]
     DecodeAccessTokenFailed,
 }
 
@@ -30,7 +34,9 @@ pub trait AuthAccessTokenService: Send + Sync {
     ) -> Result<AccessClaims, AuthAccessTokenServiceError>;
 }
 
+#[derive(Debug, Error)]
 pub enum AuthRefreshTokenServiceError {
+    #[error("generate refresh token failed")]
     GenerateRefreshTokenFailed,
 }
 

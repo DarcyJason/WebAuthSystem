@@ -5,6 +5,7 @@ use crate::domain::user::value_objects::user_name::UserName;
 use crate::domain::user::value_objects::user_password_hash::UserPasswordHash;
 use crate::domain::user::value_objects::user_status::UserStatus;
 use serde::{Deserialize, Serialize};
+use serde_json::Error as SerdeJsonError;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct User {
@@ -54,5 +55,27 @@ impl User {
     }
     pub fn updated_at(&self) -> &Timestamp {
         &self.updated_at
+    }
+
+    pub fn to_redis_value(&self) -> Result<String, SerdeJsonError> {
+        serde_json::to_string(self)
+    }
+
+    pub fn from_redis_value(redis_value: String) -> Result<Self, SerdeJsonError> {
+        serde_json::from_str(&redis_value)
+    }
+
+    pub fn from_redis_optional_value(
+        redis_value: Option<String>,
+    ) -> Result<Option<Self>, SerdeJsonError> {
+        match redis_value {
+            Some(value) => Self::from_redis_value(value).map(Some),
+            None => Ok(None),
+        }
+    }
+
+    pub fn mark_as_verified(&mut self) {
+        self.status = UserStatus::new(true);
+        self.updated_at = Timestamp::now();
     }
 }

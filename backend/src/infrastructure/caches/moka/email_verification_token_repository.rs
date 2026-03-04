@@ -24,8 +24,8 @@ impl Default for MokaEmailVerificationTokenRepository {
 #[async_trait]
 impl EmailVerificationTokenRepository for MokaEmailVerificationTokenRepository {
     async fn save_email_verification_token(
-        &mut self,
-        _user_email: UserEmail,
+        &self,
+        _user_email: &UserEmail,
         _mail_token: VerificationToken,
         _ttl: TTL,
     ) -> Result<(), EmailVerificationTokenRepositoryError> {
@@ -33,15 +33,15 @@ impl EmailVerificationTokenRepository for MokaEmailVerificationTokenRepository {
     }
 
     async fn get_email_verification_token(
-        &mut self,
-        _user_email: UserEmail,
+        &self,
+        _user_email: &UserEmail,
     ) -> Result<Option<VerificationToken>, EmailVerificationTokenRepositoryError> {
         Err(EmailVerificationTokenRepositoryError::TokenNotFound)
     }
 
     async fn delete_email_verification_token(
-        &mut self,
-        _user_email: UserEmail,
+        &self,
+        _user_email: &UserEmail,
     ) -> Result<(), EmailVerificationTokenRepositoryError> {
         Err(EmailVerificationTokenRepositoryError::TokenRemoveFailed)
     }

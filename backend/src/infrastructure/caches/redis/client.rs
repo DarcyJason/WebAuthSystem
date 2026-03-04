@@ -1,7 +1,7 @@
 use crate::infrastructure::config::redis_config::RedisConfig;
 use anyhow::Context;
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct RedisClient {
     pub client: redis::aio::MultiplexedConnection,
 }

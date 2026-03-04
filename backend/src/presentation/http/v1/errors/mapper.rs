@@ -1,3 +1,11 @@
+use crate::domain::auth::errors::AuthDomainError;
+use crate::domain::auth::repositories::email_verification_token_repository::EmailVerificationTokenRepositoryError;
+use crate::domain::auth::services::mail_service::AuthMailServiceError;
+use crate::domain::auth::services::password_service::AuthPasswordServiceError;
+use crate::domain::auth::services::token_service::{
+    AuthAccessTokenServiceError, AuthRefreshTokenServiceError,
+};
+use crate::domain::auth::value_objects::plain_password::PlainPasswordError;
 use crate::domain::errors::DomainError;
 use crate::domain::user::errors::UserDomainError;
 use crate::domain::user::repositories::user_repository::UserRepositoryError;
@@ -9,6 +17,128 @@ impl From<AppError> for ApiError {
     fn from(err: AppError) -> Self {
         match err {
             AppError::DomainError(domain_error) => match domain_error {
+                DomainError::AuthDomainError(auth_domain_error) => match auth_domain_error {
+                    AuthDomainError::PlainPasswordError(plain_password_error) => {
+                        match plain_password_error {
+                            PlainPasswordError::PasswordRequired => {
+                                ApiError::internal_server_error(
+                                    500,
+                                    PlainPasswordError::PasswordRequired.to_string(),
+                                )
+                            }
+                            PlainPasswordError::PasswordTooShort => {
+                                ApiError::internal_server_error(
+                                    500,
+                                    PlainPasswordError::PasswordTooShort.to_string(),
+                                )
+                            }
+                            PlainPasswordError::PasswordTooLong => ApiError::internal_server_error(
+                                500,
+                                PlainPasswordError::PasswordTooLong.to_string(),
+                            ),
+                            PlainPasswordError::PasswordMissingDigit => {
+                                ApiError::internal_server_error(
+                                    500,
+                                    PlainPasswordError::PasswordMissingDigit.to_string(),
+                                )
+                            }
+                            PlainPasswordError::PasswordMissingLowerCase => {
+                                ApiError::internal_server_error(
+                                    500,
+                                    PlainPasswordError::PasswordMissingLowerCase.to_string(),
+                                )
+                            }
+                            PlainPasswordError::PasswordMissingUpperCase => {
+                                ApiError::internal_server_error(
+                                    500,
+                                    PlainPasswordError::PasswordMissingUpperCase.to_string(),
+                                )
+                            }
+                            PlainPasswordError::PasswordMissingSpetial => {
+                                ApiError::internal_server_error(
+                                    500,
+                                    PlainPasswordError::PasswordMissingSpetial.to_string(),
+                                )
+                            }
+                        }
+                    }
+                    AuthDomainError::EmailVerificationTokenRepositoryError(repo_error) => {
+                        match repo_error {
+                            EmailVerificationTokenRepositoryError::TokenStoreUnavailable => {
+                                ApiError::internal_server_error(
+                                    500,
+                                    EmailVerificationTokenRepositoryError::TokenStoreUnavailable
+                                        .to_string(),
+                                )
+                            }
+                            EmailVerificationTokenRepositoryError::TokenNotFound => {
+                                ApiError::internal_server_error(
+                                    500,
+                                    EmailVerificationTokenRepositoryError::TokenNotFound
+                                        .to_string(),
+                                )
+                            }
+                            EmailVerificationTokenRepositoryError::TokenRemoveFailed => {
+                                ApiError::internal_server_error(
+                                    500,
+                                    EmailVerificationTokenRepositoryError::TokenRemoveFailed
+                                        .to_string(),
+                                )
+                            }
+                        }
+                    }
+                    AuthDomainError::AuthMailServiceError(mail_error) => match mail_error {
+                        AuthMailServiceError::SendEmailFailed => ApiError::internal_server_error(
+                            500,
+                            AuthMailServiceError::SendEmailFailed.to_string(),
+                        ),
+                    },
+                    AuthDomainError::AuthPasswordServiceError(password_error) => {
+                        match password_error {
+                            AuthPasswordServiceError::HashPasswordError => {
+                                ApiError::internal_server_error(
+                                    500,
+                                    AuthPasswordServiceError::HashPasswordError.to_string(),
+                                )
+                            }
+                            AuthPasswordServiceError::ParseHashedPasswordError => {
+                                ApiError::internal_server_error(
+                                    500,
+                                    AuthPasswordServiceError::ParseHashedPasswordError.to_string(),
+                                )
+                            }
+                        }
+                    }
+                    AuthDomainError::AuthAccessTokenServiceError(access_token_error) => {
+                        match access_token_error {
+                            AuthAccessTokenServiceError::EncodeAccessTokenFailed => {
+                                ApiError::internal_server_error(
+                                    500,
+                                    AuthAccessTokenServiceError::EncodeAccessTokenFailed
+                                        .to_string(),
+                                )
+                            }
+                            AuthAccessTokenServiceError::DecodeAccessTokenFailed => {
+                                ApiError::internal_server_error(
+                                    500,
+                                    AuthAccessTokenServiceError::DecodeAccessTokenFailed
+                                        .to_string(),
+                                )
+                            }
+                        }
+                    }
+                    AuthDomainError::AuthRefreshTokenServiceError(refresh_token_error) => {
+                        match refresh_token_error {
+                            AuthRefreshTokenServiceError::GenerateRefreshTokenFailed => {
+                                ApiError::internal_server_error(
+                                    500,
+                                    AuthRefreshTokenServiceError::GenerateRefreshTokenFailed
+                                        .to_string(),
+                                )
+                            }
+                        }
+                    }
+                },
                 DomainError::UserDomainError(user_domain_error) => match user_domain_error {
                     UserDomainError::UserIdError(user_id_error) => match user_id_error {
                         UserIdError::GetUserIdFromStrFailed => ApiError::internal_server_error(
@@ -34,14 +164,18 @@ impl From<AppError> for ApiError {
                                     UserRepositoryError::StorageUnavailable.to_string(),
                                 )
                             }
-                            UserRepositoryError::PersistFailed => ApiError::internal_server_error(
-                                500,
-                                UserRepositoryError::PersistFailed.to_string(),
-                            ),
-                            UserRepositoryError::DataCorrupted => ApiError::internal_server_error(
-                                500,
-                                UserRepositoryError::DataCorrupted.to_string(),
-                            ),
+                            UserRepositoryError::PersistenceFailed => {
+                                ApiError::internal_server_error(
+                                    500,
+                                    UserRepositoryError::PersistenceFailed.to_string(),
+                                )
+                            }
+                            UserRepositoryError::DeserializationFailed => {
+                                ApiError::internal_server_error(
+                                    500,
+                                    UserRepositoryError::DeserializationFailed.to_string(),
+                                )
+                            }
                         }
                     }
                 },

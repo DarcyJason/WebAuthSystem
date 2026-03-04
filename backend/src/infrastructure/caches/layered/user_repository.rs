@@ -23,7 +23,7 @@ impl Default for LayeredUserRepository {
 #[async_trait]
 impl UserRepository for LayeredUserRepository {
     async fn save(&self, _user: User) -> Result<Option<User>, UserRepositoryError> {
-        Err(UserRepositoryError::PersistFailed)
+        Err(UserRepositoryError::PersistenceFailed)
     }
 
     async fn find_by_id(&self, _user_id: &UserId) -> Result<Option<User>, UserRepositoryError> {
@@ -47,6 +47,13 @@ impl UserRepository for LayeredUserRepository {
     async fn find_by_name_or_email(
         &self,
         _user_name: &UserName,
+        _user_email: &UserEmail,
+    ) -> Result<Option<User>, UserRepositoryError> {
+        Err(UserRepositoryError::StorageUnavailable)
+    }
+
+    async fn update_status_as_true(
+        &self,
         _user_email: &UserEmail,
     ) -> Result<Option<User>, UserRepositoryError> {
         Err(UserRepositoryError::StorageUnavailable)

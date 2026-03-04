@@ -1,6 +1,5 @@
 use resend_rs::Resend;
 use std::sync::Arc;
-use tokio::sync::Mutex;
 
 use crate::domain::auth::repositories::email_verification_token_repository::EmailVerificationTokenRepository;
 use crate::domain::auth::services::mail_service::AuthMailService;
@@ -26,7 +25,7 @@ pub struct AppState {
     pub auth_refresh_token_service: Arc<dyn AuthRefreshTokenService>,
     pub auth_password_service: Arc<dyn AuthPasswordService>,
     pub auth_mail_service: Arc<dyn AuthMailService>,
-    pub email_verification_cache: Arc<Mutex<dyn EmailVerificationTokenRepository>>,
+    pub email_verification_cache: Arc<dyn EmailVerificationTokenRepository>,
 }
 
 impl AppState {
@@ -42,9 +41,8 @@ impl AppState {
             Arc::new(RefreshTokenService::new());
         let auth_password_service: Arc<dyn AuthPasswordService> = Arc::new(PasswordService::new());
         let auth_mail_service: Arc<dyn AuthMailService> = Arc::new(MailService::new(mail_client));
-        let email_verification_cache: Arc<Mutex<dyn EmailVerificationTokenRepository>> = Arc::new(
-            Mutex::new(RedisEmailVerificationTokenRepository::new(redis_client)),
-        );
+        let email_verification_cache: Arc<dyn EmailVerificationTokenRepository> =
+            Arc::new(RedisEmailVerificationTokenRepository::new(redis_client));
         Ok(AppState {
             user_repo,
             auth_access_token_service,

@@ -1,4 +1,19 @@
 use crate::domain::errors::DomainError;
+use crate::domain::{
+    auth::errors::AuthDomainError,
+    auth::{
+        repositories::email_verification_token_repository::EmailVerificationTokenRepositoryError,
+        services::{
+            mail_service::AuthMailServiceError,
+            password_service::AuthPasswordServiceError,
+            token_service::{AuthAccessTokenServiceError, AuthRefreshTokenServiceError},
+        },
+    },
+    user::{
+        errors::UserDomainError, repositories::user_repository::UserRepositoryError,
+        value_objects::user_email::UserEmailError,
+    },
+};
 use thiserror::Error;
 
 pub type AppResult<T> = Result<T, AppError>;
@@ -41,4 +56,46 @@ pub enum AppError {
     EmailVerificationTokenNotFound,
     #[error("Email verification token is invalid")]
     EmailVerificationTokenInvalid,
+}
+
+impl From<UserRepositoryError> for AppError {
+    fn from(value: UserRepositoryError) -> Self {
+        AppError::DomainError(DomainError::from(UserDomainError::from(value)))
+    }
+}
+
+impl From<AuthPasswordServiceError> for AppError {
+    fn from(value: AuthPasswordServiceError) -> Self {
+        AppError::DomainError(DomainError::from(AuthDomainError::from(value)))
+    }
+}
+
+impl From<AuthAccessTokenServiceError> for AppError {
+    fn from(value: AuthAccessTokenServiceError) -> Self {
+        AppError::DomainError(DomainError::from(AuthDomainError::from(value)))
+    }
+}
+
+impl From<AuthRefreshTokenServiceError> for AppError {
+    fn from(value: AuthRefreshTokenServiceError) -> Self {
+        AppError::DomainError(DomainError::from(AuthDomainError::from(value)))
+    }
+}
+
+impl From<EmailVerificationTokenRepositoryError> for AppError {
+    fn from(value: EmailVerificationTokenRepositoryError) -> Self {
+        AppError::DomainError(DomainError::from(AuthDomainError::from(value)))
+    }
+}
+
+impl From<AuthMailServiceError> for AppError {
+    fn from(value: AuthMailServiceError) -> Self {
+        AppError::DomainError(DomainError::from(AuthDomainError::from(value)))
+    }
+}
+
+impl From<UserEmailError> for AppError {
+    fn from(value: UserEmailError) -> Self {
+        AppError::DomainError(DomainError::from(UserDomainError::from(value)))
+    }
 }

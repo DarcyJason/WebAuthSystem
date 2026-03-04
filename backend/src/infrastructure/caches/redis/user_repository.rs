@@ -5,50 +5,119 @@ use crate::domain::user::repositories::user_repository::{UserRepository, UserRep
 use crate::domain::user::value_objects::{
     user_email::UserEmail, user_id::UserId, user_name::UserName,
 };
+use crate::infrastructure::caches::redis::client::RedisClient;
 
-pub struct RedisUserRepository;
-
-impl RedisUserRepository {
-    pub fn new() -> Self {
-        RedisUserRepository
-    }
+pub struct RedisUserRepository {
+    redis_client: RedisClient,
 }
 
-impl Default for RedisUserRepository {
-    fn default() -> Self {
-        Self::new()
+impl RedisUserRepository {
+    pub fn new(redis_client: RedisClient) -> Self {
+        RedisUserRepository { redis_client }
     }
 }
 
 #[async_trait]
 impl UserRepository for RedisUserRepository {
-    async fn save(&self, _user: User) -> Result<Option<User>, UserRepositoryError> {
-        Err(UserRepositoryError::PersistFailed)
+    async fn save(&self, user: User) -> Result<Option<User>, UserRepositoryError> {
+        let id_key = format!("user:id:{}", user.id().value());
+        let email_key = format!("user:email:{}", user.email().value());
+        let name_key = format!("user:name:{}", user.name().value());
+        let payload = user
+            .to_redis_value()
+            .map_err(|_| UserRepositoryError::PersistenceFailed)?;
+        let mut conn = self.redis_client.client.clone();
+        redis::cmd("SET")
+            .arg(&id_key)
+            .arg(&payload)
+            .query_async::<()>(&mut conn)
+            .await
+            .map_err(|_| UserRepositoryError::PersistenceFailed)?;
+        redis::cmd("SET")
+            .arg(&email_key)
+            .arg(&payload)
+            .query_async::<()>(&mut conn)
+            .await
+            .map_err(|_| UserRepositoryError::PersistenceFailed)?;
+        redis::cmd("SET")
+            .arg(&name_key)
+            .arg(&payload)
+            .query_async::<()>(&mut conn)
+            .await
+            .map_err(|_| UserRepositoryError::PersistenceFailed)?;
+        let result: Option<String> = redis::cmd("GET")
+            .arg(&id_key)
+            .query_async(&mut conn)
+            .await
+            .map_err(|_| UserRepositoryError::StorageUnavailable)?;
+        User::from_redis_optional_value(result)
+            .map_err(|_| UserRepositoryError::DeserializationFailed)
     }
 
-    async fn find_by_id(&self, _user_id: &UserId) -> Result<Option<User>, UserRepositoryError> {
-        Err(UserRepositoryError::StorageUnavailable)
+    async fn find_by_id(&self, user_id: &UserId) -> Result<Option<User>, UserRepositoryError> {
+        let mut conn = self.redis_client.client.clone();
+        let id_key = format!("user:id:{}", user_id.value());
+        let result: Option<String> = redis::cmd("GET")
+            .arg(id_key)
+            .query_async(&mut conn)
+            .await
+            .map_err(|_| UserRepositoryError::StorageUnavailable)?;
+        User::from_redis_optional_value(result)
+            .map_err(|_| UserRepositoryError::DeserializationFailed)
     }
 
     async fn find_by_name(
         &self,
-        _user_name: &UserName,
+        user_name: &UserName,
     ) -> Result<Option<User>, UserRepositoryError> {
-        Err(UserRepositoryError::StorageUnavailable)
+        let mut conn = self.redis_client.client.clone();
+        let name_key = format!("user:name:{}", user_name.value());
+        let result: Option<String> = redis::cmd("GET")
+            .arg(name_key)
+            .query_async(&mut conn)
+            .await
+            .map_err(|_| UserRepositoryError::StorageUnavailable)?;
+        User::from_redis_optional_value(result)
+            .map_err(|_| UserRepositoryError::DeserializationFailed)
     }
 
     async fn find_by_email(
         &self,
-        _user_email: &UserEmail,
+        user_email: &UserEmail,
     ) -> Result<Option<User>, UserRepositoryError> {
-        Err(UserRepositoryError::StorageUnavailable)
+        let mut conn = self.redis_client.client.clone();
+        let email_key = format!("user:email:{}", user_email.value());
+        let result: Option<String> = redis::cmd("GET")
+            .arg(email_key)
+            .query_async(&mut conn)
+            .await
+            .map_err(|_| UserRepositoryError::StorageUnavailable)?;
+        User::from_redis_optional_value(result)
+            .map_err(|_| UserRepositoryError::DeserializationFailed)
     }
 
     async fn find_by_name_or_email(
         &self,
-        _user_name: &UserName,
-        _user_email: &UserEmail,
+        user_name: &UserName,
+        user_email: &UserEmail,
     ) -> Result<Option<User>, UserRepositoryError> {
-        Err(UserRepositoryError::StorageUnavailable)
+        let user = self.find_by_name(user_name).await?;
+        if user.is_some() {
+            return Ok(user);
+        }
+        self.find_by_email(user_email).await
+    }
+
+    async fn update_status_as_true(
+        &self,
+        user_email: &UserEmail,
+    ) -> Result<Option<User>, UserRepositoryError> {
+        let existing_user = self.find_by_email(user_email).await?;
+        let mut user = match existing_user {
+            Some(user) => user,
+            None => return Ok(None),
+        };
+        user.mark_as_verified();
+        self.save(user).await
     }
 }

@@ -28,14 +28,9 @@ impl GetMeCase {
     pub async fn execute(&self, query: GetMeQuery) -> AppResult<GetMeResult> {
         let access_claims = self
             .auth_access_token_service
-            .decode_access_token(query.access_token)
-            .map_err(|_| AppError::DecodeAccessTokenFailed)?;
+            .decode_access_token(query.access_token)?;
         let user_id = access_claims.sub;
-        let existing_user = self
-            .user_repo
-            .find_by_id(&user_id)
-            .await
-            .map_err(|_| AppError::StorageError)?;
+        let existing_user = self.user_repo.find_by_id(&user_id).await?;
         let user = match existing_user {
             Some(user) => user,
             None => return Err(AppError::UserNotFound),

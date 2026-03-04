@@ -1,5 +1,5 @@
 use crate::application::commands::auth::send_verification_email_command::SendVerificationEmailCommand;
-use crate::application::errors::{AppError, AppResult};
+use crate::application::errors::AppResult;
 use crate::application::results::commands_results::auth::send_verification_email_result::SendVerificationEmailResult;
 use crate::domain::auth::repositories::email_verification_token_repository::EmailVerificationTokenRepository;
 use crate::domain::auth::services::mail_service::AuthMailService;
@@ -10,17 +10,16 @@ use crate::domain::common::time::ttl::TTL;
 use crate::domain::user::value_objects::user_email::UserEmail;
 use crate::infrastructure::mail::verification_template::build_verification_email;
 use std::sync::Arc;
-use tokio::sync::Mutex;
 
 pub struct SendVerificationEmailCase {
     auth_mail_service: Arc<dyn AuthMailService>,
-    auth_email_verification_cache: Arc<Mutex<dyn EmailVerificationTokenRepository>>,
+    auth_email_verification_cache: Arc<dyn EmailVerificationTokenRepository>,
 }
 
 impl SendVerificationEmailCase {
     pub fn new(
         auth_mail_service: Arc<dyn AuthMailService>,
-        auth_email_verification_cache: Arc<Mutex<dyn EmailVerificationTokenRepository>>,
+        auth_email_verification_cache: Arc<dyn EmailVerificationTokenRepository>,
     ) -> Self {
         SendVerificationEmailCase {
             auth_mail_service,
@@ -40,25 +39,16 @@ impl SendVerificationEmailCase {
             expires_seconds.clone(),
         );
         self.auth_email_verification_cache
-            .lock()
-            .await
-            .save_email_verification_token(
-                user_email.clone(),
-                email_verification_token,
-                expires_seconds,
-            )
-            .await
-            .map_err(|_| AppError::SaveEmailVerificationTokenFailed)?;
+            .save_email_verification_token(&user_email, email_verification_token, expires_seconds)
+            .await?;
         self.auth_mail_service
             .send_email(
-                UserEmail::new("notnone@email.homeryland.com")
-                    .map_err(|_| AppError::SystemOwnerEmailInvalid)?,
+                UserEmail::new("notnone@email.homeryland.com")?,
                 vec![user_email],
                 MailSubject::new("Email Verification"),
                 MailContent::new(verification_email),
             )
-            .await
-            .map_err(|_| AppError::SendVerificationEmailFailed)?;
+            .await?;
         Ok(SendVerificationEmailResult {})
     }
 }

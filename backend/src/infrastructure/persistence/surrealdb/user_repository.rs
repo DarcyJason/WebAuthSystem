@@ -28,7 +28,7 @@ impl UserRepository for SurrealDBUserRepository {
             .insert("user")
             .content(user)
             .await
-            .map_err(|_| UserRepositoryError::PersistFailed)?;
+            .map_err(|_| UserRepositoryError::PersistenceFailed)?;
         Ok(users.first().cloned())
     }
     async fn find_by_id(&self, user_id: &UserId) -> Result<Option<User>, UserRepositoryError> {
@@ -56,7 +56,7 @@ impl UserRepository for SurrealDBUserRepository {
             .map_err(|_| UserRepositoryError::StorageUnavailable)?;
         let existing_user: Option<User> = result
             .take(0)
-            .map_err(|_| UserRepositoryError::DataCorrupted)?;
+            .map_err(|_| UserRepositoryError::DeserializationFailed)?;
         Ok(existing_user)
     }
     async fn find_by_email(
@@ -75,7 +75,7 @@ impl UserRepository for SurrealDBUserRepository {
             .map_err(|_| UserRepositoryError::StorageUnavailable)?;
         let existing_user: Option<User> = result
             .take(0)
-            .map_err(|_| UserRepositoryError::DataCorrupted)?;
+            .map_err(|_| UserRepositoryError::DeserializationFailed)?;
         Ok(existing_user)
     }
     async fn find_by_name_or_email(
@@ -96,7 +96,26 @@ impl UserRepository for SurrealDBUserRepository {
             .map_err(|_| UserRepositoryError::StorageUnavailable)?;
         let existing_user: Option<User> = result
             .take(0)
-            .map_err(|_| UserRepositoryError::DataCorrupted)?;
+            .map_err(|_| UserRepositoryError::DeserializationFailed)?;
         Ok(existing_user)
+    }
+    async fn update_status_as_true(
+        &self,
+        user_email: &UserEmail,
+    ) -> Result<Option<User>, UserRepositoryError> {
+        let existing_user = self.find_by_email(user_email).await?;
+        let mut user = match existing_user {
+            Some(user) => user,
+            None => return Ok(None),
+        };
+        user.mark_as_verified();
+        let updated_user: Option<User> = self
+            .surrealdb_client
+            .client
+            .update(user.id().value().to_owned())
+            .content(user)
+            .await
+            .map_err(|_| UserRepositoryError::PersistenceFailed)?;
+        Ok(updated_user)
     }
 }
