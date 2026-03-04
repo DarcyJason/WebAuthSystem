@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+use std::sync::Arc;
 
 use crate::domain::user::entities::user::User;
 use crate::domain::user::repositories::user_repository::{UserRepository, UserRepositoryError};
@@ -6,56 +7,115 @@ use crate::domain::user::value_objects::{
     user_email::UserEmail, user_id::UserId, user_name::UserName,
 };
 
-pub struct LayeredUserRepository;
-
-impl LayeredUserRepository {
-    pub fn new() -> Self {
-        LayeredUserRepository
-    }
+pub struct LayeredUserRepository {
+    l1_cache: Arc<dyn UserRepository>,
+    l2_cache: Arc<dyn UserRepository>,
+    source_repo: Arc<dyn UserRepository>,
 }
 
-impl Default for LayeredUserRepository {
-    fn default() -> Self {
-        Self::new()
+impl LayeredUserRepository {
+    pub fn new(
+        l1_cache: Arc<dyn UserRepository>,
+        l2_cache: Arc<dyn UserRepository>,
+        source_repo: Arc<dyn UserRepository>,
+    ) -> Self {
+        LayeredUserRepository {
+            l1_cache,
+            l2_cache,
+            source_repo,
+        }
+    }
+
+    async fn warm_up_l1(&self, user: &User) {
+        let _ = self.l1_cache.save(user.clone()).await;
+    }
+
+    async fn warm_up_l2_and_l1(&self, user: &User) {
+        let _ = self.l2_cache.save(user.clone()).await;
+        self.warm_up_l1(user).await;
     }
 }
 
 #[async_trait]
 impl UserRepository for LayeredUserRepository {
-    async fn save(&self, _user: User) -> Result<Option<User>, UserRepositoryError> {
-        Err(UserRepositoryError::PersistenceFailed)
+    async fn save(&self, user: User) -> Result<Option<User>, UserRepositoryError> {
+        let saved = self.source_repo.save(user.clone()).await?;
+        let user_to_cache = saved.clone().unwrap_or(user);
+        self.warm_up_l2_and_l1(&user_to_cache).await;
+        Ok(saved)
     }
 
-    async fn find_by_id(&self, _user_id: &UserId) -> Result<Option<User>, UserRepositoryError> {
-        Err(UserRepositoryError::StorageUnavailable)
+    async fn find_by_id(&self, user_id: &UserId) -> Result<Option<User>, UserRepositoryError> {
+        if let Ok(Some(user)) = self.l1_cache.find_by_id(user_id).await {
+            return Ok(Some(user));
+        }
+        if let Ok(Some(user)) = self.l2_cache.find_by_id(user_id).await {
+            self.warm_up_l1(&user).await;
+            return Ok(Some(user));
+        }
+        let user = self.source_repo.find_by_id(user_id).await?;
+        if let Some(ref user) = user {
+            self.warm_up_l2_and_l1(user).await;
+        }
+        Ok(user)
     }
 
     async fn find_by_name(
         &self,
-        _user_name: &UserName,
+        user_name: &UserName,
     ) -> Result<Option<User>, UserRepositoryError> {
-        Err(UserRepositoryError::StorageUnavailable)
+        if let Ok(Some(user)) = self.l1_cache.find_by_name(user_name).await {
+            return Ok(Some(user));
+        }
+        if let Ok(Some(user)) = self.l2_cache.find_by_name(user_name).await {
+            self.warm_up_l1(&user).await;
+            return Ok(Some(user));
+        }
+        let user = self.source_repo.find_by_name(user_name).await?;
+        if let Some(ref user) = user {
+            self.warm_up_l2_and_l1(user).await;
+        }
+        Ok(user)
     }
 
     async fn find_by_email(
         &self,
-        _user_email: &UserEmail,
+        user_email: &UserEmail,
     ) -> Result<Option<User>, UserRepositoryError> {
-        Err(UserRepositoryError::StorageUnavailable)
+        if let Ok(Some(user)) = self.l1_cache.find_by_email(user_email).await {
+            return Ok(Some(user));
+        }
+        if let Ok(Some(user)) = self.l2_cache.find_by_email(user_email).await {
+            self.warm_up_l1(&user).await;
+            return Ok(Some(user));
+        }
+        let user = self.source_repo.find_by_email(user_email).await?;
+        if let Some(ref user) = user {
+            self.warm_up_l2_and_l1(user).await;
+        }
+        Ok(user)
     }
 
     async fn find_by_name_or_email(
         &self,
-        _user_name: &UserName,
-        _user_email: &UserEmail,
+        user_name: &UserName,
+        user_email: &UserEmail,
     ) -> Result<Option<User>, UserRepositoryError> {
-        Err(UserRepositoryError::StorageUnavailable)
+        let user = self.find_by_name(user_name).await?;
+        if user.is_some() {
+            return Ok(user);
+        }
+        self.find_by_email(user_email).await
     }
 
     async fn update_status_as_true(
         &self,
-        _user_email: &UserEmail,
+        user_email: &UserEmail,
     ) -> Result<Option<User>, UserRepositoryError> {
-        Err(UserRepositoryError::StorageUnavailable)
+        let updated = self.source_repo.update_status_as_true(user_email).await?;
+        if let Some(ref user) = updated {
+            self.warm_up_l2_and_l1(user).await;
+        }
+        Ok(updated)
     }
 }

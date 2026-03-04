@@ -8,8 +8,12 @@ use crate::domain::auth::services::token_service::{
     AuthAccessTokenService, AuthRefreshTokenService,
 };
 use crate::domain::user::repositories::user_repository::UserRepository;
+use crate::infrastructure::caches::layered::user_repository::LayeredUserRepository;
+use crate::infrastructure::caches::moka::client::MokaClient;
+use crate::infrastructure::caches::moka::user_repository::MokaUserRepository;
 use crate::infrastructure::caches::redis::client::RedisClient;
 use crate::infrastructure::caches::redis::email_verification_token_repository::RedisEmailVerificationTokenRepository;
+use crate::infrastructure::caches::redis::user_repository::RedisUserRepository;
 use crate::infrastructure::config::Config;
 use crate::infrastructure::mail::MailService;
 use crate::infrastructure::persistence::surrealdb::client::SurrealDBClient;
@@ -33,8 +37,17 @@ impl AppState {
         let surrealdb_client = SurrealDBClient::new(&config.surrealdb).await?;
         let redis_client = RedisClient::new(&config.redis).await?;
         let mail_client = Resend::new(&config.resend.api_key);
-        let user_repo: Arc<dyn UserRepository> =
+        let l1_user_repo: Arc<dyn UserRepository> =
+            Arc::new(MokaUserRepository::new(MokaClient::new()));
+        let l2_user_repo: Arc<dyn UserRepository> =
+            Arc::new(RedisUserRepository::new(redis_client.clone()));
+        let source_user_repo: Arc<dyn UserRepository> =
             Arc::new(SurrealDBUserRepository::new(surrealdb_client));
+        let user_repo: Arc<dyn UserRepository> = Arc::new(LayeredUserRepository::new(
+            l1_user_repo,
+            l2_user_repo,
+            source_user_repo,
+        ));
         let auth_access_token_service: Arc<dyn AuthAccessTokenService> =
             Arc::new(AccessTokenService::new(config.jwt.secret));
         let auth_refresh_token_service: Arc<dyn AuthRefreshTokenService> =
