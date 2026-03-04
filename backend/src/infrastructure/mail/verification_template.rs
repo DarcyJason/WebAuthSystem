@@ -17,7 +17,7 @@ pub fn build_verification_email(
             <tr>
               <td align="center">
                 <table width="520" cellpadding="0" cellspacing="0"
-                       style="background:#ffffff;border-radius:24px;padding:48px;box-shadow:0 4px 12px rgba(0,0,0,0.05);">
+                      style="background:#ffffff;border-radius:24px;padding:48px;box-shadow:0 4px 12px rgba(0,0,0,0.05);">
 
                   <tr>
                     <td align="left" style="padding-bottom:32px;">

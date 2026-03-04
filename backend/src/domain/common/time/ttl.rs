@@ -6,8 +6,11 @@ use serde::{Deserialize, Serialize};
 pub struct TTL(Duration);
 
 impl TTL {
-    pub fn from_seonds(seconds: u64) -> Self {
+    pub fn from_seconds(seconds: u64) -> Self {
         TTL(Duration::from_secs(seconds))
+    }
+    pub fn from_seonds(seconds: u64) -> Self {
+        Self::from_seconds(seconds)
     }
     pub fn value(&self) -> &Duration {
         &self.0

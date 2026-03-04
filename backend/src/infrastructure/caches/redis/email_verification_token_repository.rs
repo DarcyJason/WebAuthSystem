@@ -1,37 +1,34 @@
 use async_trait::async_trait;
 
+use crate::domain::auth::repositories::email_verification_token_repository::{
+    EmailVerificationTokenRepository, EmailVerificationTokenRepositoryError,
+};
 use crate::{
     domain::{
-        auth::{
-            repositories::cache::email_verification_cache::{
-                EmailVerificationCache, EmailVerificationCacheError,
-            },
-            value_objects::verification_token::VerificationToken,
-        },
-        common::time::ttl::TTL,
+        auth::value_objects::verification_token::VerificationToken, common::time::ttl::TTL,
         user::value_objects::user_email::UserEmail,
     },
     infrastructure::caches::redis::client::RedisClient,
 };
 
-pub struct RedisEmailVerificationCache {
+pub struct RedisEmailVerificationTokenRepository {
     redis_client: RedisClient,
 }
 
-impl RedisEmailVerificationCache {
+impl RedisEmailVerificationTokenRepository {
     pub fn new(redis_client: RedisClient) -> Self {
-        RedisEmailVerificationCache { redis_client }
+        RedisEmailVerificationTokenRepository { redis_client }
     }
 }
 
 #[async_trait]
-impl EmailVerificationCache for RedisEmailVerificationCache {
+impl EmailVerificationTokenRepository for RedisEmailVerificationTokenRepository {
     async fn save_email_verification_token(
         &mut self,
         user_email: UserEmail,
         mail_token: VerificationToken,
         ttl: TTL,
-    ) -> Result<(), EmailVerificationCacheError> {
+    ) -> Result<(), EmailVerificationTokenRepositoryError> {
         let result: () = redis::cmd("SET")
             .arg(format!("email_verify:{}", user_email.value()))
             .arg(mail_token.value())
@@ -39,34 +36,31 @@ impl EmailVerificationCache for RedisEmailVerificationCache {
             .arg(ttl.value().as_secs())
             .query_async(&mut self.redis_client.client)
             .await
-            .map_err(|_| EmailVerificationCacheError::TokenStoreUnavailable)?;
+            .map_err(|_| EmailVerificationTokenRepositoryError::TokenStoreUnavailable)?;
         Ok(result)
     }
     async fn get_email_verification_token(
         &mut self,
         user_email: UserEmail,
-    ) -> Result<Option<VerificationToken>, EmailVerificationCacheError> {
+    ) -> Result<Option<VerificationToken>, EmailVerificationTokenRepositoryError> {
         let key = format!("email_verify:{}", user_email.value());
         let result: Option<String> = redis::cmd("GET")
             .arg(key)
             .query_async(&mut self.redis_client.client)
             .await
-            .map_err(|_| EmailVerificationCacheError::TokenNotFound)?;
-        let result = match result {
-            Some(token) => Some(VerificationToken::from(token)),
-            None => None,
-        };
+            .map_err(|_| EmailVerificationTokenRepositoryError::TokenNotFound)?;
+        let result = result.map(VerificationToken::from);
         Ok(result)
     }
     async fn delete_email_verification_token(
         &mut self,
         user_email: UserEmail,
-    ) -> Result<(), EmailVerificationCacheError> {
+    ) -> Result<(), EmailVerificationTokenRepositoryError> {
         let result: () = redis::cmd("DEL")
             .arg(format!("email_verify:{}", user_email.value()))
             .query_async(&mut self.redis_client.client)
             .await
-            .map_err(|_| EmailVerificationCacheError::TokenRemoveFailed)?;
+            .map_err(|_| EmailVerificationTokenRepositoryError::TokenRemoveFailed)?;
         Ok(result)
     }
 }

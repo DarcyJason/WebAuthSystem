@@ -1,9 +1,13 @@
 use std::fmt::Display;
 
 use serde::{Deserialize, Serialize};
+use thiserror::Error;
 
+#[derive(Debug, Error)]
 pub enum UserEmailError {
+    #[error("User email is required")]
     UserEmailRequired,
+    #[error("User email is invalid")]
     UserEmailInvalid,
 }
 

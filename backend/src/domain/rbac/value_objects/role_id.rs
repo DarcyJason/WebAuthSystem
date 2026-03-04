@@ -33,3 +33,9 @@ impl RoleId {
         &self.0
     }
 }
+
+impl Default for RoleId {
+    fn default() -> Self {
+        Self::new()
+    }
+}

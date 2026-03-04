@@ -1,15 +1,13 @@
 use std::sync::Arc;
 
+use crate::domain::user::repositories::user_repository::UserRepository;
 use crate::{
     application::{
         errors::{AppError, AppResult},
         queries::user::get_me_query::GetMeQuery,
         results::queries_results::user::get_me_result::GetMeResult,
     },
-    domain::auth::{
-        repositories::db::user_repo::UserRepository,
-        services::token_service::AuthAccessTokenService,
-    },
+    domain::auth::services::token_service::AuthAccessTokenService,
 };
 
 pub struct GetMeCase {
@@ -35,9 +33,9 @@ impl GetMeCase {
         let user_id = access_claims.sub;
         let existing_user = self
             .user_repo
-            .find_user_by_id(&user_id)
+            .find_by_id(&user_id)
             .await
-            .map_err(|_| AppError::SurrealDBError)?;
+            .map_err(|_| AppError::StorageError)?;
         let user = match existing_user {
             Some(user) => user,
             None => return Err(AppError::UserNotFound),

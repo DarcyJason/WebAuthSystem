@@ -1,13 +1,11 @@
+use crate::domain::user::repositories::user_repository::UserRepository;
 use crate::{
     application::{
         commands::auth::register_command::RegisterCommand,
         errors::{AppError, AppResult},
         results::commands_results::auth::register_result::RegisterResult,
     },
-    domain::auth::{
-        repositories::db::user_repo::UserRepository,
-        services::password_service::AuthPasswordService,
-    },
+    domain::auth::services::password_service::AuthPasswordService,
     domain::user::entities::user::User,
 };
 use std::sync::Arc;
@@ -30,9 +28,9 @@ impl RegisterCase {
     pub async fn execute(&self, cmd: RegisterCommand) -> AppResult<RegisterResult> {
         let existing_user = self
             .user_repo
-            .find_user_by_name_or_email(&cmd.name, &cmd.email)
+            .find_by_name_or_email(&cmd.name, &cmd.email)
             .await
-            .map_err(|_| AppError::SurrealDBError)?;
+            .map_err(|_| AppError::StorageError)?;
         if existing_user.is_some() {
             return Err(AppError::UserAlreadyExists);
         }
@@ -43,9 +41,9 @@ impl RegisterCase {
         let user = User::new(cmd.name, cmd.email, user_password_hash);
         let created_result = self
             .user_repo
-            .save_user(user)
+            .save(user)
             .await
-            .map_err(|_| AppError::SurrealDBError)?;
+            .map_err(|_| AppError::StorageError)?;
         let user = match created_result {
             Some(user) => user,
             None => return Err(AppError::CreateUserFailed),

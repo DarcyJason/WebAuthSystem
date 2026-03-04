@@ -11,11 +11,17 @@ use crate::domain::{
     user::value_objects::user_password_hash::UserPasswordHash,
 };
 
-pub struct PasswordService {}
+pub struct PasswordService;
 
 impl PasswordService {
     pub fn new() -> Self {
         PasswordService {}
+    }
+}
+
+impl Default for PasswordService {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

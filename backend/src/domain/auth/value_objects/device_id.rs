@@ -33,3 +33,9 @@ impl DeviceId {
         &self.0
     }
 }
+
+impl Default for DeviceId {
+    fn default() -> Self {
+        Self::new()
+    }
+}

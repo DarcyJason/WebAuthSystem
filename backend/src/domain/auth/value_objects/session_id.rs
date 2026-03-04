@@ -33,3 +33,9 @@ impl SessionId {
         &self.0
     }
 }
+
+impl Default for SessionId {
+    fn default() -> Self {
+        Self::new()
+    }
+}

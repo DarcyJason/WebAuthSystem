@@ -1,12 +1,12 @@
 use async_trait::async_trait;
 
+use crate::domain::user::repositories::user_repository::{UserRepository, UserRepositoryError};
 use crate::{
-    domain::auth::repositories::db::user_repo::{UserRepository, UserRepositoryError},
     domain::user::{
         entities::user::User,
         value_objects::{user_email::UserEmail, user_id::UserId, user_name::UserName},
     },
-    infrastructure::persistences::surrealdb::client::SurrealDBClient,
+    infrastructure::persistence::surrealdb::client::SurrealDBClient,
 };
 
 pub struct SurrealDBUserRepository {
@@ -21,7 +21,7 @@ impl SurrealDBUserRepository {
 
 #[async_trait]
 impl UserRepository for SurrealDBUserRepository {
-    async fn save_user(&self, user: User) -> Result<Option<User>, UserRepositoryError> {
+    async fn save(&self, user: User) -> Result<Option<User>, UserRepositoryError> {
         let users: Vec<User> = self
             .surrealdb_client
             .client
@@ -29,9 +29,9 @@ impl UserRepository for SurrealDBUserRepository {
             .content(user)
             .await
             .map_err(|_| UserRepositoryError::PersistFailed)?;
-        Ok(users.get(0).cloned())
+        Ok(users.first().cloned())
     }
-    async fn find_user_by_id(&self, user_id: &UserId) -> Result<Option<User>, UserRepositoryError> {
+    async fn find_by_id(&self, user_id: &UserId) -> Result<Option<User>, UserRepositoryError> {
         let existing_user: Option<User> = self
             .surrealdb_client
             .client
@@ -40,7 +40,7 @@ impl UserRepository for SurrealDBUserRepository {
             .map_err(|_| UserRepositoryError::StorageUnavailable)?;
         Ok(existing_user)
     }
-    async fn find_user_by_name(
+    async fn find_by_name(
         &self,
         user_name: &UserName,
     ) -> Result<Option<User>, UserRepositoryError> {
@@ -59,7 +59,7 @@ impl UserRepository for SurrealDBUserRepository {
             .map_err(|_| UserRepositoryError::DataCorrupted)?;
         Ok(existing_user)
     }
-    async fn find_user_by_email(
+    async fn find_by_email(
         &self,
         user_email: &UserEmail,
     ) -> Result<Option<User>, UserRepositoryError> {
@@ -78,7 +78,7 @@ impl UserRepository for SurrealDBUserRepository {
             .map_err(|_| UserRepositoryError::DataCorrupted)?;
         Ok(existing_user)
     }
-    async fn find_user_by_name_or_email(
+    async fn find_by_name_or_email(
         &self,
         user_name: &UserName,
         user_email: &UserEmail,

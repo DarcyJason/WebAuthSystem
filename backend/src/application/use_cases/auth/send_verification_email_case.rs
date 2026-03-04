@@ -1,28 +1,26 @@
 use crate::application::commands::auth::send_verification_email_command::SendVerificationEmailCommand;
 use crate::application::errors::{AppError, AppResult};
 use crate::application::results::commands_results::auth::send_verification_email_result::SendVerificationEmailResult;
+use crate::domain::auth::repositories::email_verification_token_repository::EmailVerificationTokenRepository;
 use crate::domain::auth::services::mail_service::AuthMailService;
 use crate::domain::auth::value_objects::mail_content::MailContent;
 use crate::domain::auth::value_objects::mail_subject::MailSubject;
 use crate::domain::auth::value_objects::verification_token::VerificationToken;
+use crate::domain::common::time::ttl::TTL;
 use crate::domain::user::value_objects::user_email::UserEmail;
-use crate::domain::{
-    auth::repositories::cache::email_verification_cache::EmailVerificationCache,
-    common::time::ttl::TTL,
-};
 use crate::infrastructure::mail::verification_template::build_verification_email;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
 pub struct SendVerificationEmailCase {
     auth_mail_service: Arc<dyn AuthMailService>,
-    auth_email_verification_cache: Arc<Mutex<dyn EmailVerificationCache>>,
+    auth_email_verification_cache: Arc<Mutex<dyn EmailVerificationTokenRepository>>,
 }
 
 impl SendVerificationEmailCase {
     pub fn new(
         auth_mail_service: Arc<dyn AuthMailService>,
-        auth_email_verification_cache: Arc<Mutex<dyn EmailVerificationCache>>,
+        auth_email_verification_cache: Arc<Mutex<dyn EmailVerificationTokenRepository>>,
     ) -> Self {
         SendVerificationEmailCase {
             auth_mail_service,
@@ -35,7 +33,7 @@ impl SendVerificationEmailCase {
     ) -> AppResult<SendVerificationEmailResult> {
         let user_email = send_email_verification_command.email;
         let email_verification_token = VerificationToken::new();
-        let expires_seconds = TTL::from_seonds(15 * 60);
+        let expires_seconds = TTL::from_seconds(15 * 60);
         let verification_email = build_verification_email(
             user_email.clone(),
             email_verification_token.clone(),
@@ -60,7 +58,7 @@ impl SendVerificationEmailCase {
                 MailContent::new(verification_email),
             )
             .await
-            .map_err(|_| AppError::SendEmailVerificationFailed)?;
+            .map_err(|_| AppError::SendVerificationEmailFailed)?;
         Ok(SendVerificationEmailResult {})
     }
 }

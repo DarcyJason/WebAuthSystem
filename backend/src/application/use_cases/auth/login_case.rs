@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use crate::domain::user::repositories::user_repository::UserRepository;
 use crate::{
     application::{
         commands::auth::login_command::LoginCommand,
@@ -7,7 +8,6 @@ use crate::{
         results::commands_results::auth::login_result::LoginResult,
     },
     domain::auth::{
-        repositories::db::user_repo::UserRepository,
         services::{
             password_service::AuthPasswordService,
             token_service::{AuthAccessTokenService, AuthRefreshTokenService},
@@ -42,14 +42,14 @@ impl LoginCase {
         let existing_user: Option<User> = match cmd.login_identity {
             LoginIdentity::UserName(user_name) => self
                 .user_repo
-                .find_user_by_name(&user_name)
+                .find_by_name(&user_name)
                 .await
-                .map_err(|_| AppError::SurrealDBError)?,
+                .map_err(|_| AppError::StorageError)?,
             LoginIdentity::UserEmail(user_email) => self
                 .user_repo
-                .find_user_by_email(&user_email)
+                .find_by_email(&user_email)
                 .await
-                .map_err(|_| AppError::SurrealDBError)?,
+                .map_err(|_| AppError::StorageError)?,
         };
         let user = match existing_user {
             Some(user) => user,
@@ -63,7 +63,7 @@ impl LoginCase {
             .compare(cmd.plain_password, user.password_hash().to_owned())
             .map_err(|_| AppError::ParseHashedPasswordFailed)?
         {
-            return Err(AppError::WrongIncredentials);
+            return Err(AppError::CredentialsInvalid);
         }
         let access_token = self
             .auth_access_token_service
