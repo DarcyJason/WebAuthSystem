@@ -1,0 +1,37 @@
+[tasks."surrealdb-start"]
+run = '''
+# surrealdb-start
+docker run \
+    --name surrealdb \
+    -p 10086:8000 \
+    -v ./surrealdb:/data \
+    -d surrealdb/surrealdb:v2.4.0 \
+    start \
+    --user root \
+    --pass root \
+    rocksdb:/data/mydatabase.db
+'''
+
+[tasks."surrealdb-stop"]
+run = '''
+# surrealdb-stop
+docker stop surrealdb
+docker rm surrealdb
+'''
+
+[tasks."redis-start"]
+run = '''
+# redis-start
+docker run \
+    --name redis \
+	-p 6379:6379 \
+	-v ./redis:/data \
+	-d redis:8.4.0
+'''
+
+[tasks."redis-stop"]
+run = '''
+# redis-stop
+docker stop redis
+docker rm redis
+'''

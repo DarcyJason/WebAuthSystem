@@ -8,8 +8,10 @@ use crate::domain::auth::services::token_service::{
     AuthAccessTokenService, AuthRefreshTokenService,
 };
 use crate::domain::user::repositories::user_repository::UserRepository;
+use crate::infrastructure::caches::layered::email_verification_token_repository::LayeredEmailVerificationTokenRepository;
 use crate::infrastructure::caches::layered::user_repository::LayeredUserRepository;
 use crate::infrastructure::caches::moka::client::MokaClient;
+use crate::infrastructure::caches::moka::email_verification_token_repository::MokaEmailVerificationTokenRepository;
 use crate::infrastructure::caches::moka::user_repository::MokaUserRepository;
 use crate::infrastructure::caches::redis::client::RedisClient;
 use crate::infrastructure::caches::redis::email_verification_token_repository::RedisEmailVerificationTokenRepository;
@@ -17,6 +19,7 @@ use crate::infrastructure::caches::redis::user_repository::RedisUserRepository;
 use crate::infrastructure::config::Config;
 use crate::infrastructure::mail::MailService;
 use crate::infrastructure::persistence::surrealdb::client::SurrealDBClient;
+use crate::infrastructure::persistence::surrealdb::email_verification_token_repository::SurrealDBEmailVerificationTokenRepository;
 use crate::infrastructure::persistence::surrealdb::user_repository::SurrealDBUserRepository;
 use crate::infrastructure::security::password::PasswordService;
 use crate::infrastructure::security::tokens::access_token::AccessTokenService;
@@ -42,7 +45,7 @@ impl AppState {
         let l2_user_repo: Arc<dyn UserRepository> =
             Arc::new(RedisUserRepository::new(redis_client.clone()));
         let source_user_repo: Arc<dyn UserRepository> =
-            Arc::new(SurrealDBUserRepository::new(surrealdb_client));
+            Arc::new(SurrealDBUserRepository::new(surrealdb_client.clone()));
         let user_repo: Arc<dyn UserRepository> = Arc::new(LayeredUserRepository::new(
             l1_user_repo,
             l2_user_repo,
@@ -54,8 +57,19 @@ impl AppState {
             Arc::new(RefreshTokenService::new());
         let auth_password_service: Arc<dyn AuthPasswordService> = Arc::new(PasswordService::new());
         let auth_mail_service: Arc<dyn AuthMailService> = Arc::new(MailService::new(mail_client));
+        let l1_email_verification_repo: Arc<dyn EmailVerificationTokenRepository> = Arc::new(
+            MokaEmailVerificationTokenRepository::new(MokaClient::new()),
+        );
+        let l2_email_verification_repo: Arc<dyn EmailVerificationTokenRepository> =
+            Arc::new(RedisEmailVerificationTokenRepository::new(redis_client.clone()));
+        let source_email_verification_repo: Arc<dyn EmailVerificationTokenRepository> =
+            Arc::new(SurrealDBEmailVerificationTokenRepository::new(surrealdb_client));
         let email_verification_cache: Arc<dyn EmailVerificationTokenRepository> =
-            Arc::new(RedisEmailVerificationTokenRepository::new(redis_client));
+            Arc::new(LayeredEmailVerificationTokenRepository::new(
+                l1_email_verification_repo,
+                l2_email_verification_repo,
+                source_email_verification_repo,
+            ));
         Ok(AppState {
             user_repo,
             auth_access_token_service,
