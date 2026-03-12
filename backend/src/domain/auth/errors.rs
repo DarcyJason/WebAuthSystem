@@ -1,14 +1,13 @@
+use crate::domain::auth::services::mail_service::MailServiceError;
+use crate::domain::auth::services::password_service::PasswordServiceError;
+use crate::domain::auth::services::token_service::{
+    AccessTokenServiceError, RefreshTokenServiceError,
+};
+use crate::domain::auth::value_objects::plain_password::PlainPasswordError;
+use crate::infrastructure::errors::email_verification_token_repository_error::EmailVerificationTokenRepositoryError;
 use thiserror::Error;
 
-use crate::domain::auth::{
-    repositories::email_verification_token_repository::EmailVerificationTokenRepositoryError,
-    services::{
-        mail_service::AuthMailServiceError,
-        password_service::AuthPasswordServiceError,
-        token_service::{AuthAccessTokenServiceError, AuthRefreshTokenServiceError},
-    },
-    value_objects::plain_password::PlainPasswordError,
-};
+pub type AuthDomainResult<T> = Result<T, AuthDomainError>;
 
 #[derive(Debug, Error)]
 pub enum AuthDomainError {
@@ -17,11 +16,11 @@ pub enum AuthDomainError {
     #[error(transparent)]
     EmailVerificationTokenRepositoryError(#[from] EmailVerificationTokenRepositoryError),
     #[error(transparent)]
-    AuthMailServiceError(#[from] AuthMailServiceError),
+    MailServiceError(#[from] MailServiceError),
     #[error(transparent)]
-    AuthPasswordServiceError(#[from] AuthPasswordServiceError),
+    PasswordServiceError(#[from] PasswordServiceError),
     #[error(transparent)]
-    AuthAccessTokenServiceError(#[from] AuthAccessTokenServiceError),
+    AccessTokenServiceError(#[from] AccessTokenServiceError),
     #[error(transparent)]
-    AuthRefreshTokenServiceError(#[from] AuthRefreshTokenServiceError),
+    RefreshTokenServiceError(#[from] RefreshTokenServiceError),
 }

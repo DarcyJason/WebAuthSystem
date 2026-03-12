@@ -1,6 +1,7 @@
 use async_trait::async_trait;
 
-use crate::domain::user::repositories::user_repository::{UserRepository, UserRepositoryError};
+use crate::domain::user::repositories::user_repository::UserRepository;
+use crate::infrastructure::errors::user_repository_error::UserRepositoryError;
 use crate::{
     domain::user::{
         entities::user::User,

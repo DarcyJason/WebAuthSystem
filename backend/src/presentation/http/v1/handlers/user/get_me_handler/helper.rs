@@ -8,7 +8,7 @@ use crate::{
     },
     domain::auth::value_objects::access_token::AccessToken,
     presentation::http::v1::{
-        errors::api_error::ApiError, handlers::user::get_me_handler::response::GetMeResponseData,
+        errors::ApiError, handlers::user::get_me_handler::response::GetMeResponseData,
     },
 };
 
@@ -35,9 +35,9 @@ impl TryFrom<HeaderMap> for GetMeQuery {
 }
 
 impl From<GetMeHeaderError> for ApiError {
-    fn from(err: GetMeHeaderError) -> Self {
+    fn from(e: GetMeHeaderError) -> Self {
         ApiError::Unauthorized {
-            message: err.to_string(),
+            message: e.to_string(),
         }
     }
 }

@@ -40,6 +40,7 @@ impl AppState {
         let surrealdb_client = SurrealDBClient::new(&config.surrealdb).await?;
         let redis_client = RedisClient::new(&config.redis).await?;
         let mail_client = Resend::new(&config.resend.api_key);
+        let system_owner_email = config.resend.system_owner_email;
         let l1_user_repo: Arc<dyn UserRepository> =
             Arc::new(MokaUserRepository::new(MokaClient::new()));
         let l2_user_repo: Arc<dyn UserRepository> =
@@ -56,14 +57,16 @@ impl AppState {
         let auth_refresh_token_service: Arc<dyn AuthRefreshTokenService> =
             Arc::new(RefreshTokenService::new());
         let auth_password_service: Arc<dyn AuthPasswordService> = Arc::new(PasswordService::new());
-        let auth_mail_service: Arc<dyn AuthMailService> = Arc::new(MailService::new(mail_client));
-        let l1_email_verification_repo: Arc<dyn EmailVerificationTokenRepository> = Arc::new(
-            MokaEmailVerificationTokenRepository::new(MokaClient::new()),
+        let auth_mail_service: Arc<dyn AuthMailService> =
+            Arc::new(MailService::new(mail_client, system_owner_email));
+        let l1_email_verification_repo: Arc<dyn EmailVerificationTokenRepository> =
+            Arc::new(MokaEmailVerificationTokenRepository::new(MokaClient::new()));
+        let l2_email_verification_repo: Arc<dyn EmailVerificationTokenRepository> = Arc::new(
+            RedisEmailVerificationTokenRepository::new(redis_client.clone()),
         );
-        let l2_email_verification_repo: Arc<dyn EmailVerificationTokenRepository> =
-            Arc::new(RedisEmailVerificationTokenRepository::new(redis_client.clone()));
-        let source_email_verification_repo: Arc<dyn EmailVerificationTokenRepository> =
-            Arc::new(SurrealDBEmailVerificationTokenRepository::new(surrealdb_client));
+        let source_email_verification_repo: Arc<dyn EmailVerificationTokenRepository> = Arc::new(
+            SurrealDBEmailVerificationTokenRepository::new(surrealdb_client),
+        );
         let email_verification_cache: Arc<dyn EmailVerificationTokenRepository> =
             Arc::new(LayeredEmailVerificationTokenRepository::new(
                 l1_email_verification_repo,

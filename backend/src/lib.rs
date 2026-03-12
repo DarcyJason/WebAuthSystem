@@ -11,6 +11,7 @@ use crate::presentation::http::v1::middlewares::trace_middleware::trace_middlewa
 use crate::presentation::http::v1::openapi::ApiDoc;
 use crate::presentation::http::v1::routers::build_routers;
 use crate::presentation::http::v1::states::app_state::AppState;
+use std::sync::Arc;
 use tokio::net::TcpListener;
 use tokio::signal;
 use tracing::info;
@@ -27,7 +28,7 @@ pub async fn bootstrap() -> anyhow::Result<()> {
     let backend_address = format!("{}:{}", backend_ip, backend_port);
     let frontend_address = config.server.frontend_address.clone();
     let listener = TcpListener::bind(backend_address).await?;
-    let app_state = AppState::init(config.clone()).await?;
+    let app_state = Arc::new(AppState::init(config.clone()).await?);
     let mut app = build_routers(app_state)
         .layer(cors_middleware(frontend_address))
         .layer(trace_middleware());

@@ -1,12 +1,13 @@
-use axum::{Json, extract::State, response::IntoResponse};
+use axum::{Extension, Json, response::IntoResponse};
+use std::sync::Arc;
 
+use crate::presentation::http::v1::errors::ApiResult;
 use crate::{
     application::{
         commands::auth::validate_verification_command::ValidateVerificationCommand,
         use_cases::auth::validate_verification_case::ValidateVerificationCase,
     },
     presentation::http::v1::{
-        errors::api_error::ApiResult,
         handlers::auth::validate_verification_handler::{
             request::ValidateEmailVerificationRequestPayload,
             response::ValidateEmailVerificationResponseData,
@@ -17,7 +18,7 @@ use crate::{
 };
 
 pub async fn validate_verification_handler(
-    State(app_state): State<AppState>,
+    Extension(app_state): Extension<Arc<AppState>>,
     Json(payload): Json<ValidateEmailVerificationRequestPayload>,
 ) -> ApiResult<impl IntoResponse> {
     let cmd = ValidateVerificationCommand::try_from(payload)?;

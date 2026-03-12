@@ -1,14 +1,16 @@
+use axum::Extension;
 use axum::http::header::{AUTHORIZATION, SET_COOKIE};
-use axum::{Json, extract::State, http::HeaderValue, response::IntoResponse};
+use axum::{Json, http::HeaderValue, response::IntoResponse};
 use axum_extra::extract::cookie::Cookie;
+use std::sync::Arc;
 
+use crate::presentation::http::v1::errors::ApiResult;
 use crate::presentation::http::v1::states::app_state::AppState;
 use crate::{
     application::{
         commands::auth::login_command::LoginCommand, use_cases::auth::login_case::LoginCase,
     },
     presentation::http::v1::{
-        errors::api_error::ApiResult,
         handlers::auth::login_handler::{
             request::LoginRequestPayload, response::LoginResponseData,
         },
@@ -17,7 +19,7 @@ use crate::{
 };
 
 pub async fn login_handler(
-    State(app_state): State<AppState>,
+    Extension(app_state): Extension<Arc<AppState>>,
     Json(payload): Json<LoginRequestPayload>,
 ) -> ApiResult<impl IntoResponse> {
     let cmd = LoginCommand::try_from(payload)?;

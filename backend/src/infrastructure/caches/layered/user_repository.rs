@@ -2,10 +2,11 @@ use async_trait::async_trait;
 use std::sync::Arc;
 
 use crate::domain::user::entities::user::User;
-use crate::domain::user::repositories::user_repository::{UserRepository, UserRepositoryError};
+use crate::domain::user::repositories::user_repository::UserRepository;
 use crate::domain::user::value_objects::{
     user_email::UserEmail, user_id::UserId, user_name::UserName,
 };
+use crate::infrastructure::errors::user_repository_error::UserRepositoryError;
 
 pub struct LayeredUserRepository {
     l1_cache: Arc<dyn UserRepository>,

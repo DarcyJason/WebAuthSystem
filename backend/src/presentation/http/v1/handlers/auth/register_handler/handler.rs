@@ -1,12 +1,13 @@
-use axum::{Json, extract::State, response::IntoResponse};
+use axum::{Extension, Json, response::IntoResponse};
+use std::sync::Arc;
 
+use crate::presentation::http::v1::errors::ApiResult;
 use crate::{
     application::{
         commands::auth::register_command::RegisterCommand,
         use_cases::auth::register_case::RegisterCase,
     },
     presentation::http::v1::{
-        errors::api_error::ApiResult,
         handlers::auth::register_handler::{
             request::RegisterRequestPayload, response::RegisterResponseData,
         },
@@ -16,7 +17,7 @@ use crate::{
 };
 
 pub async fn register_handler(
-    State(app_state): State<AppState>,
+    Extension(app_state): Extension<Arc<AppState>>,
     Json(payload): Json<RegisterRequestPayload>,
 ) -> ApiResult<impl IntoResponse> {
     let cmd = RegisterCommand::try_from(payload)?;

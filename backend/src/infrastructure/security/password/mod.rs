@@ -5,7 +5,7 @@ use argon2::{
 
 use crate::domain::{
     auth::{
-        services::password_service::{AuthPasswordService, AuthPasswordServiceError},
+        services::password_service::{AuthPasswordService, PasswordServiceError},
         value_objects::plain_password::PlainPassword,
     },
     user::value_objects::user_password_hash::UserPasswordHash,
@@ -29,12 +29,12 @@ impl AuthPasswordService for PasswordService {
     fn hash(
         &self,
         plain_password: PlainPassword,
-    ) -> Result<UserPasswordHash, AuthPasswordServiceError> {
+    ) -> Result<UserPasswordHash, PasswordServiceError> {
         let salt = SaltString::generate(&mut OsRng);
         let argon2 = Argon2::default();
         let password_hash = argon2
             .hash_password(plain_password.value().as_bytes(), &salt)
-            .map_err(|_| AuthPasswordServiceError::HashPasswordError)?
+            .map_err(|_| PasswordServiceError::HashPasswordError)?
             .to_string();
         Ok(UserPasswordHash::new(password_hash))
     }
@@ -42,9 +42,9 @@ impl AuthPasswordService for PasswordService {
         &self,
         plain_password: PlainPassword,
         hashed_password: UserPasswordHash,
-    ) -> Result<bool, AuthPasswordServiceError> {
+    ) -> Result<bool, PasswordServiceError> {
         let parsed_hash = PasswordHash::new(hashed_password.value())
-            .map_err(|_| AuthPasswordServiceError::ParseHashedPasswordError)?;
+            .map_err(|_| PasswordServiceError::ParseHashedPasswordError)?;
         let is_matyched = Argon2::default()
             .verify_password(plain_password.value().as_bytes(), &parsed_hash)
             .is_ok();

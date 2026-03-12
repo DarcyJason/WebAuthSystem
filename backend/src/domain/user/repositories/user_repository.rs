@@ -2,18 +2,8 @@ use crate::domain::user::entities::user::User;
 use crate::domain::user::value_objects::{
     user_email::UserEmail, user_id::UserId, user_name::UserName,
 };
+use crate::infrastructure::errors::user_repository_error::UserRepositoryError;
 use async_trait::async_trait;
-use thiserror::Error;
-
-#[derive(Debug, Error)]
-pub enum UserRepositoryError {
-    #[error("storage is unavailable")]
-    StorageUnavailable,
-    #[error("persistence operation failed")]
-    PersistenceFailed,
-    #[error("failed to deserialize stored user data")]
-    DeserializationFailed,
-}
 
 #[async_trait]
 pub trait UserRepository: Send + Sync {

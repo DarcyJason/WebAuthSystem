@@ -2,12 +2,11 @@ use async_trait::async_trait;
 use chrono::{DateTime, Duration, Utc};
 use serde::{Deserialize, Serialize};
 
-use crate::domain::auth::repositories::email_verification_token_repository::{
-    EmailVerificationTokenRepository, EmailVerificationTokenRepositoryError,
-};
+use crate::domain::auth::repositories::email_verification_token_repository::EmailVerificationTokenRepository;
 use crate::domain::auth::value_objects::verification_token::VerificationToken;
 use crate::domain::common::time::ttl::TTL;
 use crate::domain::user::value_objects::user_email::UserEmail;
+use crate::infrastructure::errors::email_verification_token_repository_error::EmailVerificationTokenRepositoryError;
 use crate::infrastructure::persistence::surrealdb::client::SurrealDBClient;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -29,7 +28,7 @@ impl SurrealDBEmailVerificationTokenRepository {
 
 #[async_trait]
 impl EmailVerificationTokenRepository for SurrealDBEmailVerificationTokenRepository {
-    async fn save_email_verification_token(
+    async fn save(
         &self,
         user_email: &UserEmail,
         mail_token: VerificationToken,
@@ -56,7 +55,7 @@ impl EmailVerificationTokenRepository for SurrealDBEmailVerificationTokenReposit
         Ok(())
     }
 
-    async fn get_email_verification_token(
+    async fn get_by_user_email(
         &self,
         user_email: &UserEmail,
     ) -> Result<Option<VerificationToken>, EmailVerificationTokenRepositoryError> {
@@ -81,13 +80,13 @@ impl EmailVerificationTokenRepository for SurrealDBEmailVerificationTokenReposit
         };
 
         if record.expires_at <= Utc::now() {
-            let _ = self.delete_email_verification_token(user_email).await;
+            let _ = self.delete(user_email).await;
             return Ok(None);
         }
         Ok(Some(record.verification_token))
     }
 
-    async fn delete_email_verification_token(
+    async fn delete(
         &self,
         user_email: &UserEmail,
     ) -> Result<(), EmailVerificationTokenRepositoryError> {

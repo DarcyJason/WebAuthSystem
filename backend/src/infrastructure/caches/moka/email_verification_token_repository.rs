@@ -1,13 +1,12 @@
 use async_trait::async_trait;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use crate::domain::auth::repositories::email_verification_token_repository::{
-    EmailVerificationTokenRepository, EmailVerificationTokenRepositoryError,
-};
+use crate::domain::auth::repositories::email_verification_token_repository::EmailVerificationTokenRepository;
 use crate::domain::auth::value_objects::verification_token::VerificationToken;
 use crate::domain::common::time::ttl::TTL;
 use crate::domain::user::value_objects::user_email::UserEmail;
 use crate::infrastructure::caches::moka::client::MokaClient;
+use crate::infrastructure::errors::email_verification_token_repository_error::EmailVerificationTokenRepositoryError;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -41,7 +40,7 @@ impl MokaEmailVerificationTokenRepository {
 
 #[async_trait]
 impl EmailVerificationTokenRepository for MokaEmailVerificationTokenRepository {
-    async fn save_email_verification_token(
+    async fn save(
         &self,
         user_email: &UserEmail,
         mail_token: VerificationToken,
@@ -58,7 +57,7 @@ impl EmailVerificationTokenRepository for MokaEmailVerificationTokenRepository {
         Ok(())
     }
 
-    async fn get_email_verification_token(
+    async fn get_by_user_email(
         &self,
         user_email: &UserEmail,
     ) -> Result<Option<VerificationToken>, EmailVerificationTokenRepositoryError> {
@@ -77,11 +76,14 @@ impl EmailVerificationTokenRepository for MokaEmailVerificationTokenRepository {
         Ok(Some(VerificationToken::from(payload.token)))
     }
 
-    async fn delete_email_verification_token(
+    async fn delete(
         &self,
         user_email: &UserEmail,
     ) -> Result<(), EmailVerificationTokenRepositoryError> {
-        self.moka_client.client.invalidate(&Self::key_for(user_email)).await;
+        self.moka_client
+            .client
+            .invalidate(&Self::key_for(user_email))
+            .await;
         Ok(())
     }
 }

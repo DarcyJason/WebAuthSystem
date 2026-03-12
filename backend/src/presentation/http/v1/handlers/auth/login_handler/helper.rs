@@ -1,5 +1,6 @@
 use thiserror::Error;
 
+use crate::presentation::http::v1::errors::ApiError;
 use crate::{
     application::{
         commands::auth::login_command::LoginCommand,
@@ -9,11 +10,8 @@ use crate::{
         login_identity::{LoginIdentity, LoginIdentityError},
         plain_password::{PlainPassword, PlainPasswordError},
     },
-    presentation::http::v1::{
-        errors::api_error::ApiError,
-        handlers::auth::login_handler::{
-            request::LoginRequestPayload, response::LoginResponseData,
-        },
+    presentation::http::v1::handlers::auth::login_handler::{
+        request::LoginRequestPayload, response::LoginResponseData,
     },
 };
 
@@ -74,9 +72,9 @@ impl TryFrom<LoginRequestPayload> for LoginCommand {
 }
 
 impl From<LoginRequestPayloadError> for ApiError {
-    fn from(err: LoginRequestPayloadError) -> Self {
+    fn from(e: LoginRequestPayloadError) -> Self {
         ApiError::BadRequest {
-            message: err.to_string(),
+            message: e.to_string(),
         }
     }
 }

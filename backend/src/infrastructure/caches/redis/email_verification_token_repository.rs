@@ -1,8 +1,7 @@
 use async_trait::async_trait;
 
-use crate::domain::auth::repositories::email_verification_token_repository::{
-    EmailVerificationTokenRepository, EmailVerificationTokenRepositoryError,
-};
+use crate::domain::auth::repositories::email_verification_token_repository::EmailVerificationTokenRepository;
+use crate::infrastructure::errors::email_verification_token_repository_error::EmailVerificationTokenRepositoryError;
 use crate::{
     domain::{
         auth::value_objects::verification_token::VerificationToken, common::time::ttl::TTL,
@@ -23,7 +22,7 @@ impl RedisEmailVerificationTokenRepository {
 
 #[async_trait]
 impl EmailVerificationTokenRepository for RedisEmailVerificationTokenRepository {
-    async fn save_email_verification_token(
+    async fn save(
         &self,
         user_email: &UserEmail,
         mail_token: VerificationToken,
@@ -40,7 +39,7 @@ impl EmailVerificationTokenRepository for RedisEmailVerificationTokenRepository 
             .map_err(|_| EmailVerificationTokenRepositoryError::TokenStoreUnavailable)?;
         Ok(result)
     }
-    async fn get_email_verification_token(
+    async fn get_by_user_email(
         &self,
         user_email: &UserEmail,
     ) -> Result<Option<VerificationToken>, EmailVerificationTokenRepositoryError> {
@@ -54,7 +53,7 @@ impl EmailVerificationTokenRepository for RedisEmailVerificationTokenRepository 
         let result = result.map(VerificationToken::from);
         Ok(result)
     }
-    async fn delete_email_verification_token(
+    async fn delete(
         &self,
         user_email: &UserEmail,
     ) -> Result<(), EmailVerificationTokenRepositoryError> {

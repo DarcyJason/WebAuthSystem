@@ -1,5 +1,6 @@
 use thiserror::Error;
 
+use crate::presentation::http::v1::errors::ApiError;
 use crate::{
     application::{
         commands::auth::register_command::RegisterCommand,
@@ -10,11 +11,8 @@ use crate::{
         user_email::{UserEmail, UserEmailError},
         user_name::{UserName, UserNameError},
     },
-    presentation::http::v1::{
-        errors::api_error::ApiError,
-        handlers::auth::register_handler::{
-            request::RegisterRequestPayload, response::RegisterResponseData,
-        },
+    presentation::http::v1::handlers::auth::register_handler::{
+        request::RegisterRequestPayload, response::RegisterResponseData,
     },
 };
 
@@ -60,14 +58,6 @@ pub enum RegisterRequestPayloadError {
     ConfirmPassowrdMissingSpecial,
     #[error("passwords are not matched")]
     PasswordsNotMatched,
-}
-
-impl From<RegisterRequestPayloadError> for ApiError {
-    fn from(err: RegisterRequestPayloadError) -> Self {
-        ApiError::BadRequest {
-            message: err.to_string(),
-        }
-    }
 }
 
 impl TryFrom<RegisterRequestPayload> for RegisterCommand {
@@ -130,6 +120,14 @@ impl TryFrom<RegisterRequestPayload> for RegisterCommand {
             email,
             plain_password: password,
         })
+    }
+}
+
+impl From<RegisterRequestPayloadError> for ApiError {
+    fn from(e: RegisterRequestPayloadError) -> Self {
+        ApiError::BadRequest {
+            message: e.to_string(),
+        }
     }
 }
 

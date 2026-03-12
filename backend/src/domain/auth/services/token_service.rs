@@ -16,7 +16,7 @@ pub struct AccessClaims {
 }
 
 #[derive(Debug, Error)]
-pub enum AuthAccessTokenServiceError {
+pub enum AccessTokenServiceError {
     #[error("encode access token failed")]
     EncodeAccessTokenFailed,
     #[error("decode access token failed")]
@@ -24,22 +24,19 @@ pub enum AuthAccessTokenServiceError {
 }
 
 pub trait AuthAccessTokenService: Send + Sync {
-    fn encode_access_token(
-        &self,
-        user_id: UserId,
-    ) -> Result<AccessToken, AuthAccessTokenServiceError>;
+    fn encode_access_token(&self, user_id: UserId) -> Result<AccessToken, AccessTokenServiceError>;
     fn decode_access_token(
         &self,
         token: AccessToken,
-    ) -> Result<AccessClaims, AuthAccessTokenServiceError>;
+    ) -> Result<AccessClaims, AccessTokenServiceError>;
 }
 
 #[derive(Debug, Error)]
-pub enum AuthRefreshTokenServiceError {
+pub enum RefreshTokenServiceError {
     #[error("generate refresh token failed")]
     GenerateRefreshTokenFailed,
 }
 
 pub trait AuthRefreshTokenService: Send + Sync {
-    fn generate_refresh_token(&self) -> Result<RefreshToken, AuthRefreshTokenServiceError>;
+    fn generate_refresh_token(&self) -> Result<RefreshToken, RefreshTokenServiceError>;
 }

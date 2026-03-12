@@ -7,18 +7,19 @@ use crate::domain::{
 };
 
 #[derive(Debug, Error)]
-pub enum AuthMailServiceError {
-    #[error("send email failed")]
+pub enum MailServiceError {
+    #[error("Send email failed")]
     SendEmailFailed,
+    #[error("System owner email invalid")]
+    SystemOwnerEmailInvalid,
 }
 
 #[async_trait]
 pub trait AuthMailService: Send + Sync {
     async fn send_email(
         &self,
-        from: UserEmail,
         to: Vec<UserEmail>,
         mail_subject: MailSubject,
         mail_content: MailContent,
-    ) -> Result<(), AuthMailServiceError>;
+    ) -> Result<(), MailServiceError>;
 }

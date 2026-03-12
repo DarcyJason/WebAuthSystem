@@ -1,17 +1,18 @@
-use axum::{extract::State, http::HeaderMap, response::IntoResponse};
-
+use crate::presentation::http::v1::errors::ApiResult;
 use crate::{
     application::{
         queries::user::get_me_query::GetMeQuery, use_cases::user::get_me_case::GetMeCase,
     },
     presentation::http::v1::{
-        errors::api_error::ApiResult, handlers::user::get_me_handler::response::GetMeResponseData,
-        response::ApiResponse, states::app_state::AppState,
+        handlers::user::get_me_handler::response::GetMeResponseData, response::ApiResponse,
+        states::app_state::AppState,
     },
 };
+use axum::{Extension, http::HeaderMap, response::IntoResponse};
+use std::sync::Arc;
 
 pub async fn get_me_handler(
-    State(app_state): State<AppState>,
+    Extension(app_state): Extension<Arc<AppState>>,
     headers: HeaderMap,
 ) -> ApiResult<impl IntoResponse> {
     let query = GetMeQuery::try_from(headers)?;

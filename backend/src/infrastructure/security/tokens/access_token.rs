@@ -2,7 +2,7 @@ use chrono::{Duration, Utc};
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, decode, encode};
 
 use crate::domain::auth::services::token_service::{
-    AccessClaims, AuthAccessTokenService, AuthAccessTokenServiceError,
+    AccessClaims, AccessTokenServiceError, AuthAccessTokenService,
 };
 use crate::domain::auth::value_objects::access_token::AccessToken;
 use crate::domain::user::value_objects::user_id::UserId;
@@ -20,10 +20,7 @@ impl AccessTokenService {
 }
 
 impl AuthAccessTokenService for AccessTokenService {
-    fn encode_access_token(
-        &self,
-        user_id: UserId,
-    ) -> Result<AccessToken, AuthAccessTokenServiceError> {
+    fn encode_access_token(&self, user_id: UserId) -> Result<AccessToken, AccessTokenServiceError> {
         let now = Utc::now();
         let iat = now.timestamp() as usize;
         let exp = (now + Duration::minutes(15)).timestamp() as usize;
@@ -37,19 +34,19 @@ impl AuthAccessTokenService for AccessTokenService {
             &access_claims,
             &EncodingKey::from_secret(self.secret.as_bytes()),
         )
-        .map_err(|_| AuthAccessTokenServiceError::EncodeAccessTokenFailed)?;
+        .map_err(|_| AccessTokenServiceError::EncodeAccessTokenFailed)?;
         Ok(AccessToken::new(access_token))
     }
     fn decode_access_token(
         &self,
         token: AccessToken,
-    ) -> Result<AccessClaims, AuthAccessTokenServiceError> {
+    ) -> Result<AccessClaims, AccessTokenServiceError> {
         let access_token_data = decode::<AccessClaims>(
             token.value(),
             &DecodingKey::from_secret(self.secret.as_bytes()),
             &Default::default(),
         )
-        .map_err(|_| AuthAccessTokenServiceError::DecodeAccessTokenFailed)?;
+        .map_err(|_| AccessTokenServiceError::DecodeAccessTokenFailed)?;
         Ok(access_token_data.claims)
     }
 }

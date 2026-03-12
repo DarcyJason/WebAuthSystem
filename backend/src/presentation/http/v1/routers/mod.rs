@@ -4,18 +4,20 @@ use crate::presentation::http::v1::{
     },
     states::app_state::AppState,
 };
-use axum::Router;
+use axum::{Extension, Router};
+use std::sync::Arc;
 
 pub mod admin;
 pub mod auth;
 pub mod device;
 pub mod user;
 
-pub fn build_routers(app_state: AppState) -> Router {
+pub fn build_routers(app_state: Arc<AppState>) -> Router {
     let all_routers = Router::new()
-        .merge(admin_routers(app_state.clone()))
-        .merge(auth_routers(app_state.clone()))
-        .merge(device_routers(app_state.clone()))
-        .merge(user_routers(app_state.clone()));
+        .nest("/admin", admin_routers())
+        .nest("/auth", auth_routers())
+        .nest("/device", device_routers())
+        .nest("/user", user_routers())
+        .layer(Extension(app_state));
     Router::new().nest("/api/v1", all_routers)
 }

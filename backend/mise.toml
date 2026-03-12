@@ -4,8 +4,8 @@ run = "cargo run"
 [tasks.check]
 run = [
     "cargo fmt -- --check",
-    "cargo clippy -- -D warnings",
-    "cargo check"
+    "cargo check",
+    "cargo clippy -- -D warnings"
 ]
 
 [tasks.build]

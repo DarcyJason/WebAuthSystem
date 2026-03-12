@@ -5,7 +5,7 @@ use crate::domain::{
 use thiserror::Error;
 
 #[derive(Debug, Error)]
-pub enum AuthPasswordServiceError {
+pub enum PasswordServiceError {
     #[error("hash password error")]
     HashPasswordError,
     #[error("parse hashed password error")]
@@ -13,13 +13,11 @@ pub enum AuthPasswordServiceError {
 }
 
 pub trait AuthPasswordService: Send + Sync {
-    fn hash(
-        &self,
-        plain_password: PlainPassword,
-    ) -> Result<UserPasswordHash, AuthPasswordServiceError>;
+    fn hash(&self, plain_password: PlainPassword)
+    -> Result<UserPasswordHash, PasswordServiceError>;
     fn compare(
         &self,
         plain_password: PlainPassword,
         hashed_password: UserPasswordHash,
-    ) -> Result<bool, AuthPasswordServiceError>;
+    ) -> Result<bool, PasswordServiceError>;
 }

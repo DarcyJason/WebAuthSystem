@@ -1,17 +1,14 @@
 use thiserror::Error;
 
+use crate::presentation::http::v1::errors::ApiError;
 use crate::{
     application::{
         commands::auth::send_verification_email_command::SendVerificationEmailCommand,
         results::commands_results::auth::send_verification_email_result::SendVerificationEmailResult,
     },
     domain::user::value_objects::user_email::{UserEmail, UserEmailError},
-    presentation::http::v1::{
-        errors::api_error::ApiError,
-        handlers::auth::send_verification_email_handler::{
-            request::SendVerificationEmailRequestPayload,
-            response::SendVerificationEmailResponseData,
-        },
+    presentation::http::v1::handlers::auth::send_verification_email_handler::{
+        request::SendVerificationEmailRequestPayload, response::SendVerificationEmailResponseData,
     },
 };
 
@@ -21,14 +18,6 @@ pub enum SendVerificationEmailRequestPayloadError {
     UserEmailRequired,
     #[error("email is invalid")]
     UserEmailInvalid,
-}
-
-impl From<SendVerificationEmailRequestPayloadError> for ApiError {
-    fn from(err: SendVerificationEmailRequestPayloadError) -> Self {
-        ApiError::BadRequest {
-            message: err.to_string(),
-        }
-    }
 }
 
 impl TryFrom<SendVerificationEmailRequestPayload> for SendVerificationEmailCommand {
@@ -43,6 +32,14 @@ impl TryFrom<SendVerificationEmailRequestPayload> for SendVerificationEmailComma
             }
         })?;
         Ok(SendVerificationEmailCommand { email })
+    }
+}
+
+impl From<SendVerificationEmailRequestPayloadError> for ApiError {
+    fn from(e: SendVerificationEmailRequestPayloadError) -> Self {
+        ApiError::BadRequest {
+            message: e.to_string(),
+        }
     }
 }
 
