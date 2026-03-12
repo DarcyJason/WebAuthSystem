@@ -1,7 +1,8 @@
-use axum::{Extension, Json, response::IntoResponse};
+use axum::{response::IntoResponse, Extension, Json};
 use std::sync::Arc;
 
 use crate::presentation::http::v1::errors::ApiResult;
+use crate::presentation::http::v1::states::AppState;
 use crate::{
     application::{
         commands::auth::send_verification_email_command::SendVerificationEmailCommand,
@@ -13,7 +14,6 @@ use crate::{
             response::SendVerificationEmailResponseData,
         },
         response::ApiResponse,
-        states::app_state::AppState,
     },
 };
 
@@ -23,7 +23,7 @@ pub async fn send_verification_email_handler(
 ) -> ApiResult<impl IntoResponse> {
     let cmd = SendVerificationEmailCommand::try_from(payload)?;
     let case = SendVerificationEmailCase::new(
-        app_state.auth_mail_service.clone(),
+        app_state.mail_service.clone(),
         app_state.email_verification_cache.clone(),
     );
     let result = case.execute(cmd).await?;

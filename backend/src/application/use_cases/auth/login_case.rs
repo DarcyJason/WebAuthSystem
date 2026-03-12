@@ -1,7 +1,8 @@
 use std::sync::Arc;
 
-use crate::domain::auth::errors::AuthDomainError;
-use crate::domain::errors::DomainError;
+use crate::domain::auth::services::access_token_service::AuthAccessTokenService;
+use crate::domain::auth::services::password_service::AuthPasswordService;
+use crate::domain::auth::services::refresh_token_service::AuthRefreshTokenService;
 use crate::domain::user::repositories::user_repository::UserRepository;
 use crate::infrastructure::errors::InfraError;
 use crate::{
@@ -10,13 +11,7 @@ use crate::{
         errors::{CaseError, CaseResult},
         results::commands_results::auth::login_result::LoginResult,
     },
-    domain::auth::{
-        services::{
-            password_service::AuthPasswordService,
-            token_service::{AuthAccessTokenService, AuthRefreshTokenService},
-        },
-        value_objects::login_identity::LoginIdentity,
-    },
+    domain::auth::value_objects::login_identity::LoginIdentity,
     domain::user::entities::user::User,
 };
 
@@ -64,21 +59,18 @@ impl LoginCase {
         if !self
             .auth_password_service
             .compare(cmd.plain_password, user.password_hash().to_owned())
-            .map_err(AuthDomainError::from)
-            .map_err(DomainError::from)?
+            .map_err(InfraError::from)?
         {
             return Err(CaseError::CredentialsInvalid);
         }
         let access_token = self
             .auth_access_token_service
             .encode_access_token(user.id().to_owned())
-            .map_err(AuthDomainError::from)
-            .map_err(DomainError::from)?;
+            .map_err(InfraError::from)?;
         let refresh_token = self
             .auth_refresh_token_service
             .generate_refresh_token()
-            .map_err(AuthDomainError::from)
-            .map_err(DomainError::from)?;
+            .map_err(InfraError::from)?;
         Ok(LoginResult {
             user_email: user.email().to_owned(),
             access_token,

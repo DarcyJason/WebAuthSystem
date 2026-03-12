@@ -1,18 +1,10 @@
 use async_trait::async_trait;
-use thiserror::Error;
 
 use crate::domain::{
     auth::value_objects::{mail_content::MailContent, mail_subject::MailSubject},
     user::value_objects::user_email::UserEmail,
 };
-
-#[derive(Debug, Error)]
-pub enum MailServiceError {
-    #[error("Send email failed")]
-    SendEmailFailed,
-    #[error("System owner email invalid")]
-    SystemOwnerEmailInvalid,
-}
+use crate::infrastructure::errors::mail_service_error::MailServiceError;
 
 #[async_trait]
 pub trait AuthMailService: Send + Sync {

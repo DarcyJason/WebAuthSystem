@@ -2,15 +2,7 @@ use crate::domain::{
     auth::value_objects::plain_password::PlainPassword,
     user::value_objects::user_password_hash::UserPasswordHash,
 };
-use thiserror::Error;
-
-#[derive(Debug, Error)]
-pub enum PasswordServiceError {
-    #[error("hash password error")]
-    HashPasswordError,
-    #[error("parse hashed password error")]
-    ParseHashedPasswordError,
-}
+use crate::infrastructure::errors::password_service_error::PasswordServiceError;
 
 pub trait AuthPasswordService: Send + Sync {
     fn hash(&self, plain_password: PlainPassword)

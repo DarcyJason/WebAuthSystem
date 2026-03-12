@@ -1,14 +1,12 @@
 use crate::application::commands::auth::send_verification_email_command::SendVerificationEmailCommand;
 use crate::application::errors::CaseResult;
 use crate::application::results::commands_results::auth::send_verification_email_result::SendVerificationEmailResult;
-use crate::domain::auth::errors::AuthDomainError;
 use crate::domain::auth::repositories::email_verification_token_repository::EmailVerificationTokenRepository;
 use crate::domain::auth::services::mail_service::AuthMailService;
 use crate::domain::auth::value_objects::mail_content::MailContent;
 use crate::domain::auth::value_objects::mail_subject::MailSubject;
 use crate::domain::auth::value_objects::verification_token::VerificationToken;
 use crate::domain::common::time::ttl::TTL;
-use crate::domain::errors::DomainError;
 use crate::infrastructure::errors::InfraError;
 use crate::infrastructure::mail::verification_template::build_verification_email;
 use std::sync::Arc;
@@ -51,8 +49,7 @@ impl SendVerificationEmailCase {
                 MailContent::new(verification_email),
             )
             .await
-            .map_err(AuthDomainError::from)
-            .map_err(DomainError::from)?;
+            .map_err(InfraError::from)?;
         Ok(SendVerificationEmailResult {})
     }
 }

@@ -1,9 +1,7 @@
-use crate::presentation::http::v1::{
-    routers::{
-        admin::admin_routers, auth::auth_routers, device::device_routers, user::user_routers,
-    },
-    states::app_state::AppState,
+use crate::presentation::http::v1::routers::{
+    admin::admin_routers, auth::auth_routers, device::device_routers, user::user_routers,
 };
+use crate::presentation::http::v1::states::AppState;
 use axum::{Extension, Router};
 use std::sync::Arc;
 

@@ -1,11 +1,9 @@
-use chrono::{Duration, Utc};
-use jsonwebtoken::{DecodingKey, EncodingKey, Header, decode, encode};
-
-use crate::domain::auth::services::token_service::{
-    AccessClaims, AccessTokenServiceError, AuthAccessTokenService,
-};
+use crate::domain::auth::services::access_token_service::{AccessClaims, AuthAccessTokenService};
 use crate::domain::auth::value_objects::access_token::AccessToken;
 use crate::domain::user::value_objects::user_id::UserId;
+use crate::infrastructure::errors::access_token_service_error::AccessTokenServiceError;
+use chrono::{Duration, Utc};
+use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header};
 
 pub struct AccessTokenService {
     secret: String,

@@ -1,17 +1,13 @@
 use std::sync::Arc;
 
-use crate::domain::auth::errors::AuthDomainError;
-use crate::domain::errors::DomainError;
+use crate::application::{
+    errors::{CaseError, CaseResult},
+    queries::user::get_me_query::GetMeQuery,
+    results::queries_results::user::get_me_result::GetMeResult,
+};
+use crate::domain::auth::services::access_token_service::AuthAccessTokenService;
 use crate::domain::user::repositories::user_repository::UserRepository;
 use crate::infrastructure::errors::InfraError;
-use crate::{
-    application::{
-        errors::{CaseError, CaseResult},
-        queries::user::get_me_query::GetMeQuery,
-        results::queries_results::user::get_me_result::GetMeResult,
-    },
-    domain::auth::services::token_service::AuthAccessTokenService,
-};
 
 pub struct GetMeCase {
     user_repo: Arc<dyn UserRepository>,
@@ -32,8 +28,7 @@ impl GetMeCase {
         let access_claims = self
             .auth_access_token_service
             .decode_access_token(query.access_token)
-            .map_err(AuthDomainError::from)
-            .map_err(DomainError::from)?;
+            .map_err(InfraError::from)?;
         let user_id = access_claims.sub;
         let existing_user = self
             .user_repo

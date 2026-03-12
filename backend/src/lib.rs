@@ -10,13 +10,13 @@ use crate::presentation::http::v1::middlewares::cors_middleware::cors_middleware
 use crate::presentation::http::v1::middlewares::trace_middleware::trace_middleware;
 use crate::presentation::http::v1::openapi::ApiDoc;
 use crate::presentation::http::v1::routers::build_routers;
-use crate::presentation::http::v1::states::app_state::AppState;
 use std::sync::Arc;
 use tokio::net::TcpListener;
 use tokio::signal;
 use tracing::info;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
+use crate::presentation::http::v1::states::AppState;
 
 pub async fn bootstrap() -> anyhow::Result<()> {
     show_app_logo();

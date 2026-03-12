@@ -1,7 +1,8 @@
-use axum::{Extension, Json, response::IntoResponse};
+use axum::{response::IntoResponse, Extension, Json};
 use std::sync::Arc;
 
 use crate::presentation::http::v1::errors::ApiResult;
+use crate::presentation::http::v1::states::AppState;
 use crate::{
     application::{
         commands::auth::register_command::RegisterCommand,
@@ -12,7 +13,6 @@ use crate::{
             request::RegisterRequestPayload, response::RegisterResponseData,
         },
         response::ApiResponse,
-        states::app_state::AppState,
     },
 };
 
@@ -23,7 +23,7 @@ pub async fn register_handler(
     let cmd = RegisterCommand::try_from(payload)?;
     let case = RegisterCase::new(
         app_state.user_repo.clone(),
-        app_state.auth_password_service.clone(),
+        app_state.password_service.clone(),
     );
     let result = case.execute(cmd).await?;
     let response_data = RegisterResponseData::from(result);

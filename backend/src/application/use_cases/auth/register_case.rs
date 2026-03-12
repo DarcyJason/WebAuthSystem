@@ -1,5 +1,4 @@
-use crate::domain::auth::errors::AuthDomainError;
-use crate::domain::errors::DomainError;
+use crate::domain::auth::services::password_service::AuthPasswordService;
 use crate::domain::user::repositories::user_repository::UserRepository;
 use crate::infrastructure::errors::InfraError;
 use crate::{
@@ -8,7 +7,6 @@ use crate::{
         errors::{CaseError, CaseResult},
         results::commands_results::auth::register_result::RegisterResult,
     },
-    domain::auth::services::password_service::AuthPasswordService,
     domain::user::entities::user::User,
 };
 use std::sync::Arc;
@@ -40,8 +38,7 @@ impl RegisterCase {
         let user_password_hash = self
             .auth_password_service
             .hash(cmd.plain_password)
-            .map_err(AuthDomainError::from)
-            .map_err(DomainError::from)?;
+            .map_err(InfraError::from)?;
         let user = User::new(cmd.name, cmd.email, user_password_hash);
         let created_result = self.user_repo.save(user).await.map_err(InfraError::from)?;
         let user = match created_result {

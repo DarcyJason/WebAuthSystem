@@ -1,9 +1,10 @@
 use uuid::Uuid;
 
 use crate::domain::auth::{
-    services::token_service::{AuthRefreshTokenService, RefreshTokenServiceError},
+    services::refresh_token_service::AuthRefreshTokenService,
     value_objects::refresh_token::RefreshToken,
 };
+use crate::infrastructure::errors::refresh_token_service_error::RefreshTokenServiceError;
 
 pub struct RefreshTokenService {}
 

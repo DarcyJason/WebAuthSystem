@@ -1,11 +1,11 @@
-use axum::Extension;
 use axum::http::header::{AUTHORIZATION, SET_COOKIE};
-use axum::{Json, http::HeaderValue, response::IntoResponse};
+use axum::Extension;
+use axum::{http::HeaderValue, response::IntoResponse, Json};
 use axum_extra::extract::cookie::Cookie;
 use std::sync::Arc;
 
 use crate::presentation::http::v1::errors::ApiResult;
-use crate::presentation::http::v1::states::app_state::AppState;
+use crate::presentation::http::v1::states::AppState;
 use crate::{
     application::{
         commands::auth::login_command::LoginCommand, use_cases::auth::login_case::LoginCase,
@@ -25,9 +25,9 @@ pub async fn login_handler(
     let cmd = LoginCommand::try_from(payload)?;
     let case = LoginCase::new(
         app_state.user_repo.clone(),
-        app_state.auth_access_token_service.clone(),
-        app_state.auth_refresh_token_service.clone(),
-        app_state.auth_password_service.clone(),
+        app_state.access_token_service.clone(),
+        app_state.refresh_token_service.clone(),
+        app_state.password_service.clone(),
     );
     let result = case.execute(cmd).await?;
     let access_token = result.access_token.value();

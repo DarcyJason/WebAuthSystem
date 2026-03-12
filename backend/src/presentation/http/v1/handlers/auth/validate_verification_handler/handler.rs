@@ -1,7 +1,8 @@
-use axum::{Extension, Json, response::IntoResponse};
+use axum::{response::IntoResponse, Extension, Json};
 use std::sync::Arc;
 
 use crate::presentation::http::v1::errors::ApiResult;
+use crate::presentation::http::v1::states::AppState;
 use crate::{
     application::{
         commands::auth::validate_verification_command::ValidateVerificationCommand,
@@ -13,7 +14,6 @@ use crate::{
             response::ValidateEmailVerificationResponseData,
         },
         response::ApiResponse,
-        states::app_state::AppState,
     },
 };
 

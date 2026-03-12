@@ -16,9 +16,11 @@ impl From<InfraError> for CaseError {
     fn from(e: InfraError) -> CaseError {
         match e {
             InfraError::UserRepositoryError(_)
-            | InfraError::EmailVerificationTokenRepositoryError(_) => {
-                CaseError::InternalServerError
-            }
+            | InfraError::EmailVerificationTokenRepositoryError(_)
+            | InfraError::MailServiceError(_)
+            | InfraError::PasswordServiceError(_)
+            | InfraError::AccessTokenServiceError(_)
+            | InfraError::RefreshTokenServiceError(_) => CaseError::InternalServerError,
         }
     }
 }

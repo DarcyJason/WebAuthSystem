@@ -4,12 +4,11 @@ use async_trait::async_trait;
 use resend_rs::{types::CreateEmailBaseOptions, Resend};
 
 use crate::domain::{
-    auth::{
-        services::mail_service::{AuthMailService, MailServiceError},
-        value_objects::{mail_content::MailContent, mail_subject::MailSubject},
-    },
+    auth::value_objects::{mail_content::MailContent, mail_subject::MailSubject},
     user::value_objects::user_email::UserEmail,
 };
+use crate::domain::auth::services::mail_service::AuthMailService;
+use crate::infrastructure::errors::mail_service_error::MailServiceError;
 
 pub struct MailService {
     mail_client: Resend,
