@@ -39,9 +39,27 @@ impl IntoResponse for ApiError {
 
 impl From<CaseError> for ApiError {
     fn from(e: CaseError) -> Self {
-        ApiError::InternalServerError {
-            code: e.clone().status_code(),
-            message: e.to_string(),
+        match e {
+            CaseError::CredentialsInvalid | CaseError::EmailVerificationTokenInvalid => {
+                ApiError::BadRequest {
+                    message: e.to_string(),
+                }
+            }
+            CaseError::EmailNotVerified => ApiError::Unauthorized {
+                message: e.to_string(),
+            },
+            CaseError::UserNotFound | CaseError::EmailVerificationTokenNotFound => {
+                ApiError::NotFound {
+                    message: e.to_string(),
+                }
+            }
+            CaseError::UserAlreadyExists => ApiError::Conflict {
+                message: e.to_string(),
+            },
+            _ => ApiError::InternalServerError {
+                code: e.clone().status_code(),
+                message: e.to_string(),
+            },
         }
     }
 }

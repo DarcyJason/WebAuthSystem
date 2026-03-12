@@ -1,6 +1,5 @@
 use async_trait::async_trait;
 use chrono::{DateTime, Duration, Utc};
-use serde::{Deserialize, Serialize};
 
 use crate::domain::auth::repositories::email_verification_token_repository::EmailVerificationTokenRepository;
 use crate::domain::auth::value_objects::verification_token::VerificationToken;
@@ -8,13 +7,6 @@ use crate::domain::common::time::ttl::TTL;
 use crate::domain::user::value_objects::user_email::UserEmail;
 use crate::infrastructure::errors::email_verification_token_repository_error::EmailVerificationTokenRepositoryError;
 use crate::infrastructure::persistence::surrealdb::client::SurrealDBClient;
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-struct EmailVerificationTokenRecord {
-    user_email: UserEmail,
-    verification_token: VerificationToken,
-    expires_at: DateTime<Utc>,
-}
 
 pub struct SurrealDBEmailVerificationTokenRepository {
     surrealdb_client: SurrealDBClient,
@@ -60,7 +52,7 @@ impl EmailVerificationTokenRepository for SurrealDBEmailVerificationTokenReposit
         user_email: &UserEmail,
     ) -> Result<Option<VerificationToken>, EmailVerificationTokenRepositoryError> {
         let find_sql = r#"
-            SELECT * FROM email_verification_token
+            SELECT verification_token, expires_at FROM email_verification_token
             WHERE user_email = $user_email
             LIMIT 1;
         "#;
@@ -71,19 +63,19 @@ impl EmailVerificationTokenRepository for SurrealDBEmailVerificationTokenReposit
             .bind(("user_email", user_email.to_owned()))
             .await
             .map_err(|_| EmailVerificationTokenRepositoryError::TokenNotFound)?;
-        let record: Option<EmailVerificationTokenRecord> = result
+        let record: Option<(VerificationToken, DateTime<Utc>)> = result
             .take(0)
             .map_err(|_| EmailVerificationTokenRepositoryError::TokenNotFound)?;
-        let record = match record {
-            Some(record) => record,
+        let (token, expires_at) = match record {
+            Some(r) => r,
             None => return Ok(None),
         };
 
-        if record.expires_at <= Utc::now() {
+        if expires_at <= Utc::now() {
             let _ = self.delete(user_email).await;
             return Ok(None);
         }
-        Ok(Some(record.verification_token))
+        Ok(Some(token))
     }
 
     async fn delete(
