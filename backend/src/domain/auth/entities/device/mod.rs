@@ -1,8 +1,11 @@
+pub mod device_id;
+pub mod device_name;
+
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 
 use crate::domain::{
-    auth::value_objects::{device_id::DeviceId, device_name::DeviceName},
+    auth::entities::device::{device_id::DeviceId, device_name::DeviceName},
     common::time::timestamp::Timestamp,
 };
 

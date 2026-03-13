@@ -1,4 +1,4 @@
-use crate::domain::auth::value_objects::plain_password::PlainPasswordError;
+use crate::domain::auth::value_objects::credentials::plain_password::PlainPasswordError;
 use thiserror::Error;
 
 pub type AuthDomainResult<T> = Result<T, AuthDomainError>;

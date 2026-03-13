@@ -1,6 +1,6 @@
 use serde::Deserialize;
 
-use crate::domain::user::value_objects::{
+use crate::domain::user::entities::user::{
     user_email::{UserEmail, UserEmailError},
     user_name::{UserName, UserNameError},
 };

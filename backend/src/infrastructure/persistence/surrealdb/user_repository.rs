@@ -1,12 +1,12 @@
 use async_trait::async_trait;
 
+use crate::domain::user::entities::user::user_email::UserEmail;
+use crate::domain::user::entities::user::user_id::UserId;
+use crate::domain::user::entities::user::user_name::UserName;
 use crate::domain::user::repositories::user_repository::UserRepository;
 use crate::infrastructure::errors::user_repository_error::UserRepositoryError;
 use crate::{
-    domain::user::{
-        entities::user::User,
-        value_objects::{user_email::UserEmail, user_id::UserId, user_name::UserName},
-    },
+    domain::user::entities::user::User,
     infrastructure::persistence::surrealdb::client::SurrealDBClient,
 };
 

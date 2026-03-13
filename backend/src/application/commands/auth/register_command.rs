@@ -1,6 +1,6 @@
 use crate::domain::{
-    auth::value_objects::plain_password::PlainPassword,
-    user::value_objects::{user_email::UserEmail, user_name::UserName},
+    auth::value_objects::credentials::plain_password::PlainPassword,
+    user::entities::user::{user_email::UserEmail, user_name::UserName},
 };
 
 pub struct RegisterCommand {

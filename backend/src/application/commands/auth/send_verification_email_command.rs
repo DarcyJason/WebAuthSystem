@@ -1,4 +1,4 @@
-use crate::domain::user::value_objects::user_email::UserEmail;
+use crate::domain::user::entities::user::user_email::UserEmail;
 
 pub struct SendVerificationEmailCommand {
     pub email: UserEmail,

@@ -1,4 +1,4 @@
-use axum::{routing::post, Router};
+use axum::{Router, routing::post};
 
 use crate::presentation::http::v1::handlers::auth::validate_verification_handler::handler::validate_verification_handler;
 use crate::presentation::http::v1::handlers::auth::{

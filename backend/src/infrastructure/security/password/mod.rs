@@ -1,13 +1,11 @@
 use argon2::{
-    password_hash::{rand_core::OsRng, SaltString}, Argon2, PasswordHash, PasswordHasher,
-    PasswordVerifier,
+    Argon2, PasswordHash, PasswordHasher, PasswordVerifier,
+    password_hash::{SaltString, rand_core::OsRng},
 };
 
 use crate::domain::auth::services::password_service::AuthPasswordService;
-use crate::domain::{
-    auth::value_objects::plain_password::PlainPassword,
-    user::value_objects::user_password_hash::UserPasswordHash,
-};
+use crate::domain::auth::value_objects::credentials::plain_password::PlainPassword;
+use crate::domain::user::entities::user::user_password_hash::UserPasswordHash;
 use crate::infrastructure::errors::password_service_error::PasswordServiceError;
 
 pub struct PasswordService;

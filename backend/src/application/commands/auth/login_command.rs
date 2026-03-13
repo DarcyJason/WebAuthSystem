@@ -1,4 +1,4 @@
-use crate::domain::auth::value_objects::{
+use crate::domain::auth::value_objects::credentials::{
     login_identity::LoginIdentity, plain_password::PlainPassword,
 };
 

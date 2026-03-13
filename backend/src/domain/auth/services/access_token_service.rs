@@ -1,5 +1,5 @@
-use crate::domain::auth::value_objects::access_token::AccessToken;
-use crate::domain::user::value_objects::user_id::UserId;
+use crate::domain::auth::value_objects::tokens::access_token::AccessToken;
+use crate::domain::user::entities::user::user_id::UserId;
 use crate::infrastructure::errors::access_token_service_error::AccessTokenServiceError;
 use serde::{Deserialize, Serialize};
 

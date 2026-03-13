@@ -3,6 +3,7 @@ use std::sync::Arc;
 use crate::domain::auth::services::access_token_service::AuthAccessTokenService;
 use crate::domain::auth::services::password_service::AuthPasswordService;
 use crate::domain::auth::services::refresh_token_service::AuthRefreshTokenService;
+use crate::domain::auth::value_objects::credentials::login_identity::LoginIdentity;
 use crate::domain::user::repositories::user_repository::UserRepository;
 use crate::infrastructure::errors::InfraError;
 use crate::{
@@ -11,7 +12,6 @@ use crate::{
         errors::{CaseError, CaseResult},
         results::commands_results::auth::login_result::LoginResult,
     },
-    domain::auth::value_objects::login_identity::LoginIdentity,
     domain::user::entities::user::User,
 };
 

@@ -1,7 +1,6 @@
-use crate::domain::{
-    auth::value_objects::verification_token::VerificationToken, common::time::ttl::TTL,
-    user::value_objects::user_email::UserEmail,
-};
+use crate::domain::auth::value_objects::tokens::verification_token::VerificationToken;
+use crate::domain::common::time::ttl::TTL;
+use crate::domain::user::entities::user::user_email::UserEmail;
 
 pub fn build_verification_email(
     user_email: UserEmail,

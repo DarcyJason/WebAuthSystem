@@ -1,6 +1,6 @@
 use crate::domain::{
-    auth::value_objects::{access_token::AccessToken, refresh_token::RefreshToken},
-    user::value_objects::user_email::UserEmail,
+    auth::value_objects::tokens::{access_token::AccessToken, refresh_token::RefreshToken},
+    user::entities::user::user_email::UserEmail,
 };
 
 #[derive(Debug, Clone)]

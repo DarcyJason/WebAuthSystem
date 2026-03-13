@@ -8,7 +8,7 @@ use crate::{
         states::AppState,
     },
 };
-use axum::{http::HeaderMap, response::IntoResponse, Extension};
+use axum::{Extension, http::HeaderMap, response::IntoResponse};
 use std::sync::Arc;
 
 pub async fn get_me_handler(

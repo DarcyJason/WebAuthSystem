@@ -1,4 +1,4 @@
-use axum::{response::IntoResponse, Extension, Json};
+use axum::{Extension, Json, response::IntoResponse};
 use std::sync::Arc;
 
 use crate::presentation::http::v1::errors::ApiResult;

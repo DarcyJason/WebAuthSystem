@@ -1,15 +1,15 @@
 use thiserror::Error;
 
+use crate::domain::auth::value_objects::credentials::plain_password::{
+    PlainPassword, PlainPasswordError,
+};
+use crate::domain::user::entities::user::user_email::{UserEmail, UserEmailError};
+use crate::domain::user::entities::user::user_name::{UserName, UserNameError};
 use crate::presentation::http::v1::errors::ApiError;
 use crate::{
     application::{
         commands::auth::register_command::RegisterCommand,
         results::commands_results::auth::register_result::RegisterResult,
-    },
-    domain::auth::value_objects::plain_password::{PlainPassword, PlainPasswordError},
-    domain::user::value_objects::{
-        user_email::{UserEmail, UserEmailError},
-        user_name::{UserName, UserNameError},
     },
     presentation::http::v1::handlers::auth::register_handler::{
         request::RegisterRequestPayload, response::RegisterResponseData,

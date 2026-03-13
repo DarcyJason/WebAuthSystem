@@ -1,6 +1,6 @@
 use crate::domain::{
-    auth::value_objects::verification_token::VerificationToken,
-    user::value_objects::user_email::UserEmail,
+    auth::value_objects::tokens::verification_token::VerificationToken,
+    user::entities::user::user_email::UserEmail,
 };
 
 pub struct ValidateVerificationCommand {

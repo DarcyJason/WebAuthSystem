@@ -1,14 +1,12 @@
 pub mod verification_template;
 
-use async_trait::async_trait;
-use resend_rs::{types::CreateEmailBaseOptions, Resend};
-
-use crate::domain::{
-    auth::value_objects::{mail_content::MailContent, mail_subject::MailSubject},
-    user::value_objects::user_email::UserEmail,
-};
+use crate::domain::auth::entities::mail::mail_content::MailContent;
+use crate::domain::auth::entities::mail::mail_subject::MailSubject;
 use crate::domain::auth::services::mail_service::AuthMailService;
+use crate::domain::user::entities::user::user_email::UserEmail;
 use crate::infrastructure::errors::mail_service_error::MailServiceError;
+use async_trait::async_trait;
+use resend_rs::{Resend, types::CreateEmailBaseOptions};
 
 pub struct MailService {
     mail_client: Resend,

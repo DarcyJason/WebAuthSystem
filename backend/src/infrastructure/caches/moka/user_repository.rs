@@ -1,8 +1,8 @@
 use crate::domain::user::entities::user::User;
-use crate::domain::user::repositories::user_repository::UserRepository;
-use crate::domain::user::value_objects::{
+use crate::domain::user::entities::user::{
     user_email::UserEmail, user_id::UserId, user_name::UserName,
 };
+use crate::domain::user::repositories::user_repository::UserRepository;
 use crate::infrastructure::caches::moka::client::MokaClient;
 use crate::infrastructure::errors::user_repository_error::UserRepositoryError;
 use async_trait::async_trait;

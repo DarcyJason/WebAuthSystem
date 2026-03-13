@@ -1,6 +1,6 @@
-use crate::domain::auth::value_objects::verification_token::VerificationToken;
+use crate::domain::auth::value_objects::tokens::verification_token::VerificationToken;
 use crate::domain::common::time::ttl::TTL;
-use crate::domain::user::value_objects::user_email::UserEmail;
+use crate::domain::user::entities::user::user_email::UserEmail;
 use crate::infrastructure::errors::email_verification_token_repository_error::EmailVerificationTokenRepositoryError;
 use async_trait::async_trait;
 

@@ -1,12 +1,12 @@
 use axum::http::HeaderMap;
 use thiserror::Error;
 
+use crate::domain::auth::value_objects::tokens::access_token::AccessToken;
 use crate::{
     application::{
         queries::user::get_me_query::GetMeQuery,
         results::queries_results::user::get_me_result::GetMeResult,
     },
-    domain::auth::value_objects::access_token::AccessToken,
     presentation::http::v1::{
         errors::ApiError, handlers::user::get_me_handler::response::GetMeResponseData,
     },

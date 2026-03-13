@@ -1,6 +1,6 @@
 use crate::application::commands::auth::forgot_password_command::ForgotPasswordCommand;
 use crate::application::results::commands_results::auth::forgot_password_result::ForgotPasswordResult;
-use crate::domain::user::value_objects::user_email::{UserEmail, UserEmailError};
+use crate::domain::user::entities::user::user_email::{UserEmail, UserEmailError};
 use crate::presentation::http::v1::errors::ApiError;
 use crate::presentation::http::v1::handlers::auth::forgot_password_handler::request::ForgotPasswordRequestPayload;
 use crate::presentation::http::v1::handlers::auth::forgot_password_handler::response::ForgotPasswordResponseData;

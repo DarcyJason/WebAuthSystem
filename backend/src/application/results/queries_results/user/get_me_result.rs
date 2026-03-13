@@ -1,7 +1,6 @@
-use crate::domain::{
-    common::time::timestamp::Timestamp,
-    user::value_objects::{user_email::UserEmail, user_name::UserName},
-};
+use crate::domain::common::time::timestamp::Timestamp;
+use crate::domain::user::entities::user::user_email::UserEmail;
+use crate::domain::user::entities::user::user_name::UserName;
 
 pub struct GetMeResult {
     pub user_name: UserName,

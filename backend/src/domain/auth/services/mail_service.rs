@@ -1,10 +1,12 @@
 use async_trait::async_trait;
 
-use crate::domain::{
-    auth::value_objects::{mail_content::MailContent, mail_subject::MailSubject},
-    user::value_objects::user_email::UserEmail,
+use crate::{
+    domain::{
+        auth::entities::mail::{mail_content::MailContent, mail_subject::MailSubject},
+        user::entities::user::user_email::UserEmail,
+    },
+    infrastructure::errors::mail_service_error::MailServiceError,
 };
-use crate::infrastructure::errors::mail_service_error::MailServiceError;
 
 #[async_trait]
 pub trait AuthMailService: Send + Sync {

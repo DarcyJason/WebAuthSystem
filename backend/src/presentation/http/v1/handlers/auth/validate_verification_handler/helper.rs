@@ -1,13 +1,13 @@
 use thiserror::Error;
 
+use crate::domain::auth::value_objects::tokens::verification_token::VerificationToken;
+use crate::domain::user::entities::user::user_email::{UserEmail, UserEmailError};
 use crate::presentation::http::v1::errors::ApiError;
 use crate::{
     application::{
         commands::auth::validate_verification_command::ValidateVerificationCommand,
         results::commands_results::auth::validate_verification_result::ValidateVerificationResult,
     },
-    domain::auth::value_objects::verification_token::VerificationToken,
-    domain::user::value_objects::user_email::{UserEmail, UserEmailError},
     presentation::http::v1::handlers::auth::validate_verification_handler::{
         request::ValidateEmailVerificationRequestPayload,
         response::ValidateEmailVerificationResponseData,

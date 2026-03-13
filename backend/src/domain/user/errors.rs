@@ -1,4 +1,4 @@
-use crate::domain::user::value_objects::{user_email::UserEmailError, user_id::UserIdError};
+use crate::domain::user::entities::user::{user_email::UserEmailError, user_id::UserIdError};
 use thiserror::Error;
 
 #[derive(Debug, Error)]
