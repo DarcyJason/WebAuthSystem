@@ -9,7 +9,7 @@ use crate::{
 };
 
 #[async_trait]
-pub trait AuthMailService: Send + Sync {
+pub trait MailService: Send + Sync {
     async fn send_email(
         &self,
         to: Vec<UserEmail>,

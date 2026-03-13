@@ -12,7 +12,7 @@ pub struct AccessClaims {
     pub exp: usize,
 }
 
-pub trait AuthAccessTokenService: Send + Sync {
+pub trait AccessTokenService: Send + Sync {
     fn encode_access_token(&self, user_id: UserId) -> Result<AccessToken, AccessTokenServiceError>;
     fn decode_access_token(
         &self,

@@ -2,10 +2,10 @@ use resend_rs::Resend;
 use std::sync::Arc;
 
 use crate::domain::auth::repositories::email_verification_token_repository::EmailVerificationTokenRepository;
-use crate::domain::auth::services::access_token_service::AuthAccessTokenService;
-use crate::domain::auth::services::mail_service::AuthMailService;
-use crate::domain::auth::services::password_service::AuthPasswordService;
-use crate::domain::auth::services::refresh_token_service::AuthRefreshTokenService;
+use crate::domain::auth::services::access_token_service::AccessTokenService;
+use crate::domain::auth::services::mail_service::MailService;
+use crate::domain::auth::services::password_service::PasswordService;
+use crate::domain::auth::services::refresh_token_service::RefreshTokenService;
 use crate::domain::user::repositories::user_repository::UserRepository;
 use crate::infrastructure::caches::layered::email_verification_token_repository::LayeredEmailVerificationTokenRepository;
 use crate::infrastructure::caches::layered::user_repository::LayeredUserRepository;
@@ -16,21 +16,21 @@ use crate::infrastructure::caches::redis::client::RedisClient;
 use crate::infrastructure::caches::redis::email_verification_token_repository::RedisEmailVerificationTokenRepository;
 use crate::infrastructure::caches::redis::user_repository::RedisUserRepository;
 use crate::infrastructure::config::Config;
-use crate::infrastructure::mail::MailService;
+use crate::infrastructure::mail::MailServiceImplementation;
 use crate::infrastructure::persistence::surrealdb::client::SurrealDBClient;
 use crate::infrastructure::persistence::surrealdb::email_verification_token_repository::SurrealDBEmailVerificationTokenRepository;
 use crate::infrastructure::persistence::surrealdb::user_repository::SurrealDBUserRepository;
-use crate::infrastructure::security::password::PasswordService;
-use crate::infrastructure::security::tokens::access_token::AccessTokenService;
-use crate::infrastructure::security::tokens::refresh_token::RefreshTokenService;
+use crate::infrastructure::security::password::PasswordServiceImplementation;
+use crate::infrastructure::security::tokens::access_token::AccessTokenServiceImplementation;
+use crate::infrastructure::security::tokens::refresh_token::RefreshTokenServiceImplementation;
 
 #[derive(Clone)]
 pub struct AppState {
     pub user_repo: Arc<dyn UserRepository>,
-    pub access_token_service: Arc<dyn AuthAccessTokenService>,
-    pub refresh_token_service: Arc<dyn AuthRefreshTokenService>,
-    pub password_service: Arc<dyn AuthPasswordService>,
-    pub mail_service: Arc<dyn AuthMailService>,
+    pub access_token_service: Arc<dyn AccessTokenService>,
+    pub refresh_token_service: Arc<dyn RefreshTokenService>,
+    pub password_service: Arc<dyn PasswordService>,
+    pub mail_service: Arc<dyn MailService>,
     pub email_verification_cache: Arc<dyn EmailVerificationTokenRepository>,
 }
 
@@ -51,13 +51,16 @@ impl AppState {
             l2_user_repo,
             source_user_repo,
         ));
-        let access_token_service: Arc<dyn AuthAccessTokenService> =
-            Arc::new(AccessTokenService::new(config.jwt.secret));
-        let refresh_token_service: Arc<dyn AuthRefreshTokenService> =
-            Arc::new(RefreshTokenService::new());
-        let password_service: Arc<dyn AuthPasswordService> = Arc::new(PasswordService::new());
-        let mail_service: Arc<dyn AuthMailService> =
-            Arc::new(MailService::new(mail_client, system_owner_email));
+        let access_token_service: Arc<dyn AccessTokenService> =
+            Arc::new(AccessTokenServiceImplementation::new(config.jwt.secret));
+        let refresh_token_service: Arc<dyn RefreshTokenService> =
+            Arc::new(RefreshTokenServiceImplementation::new());
+        let password_service: Arc<dyn PasswordService> =
+            Arc::new(PasswordServiceImplementation::new());
+        let mail_service: Arc<dyn MailService> = Arc::new(MailServiceImplementation::new(
+            mail_client,
+            system_owner_email,
+        ));
         let l1_email_verification_repo: Arc<dyn EmailVerificationTokenRepository> =
             Arc::new(MokaEmailVerificationTokenRepository::new(MokaClient::new()));
         let l2_email_verification_repo: Arc<dyn EmailVerificationTokenRepository> = Arc::new(

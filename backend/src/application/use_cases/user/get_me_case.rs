@@ -5,19 +5,19 @@ use crate::application::{
     queries::user::get_me_query::GetMeQuery,
     results::queries_results::user::get_me_result::GetMeResult,
 };
-use crate::domain::auth::services::access_token_service::AuthAccessTokenService;
+use crate::domain::auth::services::access_token_service::AccessTokenService;
 use crate::domain::user::repositories::user_repository::UserRepository;
 use crate::infrastructure::errors::InfraError;
 
 pub struct GetMeCase {
     user_repo: Arc<dyn UserRepository>,
-    auth_access_token_service: Arc<dyn AuthAccessTokenService>,
+    auth_access_token_service: Arc<dyn AccessTokenService>,
 }
 
 impl GetMeCase {
     pub fn new(
         user_repo: Arc<dyn UserRepository>,
-        auth_access_token_service: Arc<dyn AuthAccessTokenService>,
+        auth_access_token_service: Arc<dyn AccessTokenService>,
     ) -> Self {
         GetMeCase {
             user_repo,

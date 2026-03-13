@@ -2,20 +2,20 @@ pub mod verification_template;
 
 use crate::domain::auth::entities::mail::mail_content::MailContent;
 use crate::domain::auth::entities::mail::mail_subject::MailSubject;
-use crate::domain::auth::services::mail_service::AuthMailService;
+use crate::domain::auth::services::mail_service::MailService;
 use crate::domain::user::entities::user::user_email::UserEmail;
 use crate::infrastructure::errors::mail_service_error::MailServiceError;
 use async_trait::async_trait;
-use resend_rs::{Resend, types::CreateEmailBaseOptions};
+use resend_rs::{types::CreateEmailBaseOptions, Resend};
 
-pub struct MailService {
+pub struct MailServiceImplementation {
     mail_client: Resend,
     system_owner_email: String,
 }
 
-impl MailService {
+impl MailServiceImplementation {
     pub fn new(mail_client: Resend, system_owner_email: String) -> Self {
-        MailService {
+        MailServiceImplementation {
             mail_client,
             system_owner_email,
         }
@@ -23,7 +23,7 @@ impl MailService {
 }
 
 #[async_trait]
-impl AuthMailService for MailService {
+impl MailService for MailServiceImplementation {
     async fn send_email(
         &self,
         to: Vec<UserEmail>,

@@ -6,7 +6,7 @@ use crate::{
     infrastructure::errors::password_service_error::PasswordServiceError,
 };
 
-pub trait AuthPasswordService: Send + Sync {
+pub trait PasswordService: Send + Sync {
     fn hash(&self, plain_password: PlainPassword)
     -> Result<UserPasswordHash, PasswordServiceError>;
     fn compare(

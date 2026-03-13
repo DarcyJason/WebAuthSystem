@@ -1,4 +1,4 @@
-use crate::domain::auth::services::password_service::AuthPasswordService;
+use crate::domain::auth::services::password_service::PasswordService;
 use crate::domain::user::repositories::user_repository::UserRepository;
 use crate::infrastructure::errors::InfraError;
 use crate::{
@@ -13,13 +13,13 @@ use std::sync::Arc;
 
 pub struct RegisterCase {
     user_repo: Arc<dyn UserRepository>,
-    auth_password_service: Arc<dyn AuthPasswordService>,
+    auth_password_service: Arc<dyn PasswordService>,
 }
 
 impl RegisterCase {
     pub fn new(
         user_repo: Arc<dyn UserRepository>,
-        auth_password_service: Arc<dyn AuthPasswordService>,
+        auth_password_service: Arc<dyn PasswordService>,
     ) -> Self {
         RegisterCase {
             user_repo,

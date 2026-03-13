@@ -1,23 +1,23 @@
-use crate::domain::auth::services::access_token_service::{AccessClaims, AuthAccessTokenService};
+use crate::domain::auth::services::access_token_service::{AccessClaims, AccessTokenService};
 use crate::domain::auth::value_objects::tokens::access_token::AccessToken;
 use crate::domain::user::entities::user::user_id::UserId;
 use crate::infrastructure::errors::access_token_service_error::AccessTokenServiceError;
 use chrono::{Duration, Utc};
-use jsonwebtoken::{DecodingKey, EncodingKey, Header, decode, encode};
+use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header};
 
-pub struct AccessTokenService {
+pub struct AccessTokenServiceImplementation {
     secret: String,
 }
 
-impl AccessTokenService {
+impl AccessTokenServiceImplementation {
     pub fn new(secret: impl Into<String>) -> Self {
-        AccessTokenService {
+        AccessTokenServiceImplementation {
             secret: secret.into(),
         }
     }
 }
 
-impl AuthAccessTokenService for AccessTokenService {
+impl AccessTokenService for AccessTokenServiceImplementation {
     fn encode_access_token(&self, user_id: UserId) -> Result<AccessToken, AccessTokenServiceError> {
         let now = Utc::now();
         let iat = now.timestamp() as usize;

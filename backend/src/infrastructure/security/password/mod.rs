@@ -1,28 +1,28 @@
 use argon2::{
-    Argon2, PasswordHash, PasswordHasher, PasswordVerifier,
-    password_hash::{SaltString, rand_core::OsRng},
+    password_hash::{rand_core::OsRng, SaltString}, Argon2, PasswordHash, PasswordHasher,
+    PasswordVerifier,
 };
 
-use crate::domain::auth::services::password_service::AuthPasswordService;
+use crate::domain::auth::services::password_service::PasswordService;
 use crate::domain::auth::value_objects::credentials::plain_password::PlainPassword;
 use crate::domain::user::entities::user::user_password_hash::UserPasswordHash;
 use crate::infrastructure::errors::password_service_error::PasswordServiceError;
 
-pub struct PasswordService;
+pub struct PasswordServiceImplementation;
 
-impl PasswordService {
+impl PasswordServiceImplementation {
     pub fn new() -> Self {
-        PasswordService {}
+        PasswordServiceImplementation {}
     }
 }
 
-impl Default for PasswordService {
+impl Default for PasswordServiceImplementation {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl AuthPasswordService for PasswordService {
+impl PasswordService for PasswordServiceImplementation {
     fn hash(
         &self,
         plain_password: PlainPassword,

@@ -1,24 +1,24 @@
 use uuid::Uuid;
 
-use crate::domain::auth::services::refresh_token_service::AuthRefreshTokenService;
+use crate::domain::auth::services::refresh_token_service::RefreshTokenService;
 use crate::domain::auth::value_objects::tokens::refresh_token::RefreshToken;
 use crate::infrastructure::errors::refresh_token_service_error::RefreshTokenServiceError;
 
-pub struct RefreshTokenService {}
+pub struct RefreshTokenServiceImplementation;
 
-impl RefreshTokenService {
+impl RefreshTokenServiceImplementation {
     pub fn new() -> Self {
-        RefreshTokenService {}
+        RefreshTokenServiceImplementation {}
     }
 }
 
-impl Default for RefreshTokenService {
+impl Default for RefreshTokenServiceImplementation {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl AuthRefreshTokenService for RefreshTokenService {
+impl RefreshTokenService for RefreshTokenServiceImplementation {
     fn generate_refresh_token(&self) -> Result<RefreshToken, RefreshTokenServiceError> {
         Ok(RefreshToken::new(Uuid::new_v4().to_string()))
     }

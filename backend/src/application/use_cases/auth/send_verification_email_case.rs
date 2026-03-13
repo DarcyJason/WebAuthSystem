@@ -4,7 +4,7 @@ use crate::application::results::commands_results::auth::send_verification_email
 use crate::domain::auth::entities::mail::mail_content::MailContent;
 use crate::domain::auth::entities::mail::mail_subject::MailSubject;
 use crate::domain::auth::repositories::email_verification_token_repository::EmailVerificationTokenRepository;
-use crate::domain::auth::services::mail_service::AuthMailService;
+use crate::domain::auth::services::mail_service::MailService;
 use crate::domain::auth::value_objects::tokens::verification_token::VerificationToken;
 use crate::domain::common::time::ttl::TTL;
 use crate::infrastructure::errors::InfraError;
@@ -12,13 +12,13 @@ use crate::infrastructure::mail::verification_template::build_verification_email
 use std::sync::Arc;
 
 pub struct SendVerificationEmailCase {
-    auth_mail_service: Arc<dyn AuthMailService>,
+    auth_mail_service: Arc<dyn MailService>,
     auth_email_verification_cache: Arc<dyn EmailVerificationTokenRepository>,
 }
 
 impl SendVerificationEmailCase {
     pub fn new(
-        auth_mail_service: Arc<dyn AuthMailService>,
+        auth_mail_service: Arc<dyn MailService>,
         auth_email_verification_cache: Arc<dyn EmailVerificationTokenRepository>,
     ) -> Self {
         SendVerificationEmailCase {

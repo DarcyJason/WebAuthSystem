@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
-use crate::domain::auth::services::access_token_service::AuthAccessTokenService;
-use crate::domain::auth::services::password_service::AuthPasswordService;
-use crate::domain::auth::services::refresh_token_service::AuthRefreshTokenService;
+use crate::domain::auth::services::access_token_service::AccessTokenService;
+use crate::domain::auth::services::password_service::PasswordService;
+use crate::domain::auth::services::refresh_token_service::RefreshTokenService;
 use crate::domain::auth::value_objects::credentials::login_identity::LoginIdentity;
 use crate::domain::user::repositories::user_repository::UserRepository;
 use crate::infrastructure::errors::InfraError;
@@ -17,17 +17,17 @@ use crate::{
 
 pub struct LoginCase {
     user_repo: Arc<dyn UserRepository>,
-    auth_access_token_service: Arc<dyn AuthAccessTokenService>,
-    auth_refresh_token_service: Arc<dyn AuthRefreshTokenService>,
-    auth_password_service: Arc<dyn AuthPasswordService>,
+    auth_access_token_service: Arc<dyn AccessTokenService>,
+    auth_refresh_token_service: Arc<dyn RefreshTokenService>,
+    auth_password_service: Arc<dyn PasswordService>,
 }
 
 impl LoginCase {
     pub fn new(
         user_repo: Arc<dyn UserRepository>,
-        auth_access_token_service: Arc<dyn AuthAccessTokenService>,
-        auth_refresh_token_service: Arc<dyn AuthRefreshTokenService>,
-        auth_password_service: Arc<dyn AuthPasswordService>,
+        auth_access_token_service: Arc<dyn AccessTokenService>,
+        auth_refresh_token_service: Arc<dyn RefreshTokenService>,
+        auth_password_service: Arc<dyn PasswordService>,
     ) -> Self {
         LoginCase {
             user_repo,
