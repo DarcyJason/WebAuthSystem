@@ -3,7 +3,7 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum PermissionCodeError {
-    #[error("invalid permission code format")]
+    #[error("Invalid permission code format")]
     InvalidFormat,
 }
 

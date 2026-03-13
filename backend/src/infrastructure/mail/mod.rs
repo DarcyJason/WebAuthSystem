@@ -6,7 +6,7 @@ use crate::domain::auth::services::mail_service::MailService;
 use crate::domain::user::entities::user::user_email::UserEmail;
 use crate::infrastructure::errors::mail_service_error::MailServiceError;
 use async_trait::async_trait;
-use resend_rs::{types::CreateEmailBaseOptions, Resend};
+use resend_rs::{Resend, types::CreateEmailBaseOptions};
 
 pub struct MailServiceImplementation {
     mail_client: Resend,

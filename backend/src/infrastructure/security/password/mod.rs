@@ -1,6 +1,6 @@
 use argon2::{
-    password_hash::{rand_core::OsRng, SaltString}, Argon2, PasswordHash, PasswordHasher,
-    PasswordVerifier,
+    Argon2, PasswordHash, PasswordHasher, PasswordVerifier,
+    password_hash::{SaltString, rand_core::OsRng},
 };
 
 use crate::domain::auth::services::password_service::PasswordService;

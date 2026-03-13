@@ -3,7 +3,7 @@ use crate::domain::auth::value_objects::tokens::access_token::AccessToken;
 use crate::domain::user::entities::user::user_id::UserId;
 use crate::infrastructure::errors::access_token_service_error::AccessTokenServiceError;
 use chrono::{Duration, Utc};
-use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header};
+use jsonwebtoken::{DecodingKey, EncodingKey, Header, decode, encode};
 
 pub struct AccessTokenServiceImplementation {
     secret: String,
