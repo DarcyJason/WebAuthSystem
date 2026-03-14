@@ -12,7 +12,8 @@ config_roots = [
 
 [tools]
 rust = "1.94.0"
-node = "24.13.0"
+node = "24.14.0"
+pnpm = "10.32.1"
 
 [tasks.backend]
 depends = [
@@ -24,7 +25,3 @@ depends_post = [
     "//docker:surrealdb-stop",
     "//docker:redis-stop",
 ]
-
-[tasks.frontend]
-depends = "//frontend:install-dependencies"
-run = "mise run //frontend:dev"
