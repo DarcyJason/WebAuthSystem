@@ -1,20 +1,15 @@
 use axum::{Extension, Json, response::IntoResponse};
 use std::sync::Arc;
 
+use crate::application::auth::cases::send_verification_email_case::SendVerificationEmailCase;
+use crate::application::auth::commands::send_verification_email_command::SendVerificationEmailCommand;
 use crate::presentation::http::v1::errors::ApiResult;
 use crate::presentation::http::v1::states::AppState;
-use crate::{
-    application::{
-        commands::auth::send_verification_email_command::SendVerificationEmailCommand,
-        use_cases::auth::send_verification_email_case::SendVerificationEmailCase,
+use crate::presentation::http::v1::{
+    handlers::auth::send_verification_email_handler::{
+        request::SendVerificationEmailRequestPayload, response::SendVerificationEmailResponseData,
     },
-    presentation::http::v1::{
-        handlers::auth::send_verification_email_handler::{
-            request::SendVerificationEmailRequestPayload,
-            response::SendVerificationEmailResponseData,
-        },
-        response::ApiResponse,
-    },
+    response::ApiResponse,
 };
 
 pub async fn send_verification_email_handler(

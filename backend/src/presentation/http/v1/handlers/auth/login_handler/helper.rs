@@ -1,5 +1,7 @@
 use thiserror::Error;
 
+use crate::application::auth::commands::login_command::LoginCommand;
+use crate::application::auth::results::login_result::LoginResult;
 use crate::domain::auth::value_objects::credentials::login_identity::{
     LoginIdentity, LoginIdentityError,
 };
@@ -7,14 +9,8 @@ use crate::domain::auth::value_objects::credentials::plain_password::{
     PlainPassword, PlainPasswordError,
 };
 use crate::presentation::http::v1::errors::ApiError;
-use crate::{
-    application::{
-        commands::auth::login_command::LoginCommand,
-        results::commands_results::auth::login_result::LoginResult,
-    },
-    presentation::http::v1::handlers::auth::login_handler::{
-        request::LoginRequestPayload, response::LoginResponseData,
-    },
+use crate::presentation::http::v1::handlers::auth::login_handler::{
+    request::LoginRequestPayload, response::LoginResponseData,
 };
 
 #[derive(Debug, Error)]

@@ -1,4 +1,5 @@
-pub mod entities;
-pub mod policies;
-pub mod relations;
-pub mod repositories;
+pub mod association;
+pub mod entity;
+pub mod policy;
+pub mod repository;
+pub mod value_objects;

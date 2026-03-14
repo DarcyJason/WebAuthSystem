@@ -5,3 +5,5 @@ docker/redis
 
 .idea
 .vscode
+
+node_modules

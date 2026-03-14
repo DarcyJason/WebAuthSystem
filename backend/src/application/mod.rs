@@ -1,5 +1,3 @@
-pub mod commands;
+pub mod auth;
 pub mod errors;
-pub mod queries;
-pub mod results;
-pub mod use_cases;
+pub mod rbac;

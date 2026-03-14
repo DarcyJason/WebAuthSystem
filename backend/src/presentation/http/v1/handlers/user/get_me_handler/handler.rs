@@ -1,12 +1,9 @@
+use crate::application::auth::cases::get_me_case::GetMeCase;
+use crate::application::auth::queries::get_me_query::GetMeQuery;
 use crate::presentation::http::v1::errors::ApiResult;
-use crate::{
-    application::{
-        queries::user::get_me_query::GetMeQuery, use_cases::user::get_me_case::GetMeCase,
-    },
-    presentation::http::v1::{
-        handlers::user::get_me_handler::response::GetMeResponseData, response::ApiResponse,
-        states::AppState,
-    },
+use crate::presentation::http::v1::{
+    handlers::user::get_me_handler::response::GetMeResponseData, response::ApiResponse,
+    states::AppState,
 };
 use axum::{Extension, http::HeaderMap, response::IntoResponse};
 use std::sync::Arc;

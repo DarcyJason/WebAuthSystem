@@ -1,4 +1,3 @@
-use crate::domain::errors::DomainError;
 use crate::infrastructure::errors::InfraError;
 use thiserror::Error;
 
@@ -28,16 +27,6 @@ pub enum CaseError {
     EmailVerificationTokenInvalid,
     #[error("Internal server error")]
     InternalServerError = 1500,
-}
-
-impl From<DomainError> for CaseError {
-    fn from(e: DomainError) -> CaseError {
-        match e {
-            DomainError::UserDomainError(_) | DomainError::AuthDomainError(_) => {
-                CaseError::InternalServerError
-            }
-        }
-    }
 }
 
 impl From<InfraError> for CaseError {

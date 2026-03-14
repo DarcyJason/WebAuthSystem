@@ -1,12 +1,11 @@
-use async_trait::async_trait;
-
-use crate::domain::user::entities::user::User;
-use crate::domain::user::entities::user::{
-    user_email::UserEmail, user_id::UserId, user_name::UserName,
-};
-use crate::domain::user::repositories::user_repository::UserRepository;
+use crate::domain::auth::entity::user::User;
+use crate::domain::auth::repository::user_repository::UserRepository;
+use crate::domain::auth::value_objects::user::user_email::UserEmail;
+use crate::domain::auth::value_objects::user::user_id::UserId;
+use crate::domain::auth::value_objects::user::user_name::UserName;
 use crate::infrastructure::caches::redis::client::RedisClient;
 use crate::infrastructure::errors::user_repository_error::UserRepositoryError;
+use async_trait::async_trait;
 
 pub struct RedisUserRepository {
     redis_client: RedisClient,

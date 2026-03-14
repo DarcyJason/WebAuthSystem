@@ -1,19 +1,15 @@
 use axum::{Extension, Json, response::IntoResponse};
 use std::sync::Arc;
 
+use crate::application::auth::cases::register_case::RegisterCase;
+use crate::application::auth::commands::register_command::RegisterCommand;
 use crate::presentation::http::v1::errors::ApiResult;
 use crate::presentation::http::v1::states::AppState;
-use crate::{
-    application::{
-        commands::auth::register_command::RegisterCommand,
-        use_cases::auth::register_case::RegisterCase,
+use crate::presentation::http::v1::{
+    handlers::auth::register_handler::{
+        request::RegisterRequestPayload, response::RegisterResponseData,
     },
-    presentation::http::v1::{
-        handlers::auth::register_handler::{
-            request::RegisterRequestPayload, response::RegisterResponseData,
-        },
-        response::ApiResponse,
-    },
+    response::ApiResponse,
 };
 
 pub async fn register_handler(

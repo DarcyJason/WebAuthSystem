@@ -1,9 +1,6 @@
+use crate::domain::auth::value_objects::user::user_email::{UserEmail, UserEmailError};
+use crate::domain::auth::value_objects::user::user_name::{UserName, UserNameError};
 use serde::Deserialize;
-
-use crate::domain::user::entities::user::{
-    user_email::{UserEmail, UserEmailError},
-    user_name::{UserName, UserNameError},
-};
 
 pub enum LoginIdentityError {
     UserNameError(UserNameError),

@@ -4,18 +4,13 @@ use axum::{Json, http::HeaderValue, response::IntoResponse};
 use axum_extra::extract::cookie::Cookie;
 use std::sync::Arc;
 
+use crate::application::auth::cases::login_case::LoginCase;
+use crate::application::auth::commands::login_command::LoginCommand;
 use crate::presentation::http::v1::errors::ApiResult;
 use crate::presentation::http::v1::states::AppState;
-use crate::{
-    application::{
-        commands::auth::login_command::LoginCommand, use_cases::auth::login_case::LoginCase,
-    },
-    presentation::http::v1::{
-        handlers::auth::login_handler::{
-            request::LoginRequestPayload, response::LoginResponseData,
-        },
-        response::ApiResponse,
-    },
+use crate::presentation::http::v1::{
+    handlers::auth::login_handler::{request::LoginRequestPayload, response::LoginResponseData},
+    response::ApiResponse,
 };
 
 pub async fn login_handler(

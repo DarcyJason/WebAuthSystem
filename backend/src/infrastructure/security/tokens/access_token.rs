@@ -1,6 +1,6 @@
-use crate::domain::auth::services::access_token_service::{AccessClaims, AccessTokenService};
+use crate::domain::auth::service::access_token_service::{AccessClaims, AccessTokenService};
 use crate::domain::auth::value_objects::tokens::access_token::AccessToken;
-use crate::domain::user::entities::user::user_id::UserId;
+use crate::domain::auth::value_objects::user::user_id::UserId;
 use crate::infrastructure::errors::access_token_service_error::AccessTokenServiceError;
 use chrono::{Duration, Utc};
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, decode, encode};

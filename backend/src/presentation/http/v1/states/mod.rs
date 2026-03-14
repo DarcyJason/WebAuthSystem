@@ -1,12 +1,12 @@
 use resend_rs::Resend;
 use std::sync::Arc;
 
-use crate::domain::auth::repositories::email_verification_token_repository::EmailVerificationTokenRepository;
-use crate::domain::auth::services::access_token_service::AccessTokenService;
-use crate::domain::auth::services::mail_service::MailService;
-use crate::domain::auth::services::password_service::PasswordService;
-use crate::domain::auth::services::refresh_token_service::RefreshTokenService;
-use crate::domain::user::repositories::user_repository::UserRepository;
+use crate::domain::auth::repository::email_verification_token_repository::EmailVerificationTokenRepository;
+use crate::domain::auth::repository::user_repository::UserRepository;
+use crate::domain::auth::service::access_token_service::AccessTokenService;
+use crate::domain::auth::service::mail_service::MailService;
+use crate::domain::auth::service::password_service::PasswordService;
+use crate::domain::auth::service::refresh_token_service::RefreshTokenService;
 use crate::infrastructure::caches::layered::email_verification_token_repository::LayeredEmailVerificationTokenRepository;
 use crate::infrastructure::caches::layered::user_repository::LayeredUserRepository;
 use crate::infrastructure::caches::moka::client::MokaClient;

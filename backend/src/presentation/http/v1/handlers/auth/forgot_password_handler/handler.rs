@@ -1,4 +1,4 @@
-use crate::application::commands::auth::forgot_password_command::ForgotPasswordCommand;
+use crate::application::auth::commands::forgot_password_command::ForgotPasswordCommand;
 use crate::presentation::http::v1::errors::ApiResult;
 use crate::presentation::http::v1::handlers::auth::forgot_password_handler::request::ForgotPasswordRequestPayload;
 use crate::presentation::http::v1::states::AppState;

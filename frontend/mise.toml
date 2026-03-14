@@ -1,0 +1,11 @@
+[tasks.dev]
+run = "cargo leptos watch"
+
+[tasks."install-dependencies"]
+run = [
+    "rustup target add wasm32-unknown-unknown",
+    "cargo install leptosfmt"
+]
+
+[tasks.fmt]
+run = "leptosfmt ./**/*.rs"

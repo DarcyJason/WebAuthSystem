@@ -1,9 +1,9 @@
 use async_trait::async_trait;
 
-use crate::domain::auth::repositories::email_verification_token_repository::EmailVerificationTokenRepository;
+use crate::domain::auth::repository::email_verification_token_repository::EmailVerificationTokenRepository;
 use crate::domain::auth::value_objects::tokens::verification_token::VerificationToken;
+use crate::domain::auth::value_objects::user::user_email::UserEmail;
 use crate::domain::common::time::ttl::TTL;
-use crate::domain::user::entities::user::user_email::UserEmail;
 use crate::infrastructure::caches::redis::client::RedisClient;
 use crate::infrastructure::errors::email_verification_token_repository_error::EmailVerificationTokenRepositoryError;
 

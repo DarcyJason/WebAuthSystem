@@ -1,0 +1,7 @@
+pub mod forgot_password_result;
+pub mod get_me_result;
+pub mod login_result;
+pub mod register_result;
+pub mod reset_password_result;
+pub mod send_verification_email_result;
+pub mod validate_verification_result;
