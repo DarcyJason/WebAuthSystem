@@ -8,21 +8,21 @@ use crate::domain::auth::value_objects::credentials::plain_password::PlainPasswo
 use crate::domain::auth::value_objects::user::user_password_hash::UserPasswordHash;
 use crate::infrastructure::errors::password_service_error::PasswordServiceError;
 
-pub struct PasswordServiceImplementation;
+pub struct DefaultPasswordService;
 
-impl PasswordServiceImplementation {
+impl DefaultPasswordService {
     pub fn new() -> Self {
-        PasswordServiceImplementation {}
+        DefaultPasswordService {}
     }
 }
 
-impl Default for PasswordServiceImplementation {
+impl Default for DefaultPasswordService {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl PasswordService for PasswordServiceImplementation {
+impl PasswordService for DefaultPasswordService {
     fn hash(
         &self,
         plain_password: PlainPassword,

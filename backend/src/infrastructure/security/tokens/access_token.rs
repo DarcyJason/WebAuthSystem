@@ -5,19 +5,19 @@ use crate::infrastructure::errors::access_token_service_error::AccessTokenServic
 use chrono::{Duration, Utc};
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, decode, encode};
 
-pub struct AccessTokenServiceImplementation {
+pub struct DefaultAccessTokenService {
     secret: String,
 }
 
-impl AccessTokenServiceImplementation {
+impl DefaultAccessTokenService {
     pub fn new(secret: impl Into<String>) -> Self {
-        AccessTokenServiceImplementation {
+        DefaultAccessTokenService {
             secret: secret.into(),
         }
     }
 }
 
-impl AccessTokenService for AccessTokenServiceImplementation {
+impl AccessTokenService for DefaultAccessTokenService {
     fn encode_access_token(&self, user_id: UserId) -> Result<AccessToken, AccessTokenServiceError> {
         let now = Utc::now();
         let iat = now.timestamp() as usize;

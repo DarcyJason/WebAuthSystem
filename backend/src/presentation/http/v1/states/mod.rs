@@ -16,13 +16,13 @@ use crate::infrastructure::caches::redis::client::RedisClient;
 use crate::infrastructure::caches::redis::email_verification_token_repository::RedisEmailVerificationTokenRepository;
 use crate::infrastructure::caches::redis::user_repository::RedisUserRepository;
 use crate::infrastructure::config::Config;
-use crate::infrastructure::mail::MailServiceImplementation;
+use crate::infrastructure::mail::DefaultMailService;
 use crate::infrastructure::persistence::surrealdb::client::SurrealDBClient;
 use crate::infrastructure::persistence::surrealdb::email_verification_token_repository::SurrealDBEmailVerificationTokenRepository;
 use crate::infrastructure::persistence::surrealdb::user_repository::SurrealDBUserRepository;
-use crate::infrastructure::security::password::PasswordServiceImplementation;
-use crate::infrastructure::security::tokens::access_token::AccessTokenServiceImplementation;
-use crate::infrastructure::security::tokens::refresh_token::RefreshTokenServiceImplementation;
+use crate::infrastructure::security::password::DefaultPasswordService;
+use crate::infrastructure::security::tokens::access_token::DefaultAccessTokenService;
+use crate::infrastructure::security::tokens::refresh_token::DefaultRefreshTokenService;
 
 #[derive(Clone)]
 pub struct AppState {
@@ -52,15 +52,12 @@ impl AppState {
             source_user_repo,
         ));
         let access_token_service: Arc<dyn AccessTokenService> =
-            Arc::new(AccessTokenServiceImplementation::new(config.jwt.secret));
+            Arc::new(DefaultAccessTokenService::new(config.jwt.secret));
         let refresh_token_service: Arc<dyn RefreshTokenService> =
-            Arc::new(RefreshTokenServiceImplementation::new());
-        let password_service: Arc<dyn PasswordService> =
-            Arc::new(PasswordServiceImplementation::new());
-        let mail_service: Arc<dyn MailService> = Arc::new(MailServiceImplementation::new(
-            mail_client,
-            system_owner_email,
-        ));
+            Arc::new(DefaultRefreshTokenService::new());
+        let password_service: Arc<dyn PasswordService> = Arc::new(DefaultPasswordService::new());
+        let mail_service: Arc<dyn MailService> =
+            Arc::new(DefaultMailService::new(mail_client, system_owner_email));
         let l1_email_verification_repo: Arc<dyn EmailVerificationTokenRepository> =
             Arc::new(MokaEmailVerificationTokenRepository::new(MokaClient::new()));
         let l2_email_verification_repo: Arc<dyn EmailVerificationTokenRepository> = Arc::new(

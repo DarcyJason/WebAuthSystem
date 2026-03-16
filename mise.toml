@@ -25,3 +25,7 @@ depends_post = [
     "//docker:surrealdb-stop",
     "//docker:redis-stop",
 ]
+
+[tasks.frontend]
+depends = "//frontend:prepare"
+run = "mise run //frontend:dev"

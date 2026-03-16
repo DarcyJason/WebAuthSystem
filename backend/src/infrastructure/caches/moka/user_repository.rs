@@ -18,8 +18,13 @@ impl MokaUserRepository {
 
     async fn find_by_key(&self, key: &str) -> Result<Option<User>, UserRepositoryError> {
         let result = self.moka_client.client.get(key).await;
-        User::from_redis_optional_value(result)
-            .map_err(|_| UserRepositoryError::DeserializationFailed)
+        match result {
+            Some(user) => Ok(Some(
+                serde_json::from_str::<User>(&user)
+                    .map_err(|_| UserRepositoryError::DeserializationFailed)?,
+            )),
+            None => Ok(None),
+        }
     }
 }
 
@@ -29,9 +34,8 @@ impl UserRepository for MokaUserRepository {
         let id_key = format!("user:id:{}", user.id().value());
         let email_key = format!("user:email:{}", user.email().value());
         let name_key = format!("user:name:{}", user.name().value());
-        let payload = user
-            .to_redis_value()
-            .map_err(|_| UserRepositoryError::PersistenceFailed)?;
+        let payload =
+            serde_json::to_string(&user).map_err(|_| UserRepositoryError::PersistenceFailed)?;
         self.moka_client
             .client
             .insert(id_key.clone(), payload.clone())
@@ -42,8 +46,13 @@ impl UserRepository for MokaUserRepository {
             .await;
         self.moka_client.client.insert(name_key, payload).await;
         let result = self.moka_client.client.get(&id_key).await;
-        User::from_redis_optional_value(result)
-            .map_err(|_| UserRepositoryError::DeserializationFailed)
+        match result {
+            Some(user) => Ok(Some(
+                serde_json::from_str::<User>(&user)
+                    .map_err(|_| UserRepositoryError::DeserializationFailed)?,
+            )),
+            None => Ok(None),
+        }
     }
 
     async fn find_by_id(&self, user_id: &UserId) -> Result<Option<User>, UserRepositoryError> {

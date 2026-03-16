@@ -23,9 +23,8 @@ impl UserRepository for RedisUserRepository {
         let id_key = format!("user:id:{}", user.id().value());
         let email_key = format!("user:email:{}", user.email().value());
         let name_key = format!("user:name:{}", user.name().value());
-        let payload = user
-            .to_redis_value()
-            .map_err(|_| UserRepositoryError::PersistenceFailed)?;
+        let payload =
+            serde_json::to_string(&user).map_err(|_| UserRepositoryError::PersistenceFailed)?;
         let mut conn = self.redis_client.client.clone();
         redis::cmd("SET")
             .arg(&id_key)
@@ -50,8 +49,15 @@ impl UserRepository for RedisUserRepository {
             .query_async(&mut conn)
             .await
             .map_err(|_| UserRepositoryError::StorageUnavailable)?;
-        User::from_redis_optional_value(result)
-            .map_err(|_| UserRepositoryError::DeserializationFailed)
+        match result {
+            Some(user) => {
+                return Ok(Some(
+                    serde_json::from_str::<User>(&user)
+                        .map_err(|_| UserRepositoryError::DeserializationFailed)?,
+                ));
+            }
+            None => return Ok(None),
+        };
     }
 
     async fn find_by_id(&self, user_id: &UserId) -> Result<Option<User>, UserRepositoryError> {
@@ -62,8 +68,15 @@ impl UserRepository for RedisUserRepository {
             .query_async(&mut conn)
             .await
             .map_err(|_| UserRepositoryError::StorageUnavailable)?;
-        User::from_redis_optional_value(result)
-            .map_err(|_| UserRepositoryError::DeserializationFailed)
+        match result {
+            Some(user) => {
+                return Ok(Some(
+                    serde_json::from_str::<User>(&user)
+                        .map_err(|_| UserRepositoryError::DeserializationFailed)?,
+                ));
+            }
+            None => return Ok(None),
+        };
     }
 
     async fn find_by_name(
@@ -77,8 +90,15 @@ impl UserRepository for RedisUserRepository {
             .query_async(&mut conn)
             .await
             .map_err(|_| UserRepositoryError::StorageUnavailable)?;
-        User::from_redis_optional_value(result)
-            .map_err(|_| UserRepositoryError::DeserializationFailed)
+        match result {
+            Some(user) => {
+                return Ok(Some(
+                    serde_json::from_str::<User>(&user)
+                        .map_err(|_| UserRepositoryError::DeserializationFailed)?,
+                ));
+            }
+            None => return Ok(None),
+        };
     }
 
     async fn find_by_email(
@@ -92,8 +112,15 @@ impl UserRepository for RedisUserRepository {
             .query_async(&mut conn)
             .await
             .map_err(|_| UserRepositoryError::StorageUnavailable)?;
-        User::from_redis_optional_value(result)
-            .map_err(|_| UserRepositoryError::DeserializationFailed)
+        match result {
+            Some(user) => {
+                return Ok(Some(
+                    serde_json::from_str::<User>(&user)
+                        .map_err(|_| UserRepositoryError::DeserializationFailed)?,
+                ));
+            }
+            None => return Ok(None),
+        };
     }
 
     async fn find_by_name_or_email(

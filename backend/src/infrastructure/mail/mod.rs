@@ -8,14 +8,14 @@ use crate::infrastructure::errors::mail_service_error::MailServiceError;
 use async_trait::async_trait;
 use resend_rs::{Resend, types::CreateEmailBaseOptions};
 
-pub struct MailServiceImplementation {
+pub struct DefaultMailService {
     mail_client: Resend,
     system_owner_email: String,
 }
 
-impl MailServiceImplementation {
+impl DefaultMailService {
     pub fn new(mail_client: Resend, system_owner_email: String) -> Self {
-        MailServiceImplementation {
+        DefaultMailService {
             mail_client,
             system_owner_email,
         }
@@ -23,7 +23,7 @@ impl MailServiceImplementation {
 }
 
 #[async_trait]
-impl MailService for MailServiceImplementation {
+impl MailService for DefaultMailService {
     async fn send_email(
         &self,
         to: Vec<UserEmail>,

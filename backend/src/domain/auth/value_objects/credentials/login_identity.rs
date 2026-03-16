@@ -1,10 +1,15 @@
-use crate::domain::auth::value_objects::user::user_email::{UserEmail, UserEmailError};
-use crate::domain::auth::value_objects::user::user_name::{UserName, UserNameError};
+use crate::domain::auth::value_objects::user::user_email::UserEmail;
+use crate::domain::auth::value_objects::user::user_name::UserName;
 use serde::Deserialize;
+use thiserror::Error;
 
+#[derive(Debug, Error)]
 pub enum LoginIdentityError {
-    UserNameError(UserNameError),
-    UserEmailError(UserEmailError),
+    #[error("Invalid user name")]
+    InvalidUserName,
+    #[error("Invalid user email")]
+    InvalidUserEmail,
+    #[error("LoginIdentity required")]
     LoginIdentityRequired,
 }
 
@@ -21,11 +26,11 @@ impl LoginIdentity {
         }
         if raw.contains("@") {
             Ok(Self::UserEmail(
-                UserEmail::new(raw).map_err(LoginIdentityError::UserEmailError)?,
+                UserEmail::new(raw).map_err(|_| LoginIdentityError::InvalidUserEmail)?,
             ))
         } else {
             Ok(Self::UserName(
-                UserName::new(raw).map_err(LoginIdentityError::UserNameError)?,
+                UserName::new(raw).map_err(|_| LoginIdentityError::InvalidUserName)?,
             ))
         }
     }

@@ -1,0 +1,5 @@
+[tasks.dev]
+run = "pnpm dev --open"
+
+[tasks.prepare]
+run = "pnpm install"
