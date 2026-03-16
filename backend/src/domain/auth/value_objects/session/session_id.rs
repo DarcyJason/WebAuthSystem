@@ -1,16 +1,10 @@
+use crate::domain::auth::errors::session::session_id_error::SessionIdError;
 use std::str::FromStr;
 
 use serde::{Deserialize, Serialize};
 use surrealdb::RecordId;
-use thiserror::Error;
 use tracing::error;
 use uuid::Uuid;
-
-#[derive(Debug, Error)]
-pub enum SessionIdError {
-    #[error("get session id from &str error")]
-    GetSessionIdFromStrError,
-}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SessionId(RecordId);

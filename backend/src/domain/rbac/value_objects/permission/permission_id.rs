@@ -1,15 +1,9 @@
+use crate::domain::rbac::errors::PermissionIdError;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 use surrealdb::RecordId;
-use thiserror::Error;
 use tracing::error;
 use uuid::Uuid;
-
-#[derive(Debug, Error)]
-pub enum PermissionIdError {
-    #[error("get role id from &str error")]
-    GetRoleIdFromStrError,
-}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PermissionId(RecordId);

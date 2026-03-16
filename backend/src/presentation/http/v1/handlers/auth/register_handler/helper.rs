@@ -2,11 +2,12 @@ use thiserror::Error;
 
 use crate::application::auth::commands::register_command::RegisterCommand;
 use crate::application::auth::results::register_result::RegisterResult;
-use crate::domain::auth::value_objects::credentials::plain_password::{
-    PlainPassword, PlainPasswordError,
-};
-use crate::domain::auth::value_objects::user::user_email::{UserEmail, UserEmailError};
-use crate::domain::auth::value_objects::user::user_name::{UserName, UserNameError};
+use crate::domain::auth::errors::credentials::plain_password_error::PlainPasswordError;
+use crate::domain::auth::errors::user::user_email_error::UserEmailError;
+use crate::domain::auth::errors::user::user_name_error::UserNameError;
+use crate::domain::auth::value_objects::credentials::plain_password::PlainPassword;
+use crate::domain::auth::value_objects::user::user_email::UserEmail;
+use crate::domain::auth::value_objects::user::user_name::UserName;
 use crate::presentation::http::v1::errors::ApiError;
 use crate::presentation::http::v1::handlers::auth::register_handler::{
     request::RegisterRequestPayload, response::RegisterResponseData,

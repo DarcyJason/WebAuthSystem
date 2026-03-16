@@ -1,11 +1,5 @@
+use crate::domain::rbac::errors::RoleCodeError;
 use serde::{Deserialize, Serialize};
-use thiserror::Error;
-
-#[derive(Debug, Error)]
-pub enum RoleCodeError {
-    #[error("invalid role code format")]
-    InvalidFormat,
-}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RoleCode(String);

@@ -2,12 +2,10 @@ use thiserror::Error;
 
 use crate::application::auth::commands::login_command::LoginCommand;
 use crate::application::auth::results::login_result::LoginResult;
-use crate::domain::auth::value_objects::credentials::login_identity::{
-    LoginIdentity, LoginIdentityError,
-};
-use crate::domain::auth::value_objects::credentials::plain_password::{
-    PlainPassword, PlainPasswordError,
-};
+use crate::domain::auth::errors::credentials::login_identity_error::LoginIdentityError;
+use crate::domain::auth::errors::credentials::plain_password_error::PlainPasswordError;
+use crate::domain::auth::value_objects::credentials::login_identity::LoginIdentity;
+use crate::domain::auth::value_objects::credentials::plain_password::PlainPassword;
 use crate::presentation::http::v1::errors::ApiError;
 use crate::presentation::http::v1::handlers::auth::login_handler::{
     request::LoginRequestPayload, response::LoginResponseData,

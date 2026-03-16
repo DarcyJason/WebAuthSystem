@@ -1,15 +1,9 @@
+use crate::domain::auth::errors::user::user_id_error::UserIdError;
 use std::str::FromStr;
 
 use serde::{Deserialize, Serialize};
 use surrealdb::RecordId;
-use thiserror::Error;
 use uuid::Uuid;
-
-#[derive(Debug, Error)]
-pub enum UserIdError {
-    #[error("Get user id from &str failed")]
-    GetUserIdFromStrFailed,
-}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UserId(RecordId);

@@ -1,11 +1,7 @@
+use crate::domain::auth::errors::user::user_name_error::UserNameError;
 use std::fmt::Display;
 
 use serde::{Deserialize, Serialize};
-
-pub enum UserNameError {
-    UserNameInvalid,
-    UserNameTooLong,
-}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UserName(String);

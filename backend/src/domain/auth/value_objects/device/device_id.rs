@@ -1,16 +1,10 @@
+use crate::domain::auth::errors::device::device_id_error::DeviceIdError;
 use std::str::FromStr;
 
 use serde::{Deserialize, Serialize};
 use surrealdb::RecordId;
-use thiserror::Error;
 use tracing::error;
 use uuid::Uuid;
-
-#[derive(Debug, Error)]
-pub enum DeviceIdError {
-    #[error("get device id from &str error")]
-    GetDeviceIdFromStrError,
-}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DeviceId(RecordId);

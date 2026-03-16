@@ -2,7 +2,8 @@ use thiserror::Error;
 
 use crate::application::auth::commands::send_verification_email_command::SendVerificationEmailCommand;
 use crate::application::auth::results::send_verification_email_result::SendVerificationEmailResult;
-use crate::domain::auth::value_objects::user::user_email::{UserEmail, UserEmailError};
+use crate::domain::auth::errors::user::user_email_error::UserEmailError;
+use crate::domain::auth::value_objects::user::user_email::UserEmail;
 use crate::presentation::http::v1::errors::ApiError;
 use crate::presentation::http::v1::handlers::auth::send_verification_email_handler::{
     request::SendVerificationEmailRequestPayload, response::SendVerificationEmailResponseData,

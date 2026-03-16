@@ -1,15 +1,7 @@
+use crate::domain::auth::errors::user::user_email_error::UserEmailError;
 use std::fmt::Display;
 
 use serde::{Deserialize, Serialize};
-use thiserror::Error;
-
-#[derive(Debug, Error)]
-pub enum UserEmailError {
-    #[error("User email is required")]
-    UserEmailRequired,
-    #[error("User email is invalid")]
-    UserEmailInvalid,
-}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UserEmail(String);

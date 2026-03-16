@@ -1,11 +1,5 @@
+use crate::domain::rbac::errors::PermissionCodeError;
 use serde::{Deserialize, Serialize};
-use thiserror::Error;
-
-#[derive(Debug, Error)]
-pub enum PermissionCodeError {
-    #[error("Invalid permission code format")]
-    InvalidFormat,
-}
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct PermissionCode(String);
