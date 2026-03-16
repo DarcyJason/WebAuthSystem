@@ -17,7 +17,7 @@ impl UserId {
     }
     pub fn from_raw_id(raw_id: &str) -> Result<Self, UserIdError> {
         let record_id: RecordId =
-            RecordId::from_str(raw_id).map_err(|_| UserIdError::GetUserIdFromStrFailed)?;
+            RecordId::from_str(raw_id).map_err(|_| UserIdError::InvalidFormat)?;
         Ok(UserId(record_id))
     }
     pub fn value(&self) -> &RecordId {

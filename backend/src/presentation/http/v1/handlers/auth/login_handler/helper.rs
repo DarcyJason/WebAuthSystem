@@ -28,7 +28,7 @@ pub enum LoginRequestPayloadError {
     #[error("password is missing lowercase letter")]
     PasswordMissingLowercase,
     #[error("password is missing uppercase letter")]
-    PasswordMissingUpperCase,
+    PasswordMissingUppercase,
     #[error("password is missing special symbols")]
     PasswordMissingSpecial,
 }
@@ -50,13 +50,13 @@ impl TryFrom<LoginRequestPayload> for LoginCommand {
             PlainPasswordError::PasswordMissingDigit => {
                 LoginRequestPayloadError::PasswordMissingDigit
             }
-            PlainPasswordError::PasswordMissingLowerCase => {
+            PlainPasswordError::PasswordMissingLowercase => {
                 LoginRequestPayloadError::PasswordMissingLowercase
             }
-            PlainPasswordError::PasswordMissingUpperCase => {
-                LoginRequestPayloadError::PasswordMissingUpperCase
+            PlainPasswordError::PasswordMissingUppercase => {
+                LoginRequestPayloadError::PasswordMissingUppercase
             }
-            PlainPasswordError::PasswordMissingSpetial => {
+            PlainPasswordError::PasswordMissingSpecial => {
                 LoginRequestPayloadError::PasswordMissingSpecial
             }
         })?;

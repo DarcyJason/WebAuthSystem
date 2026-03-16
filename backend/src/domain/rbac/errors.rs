@@ -8,8 +8,8 @@ pub enum PermissionCodeError {
 
 #[derive(Debug, Error)]
 pub enum PermissionIdError {
-    #[error("get role id from &str error")]
-    GetRoleIdFromStrError,
+    #[error("invalid permission id format")]
+    InvalidFormat,
 }
 
 #[derive(Debug, Error)]
@@ -20,6 +20,6 @@ pub enum RoleCodeError {
 
 #[derive(Debug, Error)]
 pub enum RoleIdError {
-    #[error("get role id from &str error")]
-    GetRoleIdFromStrError,
+    #[error("invalid role id format")]
+    InvalidFormat,
 }

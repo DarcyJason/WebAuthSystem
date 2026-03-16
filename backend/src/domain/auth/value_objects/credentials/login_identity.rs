@@ -16,11 +16,11 @@ impl LoginIdentity {
         }
         if raw.contains("@") {
             Ok(Self::UserEmail(
-                UserEmail::new(raw).map_err(|_| LoginIdentityError::InvalidUserEmail)?,
+                UserEmail::new(raw).map_err(|_| LoginIdentityError::UserEmailInvalid)?,
             ))
         } else {
             Ok(Self::UserName(
-                UserName::new(raw).map_err(|_| LoginIdentityError::InvalidUserName)?,
+                UserName::new(raw).map_err(|_| LoginIdentityError::UserNameInvalid)?,
             ))
         }
     }

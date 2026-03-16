@@ -20,13 +20,13 @@ impl PlainPassword {
             return Err(PlainPasswordError::PasswordMissingDigit);
         }
         if !plain_password.chars().any(|c| c.is_ascii_lowercase()) {
-            return Err(PlainPasswordError::PasswordMissingLowerCase);
+            return Err(PlainPasswordError::PasswordMissingLowercase);
         }
         if !plain_password.chars().any(|c| c.is_ascii_uppercase()) {
-            return Err(PlainPasswordError::PasswordMissingUpperCase);
+            return Err(PlainPasswordError::PasswordMissingUppercase);
         }
         if !plain_password.chars().any(|c| "!@#$%^&*".contains(c)) {
-            return Err(PlainPasswordError::PasswordMissingSpetial);
+            return Err(PlainPasswordError::PasswordMissingSpecial);
         }
         Ok(Self(plain_password))
     }

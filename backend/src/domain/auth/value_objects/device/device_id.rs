@@ -18,8 +18,8 @@ impl DeviceId {
     }
     pub fn from_raw_id(raw_id: &str) -> Result<Self, DeviceIdError> {
         let record_id: RecordId = RecordId::from_str(raw_id).map_err(|e| {
-            error!("get device id from &str error: {}", e);
-            DeviceIdError::GetDeviceIdFromStrError
+            error!("invalid device id format: {}", e);
+            DeviceIdError::InvalidFormat
         })?;
         Ok(DeviceId(record_id))
     }

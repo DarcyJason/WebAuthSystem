@@ -19,11 +19,23 @@ pnpm = "10.32.1"
 depends = [
     "//docker:surrealdb-start",
     "//docker:redis-start",
+    "//docker:jaeger-start",
+    "//docker:kafka-start"
 ]
 run = "mise run //backend:dev"
 depends_post = [
     "//docker:surrealdb-stop",
     "//docker:redis-stop",
+    "//docker:jaeger-stop",
+    "//docker:kafka-stop"
+]
+
+[tasks."backend:fix"]
+run = [
+    "mise run //docker:surrealdb-stop",
+    "mise run //docker:redis-stop",
+    "mise run //docker:jaeger-stop",
+    "mise run //docker:kafka-stop"
 ]
 
 [tasks.frontend]

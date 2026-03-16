@@ -17,8 +17,8 @@ impl PermissionId {
     }
     pub fn from_raw_id(raw_id: &str) -> Result<Self, PermissionIdError> {
         let record_id: RecordId = RecordId::from_str(raw_id).map_err(|e| {
-            error!("get role id from &str error: {}", e);
-            PermissionIdError::GetRoleIdFromStrError
+            error!("invalid permission id format: {}", e);
+            PermissionIdError::InvalidFormat
         })?;
         Ok(PermissionId(record_id))
     }

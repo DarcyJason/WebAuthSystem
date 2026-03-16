@@ -34,11 +34,11 @@ pub enum RegisterRequestPayloadError {
     #[error("password is missing digit")]
     PasswordMissingDigit,
     #[error("password is missing lower case letter")]
-    PasswordMissingLowerCase,
+    PasswordMissingLowercase,
     #[error("password is missing upper case letter")]
-    PasswordMissingUpperCase,
+    PasswordMissingUppercase,
     #[error("password is missing special symbol")]
-    PassowrdMissingSpecial,
+    PasswordMissingSpecial,
     #[error("confirm_password is required")]
     ConfirmPasswordRequired,
     #[error("confirm_password is too short")]
@@ -48,11 +48,11 @@ pub enum RegisterRequestPayloadError {
     #[error("confirm password is missing digit")]
     ConfirmPasswordMissingDigit,
     #[error("confirm password is missing lower case letter")]
-    ConfirmPasswordMissingLowerCase,
+    ConfirmPasswordMissingLowercase,
     #[error("confirm password is missing upper case letter")]
-    ConfirmPasswordMissingUpperCase,
+    ConfirmPasswordMissingUppercase,
     #[error("confirm password is missing special symbol")]
-    ConfirmPassowrdMissingSpecial,
+    ConfirmPasswordMissingSpecial,
     #[error("passwords are not matched")]
     PasswordsNotMatched,
 }
@@ -75,14 +75,14 @@ impl TryFrom<RegisterRequestPayload> for RegisterCommand {
             PlainPasswordError::PasswordMissingDigit => {
                 RegisterRequestPayloadError::PasswordMissingDigit
             }
-            PlainPasswordError::PasswordMissingLowerCase => {
-                RegisterRequestPayloadError::PasswordMissingLowerCase
+            PlainPasswordError::PasswordMissingLowercase => {
+                RegisterRequestPayloadError::PasswordMissingLowercase
             }
-            PlainPasswordError::PasswordMissingUpperCase => {
-                RegisterRequestPayloadError::PasswordMissingUpperCase
+            PlainPasswordError::PasswordMissingUppercase => {
+                RegisterRequestPayloadError::PasswordMissingUppercase
             }
-            PlainPasswordError::PasswordMissingSpetial => {
-                RegisterRequestPayloadError::PassowrdMissingSpecial
+            PlainPasswordError::PasswordMissingSpecial => {
+                RegisterRequestPayloadError::PasswordMissingSpecial
             }
         })?;
         let confirm_password =
@@ -99,14 +99,14 @@ impl TryFrom<RegisterRequestPayload> for RegisterCommand {
                 PlainPasswordError::PasswordMissingDigit => {
                     RegisterRequestPayloadError::ConfirmPasswordMissingDigit
                 }
-                PlainPasswordError::PasswordMissingLowerCase => {
-                    RegisterRequestPayloadError::ConfirmPasswordMissingLowerCase
+                PlainPasswordError::PasswordMissingLowercase => {
+                    RegisterRequestPayloadError::ConfirmPasswordMissingLowercase
                 }
-                PlainPasswordError::PasswordMissingUpperCase => {
-                    RegisterRequestPayloadError::ConfirmPasswordMissingUpperCase
+                PlainPasswordError::PasswordMissingUppercase => {
+                    RegisterRequestPayloadError::ConfirmPasswordMissingUppercase
                 }
-                PlainPasswordError::PasswordMissingSpetial => {
-                    RegisterRequestPayloadError::ConfirmPassowrdMissingSpecial
+                PlainPasswordError::PasswordMissingSpecial => {
+                    RegisterRequestPayloadError::ConfirmPasswordMissingSpecial
                 }
             })?;
         if password != confirm_password {

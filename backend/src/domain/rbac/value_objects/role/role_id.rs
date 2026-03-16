@@ -18,8 +18,8 @@ impl RoleId {
     }
     pub fn from_raw_id(raw_id: &str) -> Result<Self, RoleIdError> {
         let record_id: RecordId = RecordId::from_str(raw_id).map_err(|e| {
-            error!("get role id from &str error: {}", e);
-            RoleIdError::GetRoleIdFromStrError
+            error!("invalid role id format: {}", e);
+            RoleIdError::InvalidFormat
         })?;
         Ok(RoleId(record_id))
     }

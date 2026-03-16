@@ -11,9 +11,9 @@ pub enum PlainPasswordError {
     #[error("password is missing digit")]
     PasswordMissingDigit,
     #[error("password is missing lower case letter")]
-    PasswordMissingLowerCase,
+    PasswordMissingLowercase,
     #[error("password is missing upper case letter")]
-    PasswordMissingUpperCase,
+    PasswordMissingUppercase,
     #[error("password is missing special symbol")]
-    PasswordMissingSpetial,
+    PasswordMissingSpecial,
 }

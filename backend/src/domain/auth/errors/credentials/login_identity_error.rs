@@ -3,9 +3,9 @@ use thiserror::Error;
 #[derive(Debug, Error)]
 pub enum LoginIdentityError {
     #[error("Invalid user name")]
-    InvalidUserName,
+    UserNameInvalid,
     #[error("Invalid user email")]
-    InvalidUserEmail,
+    UserEmailInvalid,
     #[error("LoginIdentity required")]
     LoginIdentityRequired,
 }

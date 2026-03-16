@@ -18,8 +18,8 @@ impl SessionId {
     }
     pub fn from_raw_id(raw_id: &str) -> Result<Self, SessionIdError> {
         let record_id: RecordId = RecordId::from_str(raw_id).map_err(|e| {
-            error!("get session id from &str error: {}", e);
-            SessionIdError::GetSessionIdFromStrError
+            error!("invalid session id format: {}", e);
+            SessionIdError::InvalidFormat
         })?;
         Ok(SessionId(record_id))
     }
