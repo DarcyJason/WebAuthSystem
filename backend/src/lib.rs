@@ -4,7 +4,6 @@ pub mod infrastructure;
 pub mod presentation;
 
 use crate::infrastructure::config::Config;
-use crate::infrastructure::observability::logger::init_logger;
 use crate::presentation::http::v1::assets::app_logo::show_app_logo;
 use crate::presentation::http::v1::middlewares::cors_middleware::cors_middleware;
 use crate::presentation::http::v1::middlewares::trace_middleware::trace_middleware;
@@ -14,13 +13,24 @@ use crate::presentation::http::v1::states::AppState;
 use std::sync::Arc;
 use tokio::net::TcpListener;
 use tokio::signal;
-use tracing::info;
+use tracing::{info, span};
+use tracing_subscriber::{EnvFilter, fmt, layer::SubscriberExt, util::SubscriberInitExt};
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 
 pub async fn bootstrap() -> anyhow::Result<()> {
     show_app_logo();
-    init_logger();
+    let file_appender = tracing_appender::rolling::daily("./logs", "backend.log");
+    let (non_blocking, _guard) = tracing_appender::non_blocking(file_appender);
+    let file_layer = fmt::layer().with_writer(non_blocking);
+    let console_layer = tracing_subscriber::fmt::layer();
+    tracing_subscriber::registry()
+        .with(EnvFilter::try_from_default_env().unwrap_or_else(|_| "backend=info".into()))
+        .with(file_layer)
+        .with(console_layer)
+        .init();
+    let root = span!(tracing::Level::TRACE, "app_start", work_units = 2);
+    let _enter = root.enter();
     let config = Config::init()?;
     let backend_ip = config.server.backend_ip.clone();
     let backend_port = config.server.backend_port;

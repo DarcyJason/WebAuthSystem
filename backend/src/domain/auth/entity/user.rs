@@ -20,7 +20,7 @@ pub struct User {
 impl User {
     pub fn new(name: UserName, email: UserEmail, password_hash: UserPasswordHash) -> User {
         let user_id = UserId::new();
-        let status = UserStatus::new(false);
+        let status = UserStatus::new();
         let now = Timestamp::now();
         let created_at = now.clone();
         let updated_at = now;
@@ -56,7 +56,7 @@ impl User {
         &self.updated_at
     }
     pub fn mark_as_verified(&mut self) {
-        self.status = UserStatus::new(true);
+        self.status = UserStatus::Active;
         self.updated_at = Timestamp::now();
     }
 }

@@ -12,6 +12,7 @@ pub async fn get_me_handler(
     Extension(app_state): Extension<Arc<AppState>>,
     headers: HeaderMap,
 ) -> ApiResult<impl IntoResponse> {
+    tracing::info!("Start handling get_me_handler");
     let query = GetMeQuery::try_from(headers)?;
     let case = GetMeCase::new(
         app_state.user_repo.clone(),
@@ -20,5 +21,6 @@ pub async fn get_me_handler(
     let get_me_result = case.execute(query).await?;
     let response_data = GetMeResponseData::from(get_me_result);
     let response = ApiResponse::<GetMeResponseData>::ok(200, "get me successfully", response_data);
+    tracing::info!("Handle it successfully");
     Ok(response)
 }

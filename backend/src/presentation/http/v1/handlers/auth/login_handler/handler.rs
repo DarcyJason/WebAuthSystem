@@ -17,6 +17,7 @@ pub async fn login_handler(
     Extension(app_state): Extension<Arc<AppState>>,
     Json(payload): Json<LoginRequestPayload>,
 ) -> ApiResult<impl IntoResponse> {
+    tracing::info!("Start handling login_handler");
     let cmd = LoginCommand::try_from(payload)?;
     let case = LoginCase::new(
         app_state.user_repo.clone(),
@@ -44,5 +45,6 @@ pub async fn login_handler(
         )
         .unwrap(),
     );
+    tracing::info!("Handle it successfully");
     Ok(response)
 }

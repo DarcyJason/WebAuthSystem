@@ -10,3 +10,9 @@ pub struct Mail {
     pub subject: MailSubject,
     pub content: MailContent,
 }
+
+impl Mail {
+    pub fn new(subject: MailSubject, content: MailContent) -> Self {
+        Mail { subject, content }
+    }
+}

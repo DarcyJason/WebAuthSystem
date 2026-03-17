@@ -9,6 +9,7 @@ use crate::domain::auth::service::access_token_service::AccessTokenService;
 use crate::domain::auth::service::password_service::PasswordService;
 use crate::domain::auth::service::refresh_token_service::RefreshTokenService;
 use crate::domain::auth::value_objects::credentials::login_identity::LoginIdentity;
+use crate::domain::auth::value_objects::user::user_status::UserStatus;
 use crate::infrastructure::errors::InfraError;
 
 pub struct LoginCase {
@@ -49,7 +50,7 @@ impl LoginCase {
             Some(user) => user,
             None => return Err(CaseError::UserNotFound),
         };
-        if !user.status().value().to_owned() {
+        if user.status().value().to_owned() != UserStatus::Active {
             return Err(CaseError::EmailNotVerified);
         }
         if !self

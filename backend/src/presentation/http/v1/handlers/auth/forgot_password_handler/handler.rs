@@ -10,6 +10,8 @@ pub async fn forgot_password_handler(
     Extension(_app_state): Extension<Arc<AppState>>,
     Json(payload): Json<ForgotPasswordRequestPayload>,
 ) -> ApiResult<impl IntoResponse> {
+    tracing::info!("Start handling forgor_password_handler");
     let _cmd = ForgotPasswordCommand::try_from(payload)?;
+    tracing::info!("Handle it successfully");
     Ok("ok")
 }

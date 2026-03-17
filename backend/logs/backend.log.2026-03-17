@@ -1,0 +1,8 @@
+[2m2026-03-17T12:06:00.085328Z[0m [32m INFO[0m [2mbackend::infrastructure::persistence::surrealdb::client[0m[2m:[0m SurrealDB migrations applied successfully
+[2m2026-03-17T12:06:00.089765Z[0m [32m INFO[0m [2mbackend[0m[2m:[0m axum server is listening on http://localhost:7878
+[2m2026-03-17T12:06:00.089789Z[0m [32m INFO[0m [2mbackend[0m[2m:[0m Swagger UI doc is on http://localhost:7878/swagger
+[2m2026-03-17T12:06:55.892756Z[0m [32m INFO[0m [2mbackend[0m[2m:[0m signal received, starting graceful shutdown
+[2m2026-03-17T12:11:55.163142Z[0m [32m INFO[0m [2mbackend::infrastructure::persistence::surrealdb::client[0m[2m:[0m SurrealDB migrations applied successfully
+[2m2026-03-17T12:11:55.169746Z[0m [32m INFO[0m [2mbackend[0m[2m:[0m axum server is listening on http://localhost:7878
+[2m2026-03-17T12:11:55.169788Z[0m [32m INFO[0m [2mbackend[0m[2m:[0m Swagger UI doc is on http://localhost:7878/swagger
+[2m2026-03-17T12:12:02.204385Z[0m [32m INFO[0m [2mbackend[0m[2m:[0m signal received, starting graceful shutdown

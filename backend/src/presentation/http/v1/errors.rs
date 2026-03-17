@@ -16,6 +16,7 @@ pub enum ApiError {
 
 impl IntoResponse for ApiError {
     fn into_response(self) -> Response {
+        tracing::error!("Handle it failed");
         match self {
             ApiError::BadRequest { message } => {
                 ApiResponse::<EmptyResponseData>::err(400, message).into_response()

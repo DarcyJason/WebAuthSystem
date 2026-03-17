@@ -1,9 +1,7 @@
 pub mod verification_template;
 
-use crate::domain::auth::service::mail_service::MailService;
-use crate::domain::auth::value_objects::mail::mail_content::MailContent;
-use crate::domain::auth::value_objects::mail::mail_subject::MailSubject;
 use crate::domain::auth::value_objects::user::user_email::UserEmail;
+use crate::domain::auth::{service::mail_service::MailService, value_objects::mail::Mail};
 use crate::infrastructure::errors::mail_service_error::MailServiceError;
 use async_trait::async_trait;
 use resend_rs::{Resend, types::CreateEmailBaseOptions};
@@ -24,19 +22,14 @@ impl DefaultMailService {
 
 #[async_trait]
 impl MailService for DefaultMailService {
-    async fn send_email(
-        &self,
-        to: Vec<UserEmail>,
-        mail_subject: MailSubject,
-        mail_content: MailContent,
-    ) -> Result<(), MailServiceError> {
+    async fn send_email(&self, to: Vec<UserEmail>, mail: Mail) -> Result<(), MailServiceError> {
         let from: String = UserEmail::new(&self.system_owner_email)
             .map_err(|_| MailServiceError::SystemOwnerEmailInvalid)?
             .value()
             .to_owned();
         let to: Vec<String> = to.iter().map(|to| to.value().to_owned()).collect();
-        let subject = mail_subject.value().to_owned();
-        let mail_content = mail_content.value().to_owned();
+        let subject = mail.subject.value().to_owned();
+        let mail_content = mail.content.value().to_owned();
         let email = CreateEmailBaseOptions::new(from, to, subject).with_html(&mail_content);
         if self.mail_client.emails.send(email).await.is_err() {
             return Err(MailServiceError::SendEmailFailed);

@@ -3,6 +3,7 @@ use crate::application::auth::results::send_verification_email_result::SendVerif
 use crate::application::errors::CaseResult;
 use crate::domain::auth::repository::email_verification_token_repository::EmailVerificationTokenRepository;
 use crate::domain::auth::service::mail_service::MailService;
+use crate::domain::auth::value_objects::mail::Mail;
 use crate::domain::auth::value_objects::mail::mail_content::MailContent;
 use crate::domain::auth::value_objects::mail::mail_subject::MailSubject;
 use crate::domain::auth::value_objects::tokens::verification_token::VerificationToken;
@@ -42,12 +43,12 @@ impl SendVerificationEmailCase {
             .save(&user_email, email_verification_token, expires_seconds)
             .await
             .map_err(InfraError::from)?;
+        let mail = Mail::new(
+            MailSubject::new("Email Verification"),
+            MailContent::new(verification_email),
+        );
         self.auth_mail_service
-            .send_email(
-                vec![user_email],
-                MailSubject::new("Email Verification"),
-                MailContent::new(verification_email),
-            )
+            .send_email(vec![user_email], mail)
             .await
             .map_err(InfraError::from)?;
         Ok(SendVerificationEmailResult {})

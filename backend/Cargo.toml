@@ -27,6 +27,7 @@ thiserror = { version = "2.0.17", features = ["std"] }
 tokio = { version = "1.50.0", features = ["full"] }
 tower-http = { version = "0.6.8", features = ["trace", "cors"] }
 tracing = "0.1.44"
+tracing-appender = "0.2.4"
 tracing-subscriber = { version = "0.3.22", features = [
     "env-filter",
     "fmt",

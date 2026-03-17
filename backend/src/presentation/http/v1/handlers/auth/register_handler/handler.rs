@@ -16,6 +16,7 @@ pub async fn register_handler(
     Extension(app_state): Extension<Arc<AppState>>,
     Json(payload): Json<RegisterRequestPayload>,
 ) -> ApiResult<impl IntoResponse> {
+    tracing::info!("Start handling register_handler");
     let cmd = RegisterCommand::try_from(payload)?;
     let case = RegisterCase::new(
         app_state.user_repo.clone(),
@@ -25,5 +26,6 @@ pub async fn register_handler(
     let response_data = RegisterResponseData::from(result);
     let response =
         ApiResponse::<RegisterResponseData>::ok(200, "register successfully", response_data);
+    tracing::info!("Handle it successfully");
     Ok(response)
 }

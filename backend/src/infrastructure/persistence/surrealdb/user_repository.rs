@@ -8,6 +8,7 @@ use crate::domain::auth::value_objects::user::user_name::UserName;
 use crate::infrastructure::errors::user_repository_error::UserRepositoryError;
 use crate::infrastructure::persistence::surrealdb::client::SurrealDBClient;
 
+#[derive(Debug)]
 pub struct SurrealDBUserRepository {
     surrealdb_client: SurrealDBClient,
 }
