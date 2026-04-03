@@ -1,0 +1,51 @@
+[tasks."postgres-start"]
+run = '''
+# postgres-start
+docker run \
+    --name postgres \
+    -p 5432:5432 \
+    -e POSTGRES_USER=notnone \
+    -e POSTGRES_PASSWORD=O6RYvE1KBO3E%MyB2I0mrHJ3 \
+    -v ./postgres/data:/var/lib/postgresql \
+    -d postgres:18
+'''
+
+[tasks."postgres-stop"]
+run = '''
+# postgres-stop
+docker stop postgres
+docker rm postgres
+'''
+
+[tasks."redis-start"]
+run = '''
+# redis-start
+docker run \
+    --name redis \
+	-p 6379:6379 \
+	-v ./redis:/data \
+	-d redis:8.4.0
+'''
+
+[tasks."redis-stop"]
+run = '''
+# redis-stop
+docker stop redis
+docker rm redis
+'''
+
+[tasks."kafka-start"]
+run = '''
+# kafka-start
+docker run \
+    --name kafka \
+    -p 9092:9092 \
+    -d apache/kafka:4.2.0
+'''
+
+[tasks."kafka-stop"]
+run = '''
+# kafka-stop
+docker stop kafka
+docker rm kafka
+'''

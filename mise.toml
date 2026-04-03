@@ -1,0 +1,45 @@
+experimental_monorepo_root = true
+
+[env]
+MISE_EXPERIMENTAL = true
+
+[monorepo]
+config_roots = [
+    "backend",
+    "deployment/docker",
+]
+
+[tools]
+rust = "1.94.1"
+node = "24.14.0"
+pnpm = "10.32.1"
+
+[tasks.backend]
+depends = [
+    "//deployment/docker:postgres-start",
+    "//deployment/docker:redis-start",
+    "//deployment/docker:kafka-start"
+]
+run = [
+    "mise run //backend:sqlx",
+    "mise run //backend:dev"
+]
+depends_post = [
+    "//deployment/docker:postgres-stop",
+    "//deployment/docker:redis-stop",
+    "//deployment/docker:kafka-stop"
+]
+
+[tasks.docker-start]
+run = [
+    "mise run //deployment/docker:postgres-start",
+    "mise run //deployment/docker:redis-start",
+    "mise run //deployment/docker:kafka-start"
+]
+
+[tasks.docker-stop]
+run = [
+    "mise run //deployment/docker:postgres-stop",
+    "mise run //deployment/docker:redis-stop",
+    "mise run //deployment/docker:kafka-stop"
+]

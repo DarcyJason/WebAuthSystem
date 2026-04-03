@@ -1,0 +1,25 @@
+[tasks.dev]
+run = [
+    "cargo fmt",
+    "cargo run"
+]
+
+[tasks.check]
+run = [
+    "cargo fmt -- --check",
+    "cargo check",
+    "cargo clippy -- -D warnings"
+]
+
+[tasks.build]
+run = "cargo build"
+
+[tasks.release]
+run = "cargo build --release"
+
+[tasks.sqlx]
+run = [
+    "cargo sqlx database drop -y",
+    "cargo sqlx database create",
+    "cargo sqlx migrate run"
+]
