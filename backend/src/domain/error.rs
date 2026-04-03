@@ -29,10 +29,7 @@ pub enum DomainError {
     UserPasswordHashMatched { new_password_hash: String },
     #[snafu(visibility(pub), display("User '{user_id}' not found"))]
     UserNotFound { user_id: String },
-    #[snafu(
-        visibility(pub),
-        display("UserRepository error at {layer} during {operation}: {message}")
-    )]
+    #[snafu(visibility(pub), display("UserRepository error at db: {message}"))]
     UserRepositoryDb {
         #[snafu(source(from(sqlx::Error, |e| RepoSource::DB { source: Box::new(e) })))]
         source: RepoSource,
