@@ -1,6 +1,7 @@
 use crate::domain::error::{DomainResult, InvalidUserEmailSnafu};
 use serde::{Deserialize, Serialize};
 use snafu::ensure;
+use std::fmt::Display;
 
 // <local-part@domain> 去除两个尖括号剩下254
 const USER_EMAIL_MAX_LENGTH: usize = 254;
@@ -37,5 +38,11 @@ impl UserEmail {
     }
     pub fn value(&self) -> String {
         self.0.to_owned()
+    }
+}
+
+impl Display for UserEmail {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
     }
 }

@@ -1,2 +1,2 @@
-pub mod token_id;
-pub mod token_type;
+pub mod mail;
+pub mod tokens;

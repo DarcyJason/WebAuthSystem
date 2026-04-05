@@ -19,10 +19,8 @@ pub struct PostgresUserRepository {
 }
 
 impl PostgresUserRepository {
-    pub fn new(pg_client: &PostgresClient) -> Self {
-        PostgresUserRepository {
-            pg_client: pg_client.to_owned(),
-        }
+    pub fn new(pg_client: PostgresClient) -> Self {
+        PostgresUserRepository { pg_client }
     }
 }
 

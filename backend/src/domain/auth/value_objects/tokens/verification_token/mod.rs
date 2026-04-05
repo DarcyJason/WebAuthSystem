@@ -1,0 +1,41 @@
+pub mod verification_token_kind;
+pub mod verification_token_value;
+pub mod verification_used;
+
+use crate::domain::auth::value_objects::tokens::verification_token::verification_token_kind::VerificationTokenKind;
+use crate::domain::auth::value_objects::tokens::verification_token::verification_token_value::VerificationTokenValue;
+use crate::domain::auth::value_objects::tokens::verification_token::verification_used::VerificationTokenUsed;
+use crate::domain::common::value_objects::time::time_stamp::Timestamp;
+use crate::domain::identities::value_objects::user::user_id::UserId;
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct VerificationToken {
+    value: VerificationTokenValue,
+    user_id: UserId,
+    kind: VerificationTokenKind,
+    used: VerificationTokenUsed,
+    created_at: Timestamp,
+    expires_at: Timestamp,
+}
+
+impl VerificationToken {
+    pub fn value(&self) -> VerificationTokenValue {
+        self.value.to_owned()
+    }
+    pub fn user_id(&self) -> UserId {
+        self.user_id.to_owned()
+    }
+    pub fn kind(&self) -> VerificationTokenKind {
+        self.kind.to_owned()
+    }
+    pub fn used(&self) -> VerificationTokenUsed {
+        self.used.to_owned()
+    }
+    pub fn created_at(&self) -> Timestamp {
+        self.created_at.to_owned()
+    }
+    pub fn expires_at(&self) -> Timestamp {
+        self.expires_at.to_owned()
+    }
+}

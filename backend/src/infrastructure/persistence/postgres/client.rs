@@ -1,6 +1,7 @@
 use snafu::ResultExt;
-use sqlx::{Pool, Postgres, postgres::PgPoolOptions};
+use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
 
+use crate::infrastructure::error::PostgresMigrateSnafu;
 use crate::infrastructure::{
     config::postgres_config::PostgresConfig,
     error::{InfrastructureResult, PostgresSnafu},
@@ -18,6 +19,10 @@ impl PostgresClient {
             .connect(&config.database_url)
             .await
             .context(PostgresSnafu)?;
+        sqlx::migrate!("./migrations")
+            .run(&connection)
+            .await
+            .context(PostgresMigrateSnafu)?;
         Ok(PostgresClient { connection })
     }
 }

@@ -1,0 +1,22 @@
+services:
+  backend:
+    container_name: my-backend
+    build:
+      context: ../..
+      dockerfile: deployment/docker/backend/Dockerfile
+    ports:
+      - "0.0.0.0:7878:7878"
+    networks:
+      - web-auth-system-dev-network
+    environment:
+      - REDIS__ADDRESS=redis://redis:6379
+      - POSTGRES__DATABASE_URL=postgres://notnone:O6RYvE1KBO3E%25MyB2I0mrHJ3@postgres/web_auth_system
+      - DATABASE_URL=postgres://notnone:O6RYvE1KBO3E%25MyB2I0mrHJ3@postgres/web_auth_system
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+networks:
+  web-auth-system-dev-network:

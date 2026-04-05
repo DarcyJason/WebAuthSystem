@@ -1,51 +1,23 @@
-[tasks."postgres-start"]
+[tasks."start-all"]
 run = '''
-# postgres-start
-docker run \
-    --name postgres \
-    -p 5432:5432 \
-    -e POSTGRES_USER=notnone \
-    -e POSTGRES_PASSWORD=O6RYvE1KBO3E%MyB2I0mrHJ3 \
-    -v ./postgres/data:/var/lib/postgresql \
-    -d postgres:18
+# Start all
+./docker-compose-all.sh up --build -d
 '''
 
-[tasks."postgres-stop"]
+[tasks."stop-all"]
 run = '''
-# postgres-stop
-docker stop postgres
-docker rm postgres
+# Stop all
+./docker-compose-all.sh down
 '''
 
-[tasks."redis-start"]
+[tasks."start-infrastructure"]
 run = '''
-# redis-start
-docker run \
-    --name redis \
-	-p 6379:6379 \
-	-v ./redis:/data \
-	-d redis:8.4.0
+# Start infrastructure
+./docker-compose-infrastructure.sh up --build -d
 '''
 
-[tasks."redis-stop"]
+[tasks."stop-infrastructure"]
 run = '''
-# redis-stop
-docker stop redis
-docker rm redis
-'''
-
-[tasks."kafka-start"]
-run = '''
-# kafka-start
-docker run \
-    --name kafka \
-    -p 9092:9092 \
-    -d apache/kafka:4.2.0
-'''
-
-[tasks."kafka-stop"]
-run = '''
-# kafka-stop
-docker stop kafka
-docker rm kafka
+# Stop infrastructure
+./docker-compose-infrastructure.sh down
 '''

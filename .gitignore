@@ -6,3 +6,5 @@ backend/logs
 
 deployment/docker/postgres
 deployment/docker/redis
+
+COMMIT.md

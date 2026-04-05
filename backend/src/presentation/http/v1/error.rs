@@ -1,6 +1,8 @@
+use crate::application::error::ApplicationError;
+use crate::presentation::http::v1::response::{ApiResponse, EmptyResponseData};
 use axum::response::IntoResponse;
 
-use crate::presentation::http::v1::response::{ApiResponse, EmptyResponseData};
+pub type ApiResult<T> = Result<T, ApiError>;
 
 pub enum ApiError {
     BadRequest { message: String },
@@ -29,6 +31,24 @@ impl IntoResponse for ApiError {
             ApiError::InternalServerError { code, message } => {
                 ApiResponse::<EmptyResponseData>::err(code, message).into_response()
             }
+        }
+    }
+}
+
+impl From<ApplicationError> for ApiError {
+    fn from(error: ApplicationError) -> Self {
+        match error {
+            ApplicationError::Redis { .. } => ApiError::InternalServerError {
+                code: 500,
+                message: "internal server error".to_string(),
+            },
+            ApplicationError::Postgres { .. } => ApiError::InternalServerError {
+                code: 500,
+                message: "internal server error".to_string(),
+            },
+            ApplicationError::FieldInvalid { .. } => ApiError::BadRequest {
+                message: error.to_string(),
+            },
         }
     }
 }

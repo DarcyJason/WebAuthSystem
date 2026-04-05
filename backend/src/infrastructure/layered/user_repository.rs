@@ -6,20 +6,22 @@ use crate::domain::identities::value_objects::user::user_email::UserEmail;
 use crate::domain::identities::value_objects::user::user_id::UserId;
 use crate::domain::identities::value_objects::user::user_name::UserName;
 use crate::domain::identities::value_objects::user::user_status::UserStatus;
+use crate::infrastructure::caches::moka::user_repository::MokaUserRepository;
+use crate::infrastructure::caches::redis::user_repository::RedisUserRepository;
+use crate::infrastructure::persistence::postgres::user_repository::PostgresUserRepository;
 use async_trait::async_trait;
-use std::sync::Arc;
 
 pub struct LayeredUserRepository {
-    l1_cache: Arc<dyn UserRepository>,
-    l2_cache: Arc<dyn UserRepository>,
-    source_repo: Arc<dyn UserRepository>,
+    l1_cache: MokaUserRepository,
+    l2_cache: RedisUserRepository,
+    source_repo: PostgresUserRepository,
 }
 
 impl LayeredUserRepository {
     pub fn new(
-        l1_cache: Arc<dyn UserRepository>,
-        l2_cache: Arc<dyn UserRepository>,
-        source_repo: Arc<dyn UserRepository>,
+        l1_cache: MokaUserRepository,
+        l2_cache: RedisUserRepository,
+        source_repo: PostgresUserRepository,
     ) -> Self {
         LayeredUserRepository {
             l1_cache,

@@ -9,6 +9,7 @@ pub type DomainResult<T> = Result<T, DomainError>;
 #[snafu(visibility(pub))]
 pub enum DomainError {
     // Identities Domain Error
+    // == identities Domain Error ==
     #[snafu(visibility(pub), display("Invalid user_id '{user_id}': {source}"))]
     InvalidUserId {
         user_id: String,
@@ -29,8 +30,11 @@ pub enum DomainError {
     UserPasswordHashMatched { new_password_hash: String },
     #[snafu(visibility(pub), display("User '{user_id}' not found"))]
     UserNotFound { user_id: String },
+    #[snafu(visibility(pub), display("password {password} is invalid: {message}"))]
+    InvalidPlainPassowrd { password: String, message: String },
+    // == User Repository Error ==
     #[snafu(visibility(pub), display("UserRepository error at db: {message}"))]
-    UserRepositoryDb {
+    UserRepositoryDbError {
         #[snafu(source(from(sqlx::Error, |e| RepoSource::DB { source: Box::new(e) })))]
         source: RepoSource,
         message: String,
@@ -39,7 +43,7 @@ pub enum DomainError {
         visibility(pub),
         display("UserRepository error at {layer} during {operation}: {message}")
     )]
-    UserRepositoryRedis {
+    UserRepositoryRedisError {
         #[snafu(source(from(redis::RedisError, |e| RepoSource::Redis { source: Box::new(e) })))]
         source: RepoSource,
         layer: CacheLayer,
@@ -50,7 +54,7 @@ pub enum DomainError {
         visibility(pub),
         display("UserRepository error at {layer} during {operation}: {message}")
     )]
-    UserRepositoryJson {
+    UserRepositoryJsonError {
         #[snafu(source(from(serde_json::Error, |e| RepoSource::Json { source: Box::new(e) })))]
         source: RepoSource,
         layer: CacheLayer,
@@ -58,4 +62,14 @@ pub enum DomainError {
         message: String,
     },
     // Auth Domain Error
+    // == Password Service Error ==
+    #[snafu(visibility(pub), display("hash password failed: {message}"))]
+    HashPasswordFailed { message: String },
+    #[snafu(visibility(pub), display("parse hashed password failed: {message}"))]
+    ParsedHashedPasswordFailed { message: String },
+    // == Email Service Error ==
+    #[snafu(visibility(pub), display("system owner email invalid: {message}"))]
+    SystemOwnerEmailInvalid { message: String },
+    #[snafu(visibility(pub), display("send email failed: {message}"))]
+    SendEmailFailed { message: String },
 }
