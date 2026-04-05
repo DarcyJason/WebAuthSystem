@@ -17,6 +17,17 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+  frontend:
+    container_name: my-frontend
+    build:
+      context: ../..
+      dockerfile: deployment/docker/frontend/Dockerfile
+    ports:
+      - "0.0.0.0:3000:3000"
+    networks:
+      - web-auth-system-dev-network
+    depends_on:
+      - backend
 
 networks:
   web-auth-system-dev-network:
