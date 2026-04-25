@@ -1,0 +1,75 @@
+use crate::domain::auth::repositories::verification_token_repository::VerificationTokenRepository;
+use crate::domain::auth::value_objects::tokens::verification_token::VerificationToken;
+use crate::domain::auth::value_objects::tokens::verification_token::verification_token_value::VerificationTokenValue;
+use crate::domain::error::DomainResult;
+use crate::infrastructure::internal::caches::moka::verification_token_repository::MokaVerificationTokenRepository;
+use crate::infrastructure::internal::caches::redis::verification_token_repository::RedisVerificationTokenRepository;
+use crate::infrastructure::internal::persistence::postgres::verification_token_repository::PostgresVerificationTokenRepository;
+use async_trait::async_trait;
+
+#[derive(Debug, Clone)]
+pub struct LayeredVerificationTokenRepository {
+    l1_cache: MokaVerificationTokenRepository,
+    l2_cache: RedisVerificationTokenRepository,
+    source_repo: PostgresVerificationTokenRepository,
+}
+
+impl LayeredVerificationTokenRepository {
+    pub fn new(
+        l1_cache: MokaVerificationTokenRepository,
+        l2_cache: RedisVerificationTokenRepository,
+        source_repo: PostgresVerificationTokenRepository,
+    ) -> Self {
+        Self {
+            l1_cache,
+            l2_cache,
+            source_repo,
+        }
+    }
+
+    async fn warm_up_l1(&self, token: &VerificationToken) {
+        let _ = self
+            .l1_cache
+            .save_with_ttl(token, self.l1_cache.ttl())
+            .await;
+    }
+
+    async fn warm_up_l2_and_l1(&self, token: &VerificationToken) {
+        let _ = self
+            .l2_cache
+            .save_with_ttl(token, self.l2_cache.ttl())
+            .await;
+        self.warm_up_l1(token).await;
+    }
+}
+
+#[async_trait]
+impl VerificationTokenRepository for LayeredVerificationTokenRepository {
+    async fn save(&self, token: &VerificationToken) -> DomainResult<VerificationToken> {
+        let saved = self.source_repo.save(token).await?;
+        self.warm_up_l2_and_l1(&saved).await;
+        Ok(saved)
+    }
+
+    async fn get_by_value(
+        &self,
+        value: &VerificationTokenValue,
+    ) -> DomainResult<Option<VerificationToken>> {
+        if let Some(token) = self.l1_cache.get_by_value(value).await? {
+            return Ok(Some(token));
+        }
+        if let Some(token) = self.l2_cache.get_by_value(value).await? {
+            self.warm_up_l1(&token).await;
+            return Ok(Some(token));
+        }
+        let token = self.source_repo.get_by_value(value).await?;
+        if let Some(ref t) = token {
+            self.warm_up_l2_and_l1(t).await;
+        }
+        Ok(token)
+    }
+
+    async fn mark_used(&self, value: &VerificationTokenValue) -> DomainResult<()> {
+        self.source_repo.mark_used(value).await
+    }
+}

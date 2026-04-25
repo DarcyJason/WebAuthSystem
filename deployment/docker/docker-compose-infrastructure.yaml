@@ -1,0 +1,38 @@
+services:
+  postgres:
+    container_name: my-postgres
+    image: m.daocloud.io/docker.io/library/postgres:18
+    env_file:
+      - .env
+    ports:
+      - "0.0.0.0:5432:5432"
+    networks:
+      - web-auth-system-dev-network
+    volumes:
+      - ./postgres/data:/var/lib/postgresql
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "PGPASSWORD=$$POSTGRES_PASSWORD pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB -h postgres",
+        ]
+      interval: 10s
+      timeout: 30s
+      retries: 15
+  redis:
+    container_name: my-redis
+    image: m.daocloud.io/docker.io/library/redis:8.4.0
+    ports:
+      - "0.0.0.0:6379:6379"
+    networks:
+      - web-auth-system-dev-network
+    volumes:
+      - ./redis/data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 30s
+      retries: 15
+
+networks:
+  web-auth-system-dev-network:

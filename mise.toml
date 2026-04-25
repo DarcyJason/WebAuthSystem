@@ -1,0 +1,28 @@
+experimental_monorepo_root = true
+
+[env]
+MISE_EXPERIMENTAL = true
+
+[monorepo]
+config_roots = [
+    "backend",
+    "frontend",
+    "deployment/docker",
+]
+
+[tools]
+rust = "1.95.0"
+node = "24.14.0"
+pnpm = "10.32.1"
+
+[tasks.start-infrastructure]
+run = "mise run //deployment/docker:start-infrastructure"
+
+[tasks.stop-infrastructure]
+run = "mise run //deployment/docker:stop-infrastructure"
+
+[tasks.backend]
+run = "mise run //backend:dev"
+
+[tasks.frontend]
+run = "mise run //frontend:dev"
