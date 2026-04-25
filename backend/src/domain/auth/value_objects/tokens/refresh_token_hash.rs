@@ -9,7 +9,8 @@ impl RefreshTokenHash {
     pub fn from_refresh_token(token: &RefreshToken) -> Self {
         let mut hasher = Sha256::new();
         hasher.update(token.value().as_bytes());
-        Self(format!("{:x}", hasher.finalize()))
+        let hash_bytes = hasher.finalize();
+        Self(hash_bytes.iter().map(|b| format!("{:02x}", b)).collect())
     }
 
     pub fn from_str(hash: impl Into<String>) -> Self {

@@ -3,6 +3,7 @@ pub mod forgot_password_case;
 pub mod login_case;
 pub mod logout_case;
 pub mod register_case;
+pub mod resend_verification_case;
 pub mod reset_password_case;
 pub mod rotate_refresh_token_case;
 pub mod verify_case;

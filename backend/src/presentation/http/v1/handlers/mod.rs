@@ -4,6 +4,7 @@ pub mod get_me_handler;
 pub mod login_handler;
 pub mod logout_handler;
 pub mod register_handler;
+pub mod resend_verification_handler;
 pub mod reset_password_handler;
 pub mod rotate_refresh_token_handler;
 pub mod verify_handler;
