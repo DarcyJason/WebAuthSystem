@@ -1,6 +1,9 @@
 pub mod change_password_result;
 pub mod forgot_password_result;
 pub mod login_result;
+pub mod logout_result;
 pub mod register_result;
+pub mod resend_verification_result;
 pub mod reset_password_result;
 pub mod rotate_refresh_token_result;
+pub mod verify_result;

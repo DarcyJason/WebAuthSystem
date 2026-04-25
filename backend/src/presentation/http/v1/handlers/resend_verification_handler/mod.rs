@@ -36,11 +36,12 @@ pub async fn resend_verification_handler(
         app_state.verification_token_service.clone(),
         app_state.mail_service.clone(),
     );
-    case.execute(cmd).await?;
+    let result = case.execute(cmd).await?;
+    let response_data = ResendVerificationResponseData::from(result);
     let response = ApiResponse::<ResendVerificationResponseData>::ok(
         None,
         "Verification email sent if user exists and is not verified",
-        ResendVerificationResponseData,
+        response_data,
     );
     tracing::info!("handling resend verification request successfully");
     Ok(response)

@@ -1,4 +1,3 @@
-pub mod request;
 pub mod response;
 
 use crate::application::app_state::AppState;
@@ -38,6 +37,7 @@ pub async fn rotate_refresh_token_handler(
         .ok_or_else(|| ApiError::Unauthorized {
             message: "missing refresh token".to_string(),
         })?;
+    let cmd: RotateRefreshTokenCommand = RotateRefreshTokenCommand { refresh_token };
 
     let case = RotateRefreshTokenCase::new(
         app_state.user_repo.clone(),
@@ -45,9 +45,7 @@ pub async fn rotate_refresh_token_handler(
         app_state.refresh_token_service.clone(),
         app_state.refresh_token_repo.clone(),
     );
-    let result = case
-        .execute(RotateRefreshTokenCommand { refresh_token })
-        .await?;
+    let result = case.execute(cmd).await?;
 
     let cookie = Cookie::build(("refresh_token", result.refresh_token.value()))
         .path("/")

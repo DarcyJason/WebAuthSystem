@@ -2,9 +2,7 @@ pub mod request;
 pub mod response;
 
 use crate::application::app_state::AppState;
-use crate::application::commands::verify_command::VerifyCommand;
 use crate::application::use_cases::verify_case::VerifyCase;
-use crate::domain::auth::value_objects::tokens::verification_token::verification_token_value::VerificationTokenValue;
 use crate::presentation::http::v1::error::ApiResult;
 use crate::presentation::http::v1::handlers::verify_handler::request::VerifyRequestPayload;
 use crate::presentation::http::v1::handlers::verify_handler::response::VerifyResponseData;
@@ -32,21 +30,15 @@ pub async fn verify_handler(
     Json(payload): Json<VerifyRequestPayload>,
 ) -> ApiResult<impl IntoResponse> {
     tracing::info!("handling verify request");
-
-    let cmd = VerifyCommand {
-        token_value: VerificationTokenValue::from(payload.token),
-    };
+    let cmd = payload.try_into()?;
     let case = VerifyCase::new(
         app_state.verification_token_repo.clone(),
         app_state.user_repo.clone(),
     );
-    case.execute(cmd).await?;
-
-    let response = ApiResponse::<VerifyResponseData>::ok(
-        None,
-        "Email verified successfully",
-        VerifyResponseData,
-    );
+    let result = case.execute(cmd).await?;
+    let response_data = VerifyResponseData::from(result);
+    let response =
+        ApiResponse::<VerifyResponseData>::ok(None, "Email verified successfully", response_data);
     tracing::info!("handling verify request successfully");
     Ok(response)
 }

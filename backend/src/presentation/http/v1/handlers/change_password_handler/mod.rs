@@ -2,6 +2,8 @@ pub mod request;
 pub mod response;
 
 use crate::application::app_state::AppState;
+use crate::application::commands::change_password_command::ChangePasswordCommand;
+use crate::application::use_cases::change_password_case::ChangePasswordCase;
 use crate::presentation::http::v1::error::ApiResult;
 use crate::presentation::http::v1::handlers::change_password_handler::request::ChangePasswordRequestPayload;
 use crate::presentation::http::v1::handlers::change_password_handler::response::ChangePasswordResponseData;
@@ -17,7 +19,7 @@ use tracing::instrument;
     post,
     path = "/api/v1/change-password",
     tag = "User",
-    security(("bearer_auth" = [])),
+    security(("Bearer" = [])),
     request_body = ChangePasswordRequestPayload,
     responses(
         (status = 200, description = "Password changed successfully", body = ChangePasswordResponseData),
@@ -25,20 +27,26 @@ use tracing::instrument;
         (status = 401, description = "Unauthorized"),
     )
 )]
-#[instrument(skip(_app_state, auth, payload), fields(user_id=%auth.user.id()))]
+#[instrument(skip(app_state, auth, payload), fields(user_id=%auth.user.id()))]
 pub async fn change_password_handler(
-    State(_app_state): State<Arc<AppState>>,
+    State(app_state): State<Arc<AppState>>,
     Extension(auth): Extension<AuthMiddleware>,
     Json(payload): Json<ChangePasswordRequestPayload>,
 ) -> ApiResult<impl IntoResponse> {
     tracing::info!("handling change password request");
-    payload.validate_passwords()?;
-    let _user_id = auth.user.id();
-    // TODO: verify current password and update password credential.
+    let cmd: ChangePasswordCommand = payload.try_into()?;
+    let user_id = auth.user.id();
+    let case = ChangePasswordCase::new(
+        user_id.clone(),
+        app_state.user_repo.clone(),
+        app_state.password_service.clone(),
+    );
+    let result = case.execute(cmd).await?;
+    let response_data = ChangePasswordResponseData::from(result);
     let response = ApiResponse::<ChangePasswordResponseData>::ok(
         None,
         "Change password successfully",
-        ChangePasswordResponseData,
+        response_data,
     );
     tracing::info!("handling change password request successfully");
     Ok(response)

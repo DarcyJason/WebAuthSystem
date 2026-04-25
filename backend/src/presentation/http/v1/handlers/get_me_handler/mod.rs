@@ -12,7 +12,7 @@ use tracing::instrument;
     get,
     path = "/api/v1/me",
     tag = "User",
-    security(("bearer_auth" = [])),
+    security(("Bearer" = [])),
     responses(
         (status = 200, description = "Current authenticated user info", body = GetMeResponseData),
         (status = 401, description = "Unauthorized"),

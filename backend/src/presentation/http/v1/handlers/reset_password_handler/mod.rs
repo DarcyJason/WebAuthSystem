@@ -3,9 +3,7 @@ pub mod response;
 
 use crate::application::app_state::AppState;
 use crate::application::commands::reset_password_command::ResetPasswordCommand;
-use crate::application::error::ValidationSnafu;
 use crate::application::use_cases::reset_password_case::ResetPasswordCase;
-use crate::domain::user::value_objects::credential::plain_password::PlainPassword;
 use crate::presentation::http::v1::error::ApiResult;
 use crate::presentation::http::v1::handlers::reset_password_handler::request::ResetPasswordRequestPayload;
 use crate::presentation::http::v1::handlers::reset_password_handler::response::ResetPasswordResponseData;
@@ -33,27 +31,18 @@ pub async fn reset_password_handler(
     Json(payload): Json<ResetPasswordRequestPayload>,
 ) -> ApiResult<impl IntoResponse> {
     tracing::info!("handling reset password request");
-    payload.validate_passwords()?;
-    let new_password = PlainPassword::new(payload.new_password).map_err(|e| {
-        ValidationSnafu {
-            message: e.to_string(),
-        }
-        .build()
-    })?;
+    let cmd: ResetPasswordCommand = payload.try_into()?;
     let case = ResetPasswordCase::new(
         app_state.user_repo.clone(),
         app_state.password_service.clone(),
         app_state.verification_token_repo.clone(),
     );
-    case.execute(ResetPasswordCommand {
-        token: payload.token,
-        new_password,
-    })
-    .await?;
+    let result = case.execute(cmd).await?;
+    let response_data = ResetPasswordResponseData::from(result);
     let response = ApiResponse::<ResetPasswordResponseData>::ok(
         None,
         "Reset password successfully",
-        ResetPasswordResponseData,
+        response_data,
     );
     tracing::info!("handling reset password request successfully");
     Ok(response)

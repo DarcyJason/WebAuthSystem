@@ -1,4 +1,5 @@
 use crate::application::error::{ApplicationResult, DomainFailedSnafu};
+use crate::application::results::logout_result::LogoutResult;
 use crate::domain::user::repositories::user_repository::UserCommandRepository;
 use crate::domain::user::value_objects::access_token_version::AccessTokenVersion;
 use crate::domain::user::value_objects::user::user_id::UserId;
@@ -14,12 +15,12 @@ impl LogoutCase {
         Self { user_repo }
     }
 
-    pub async fn execute(&self, user_id: &UserId) -> ApplicationResult<()> {
+    pub async fn execute(&self, user_id: &UserId) -> ApplicationResult<LogoutResult> {
         let new_access_token_version = AccessTokenVersion::new();
         self.user_repo
             .update_access_token_version(user_id, &new_access_token_version)
             .await
             .context(DomainFailedSnafu)?;
-        Ok(())
+        Ok(LogoutResult {})
     }
 }

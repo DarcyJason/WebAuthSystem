@@ -1,3 +1,4 @@
+use crate::application::commands::reset_password_command::ResetPasswordCommand;
 use crate::application::error::{ApplicationError, PasswordsNotMatchedSnafu, ValidationSnafu};
 use crate::domain::user::value_objects::credential::plain_password::PlainPassword;
 use serde::Deserialize;
@@ -11,8 +12,9 @@ pub struct ResetPasswordRequestPayload {
     pub confirm_password: String,
 }
 
-impl ResetPasswordRequestPayload {
-    pub fn validate_passwords(&self) -> Result<(), ApplicationError> {
+impl TryInto<ResetPasswordCommand> for ResetPasswordRequestPayload {
+    type Error = ApplicationError;
+    fn try_into(self) -> Result<ResetPasswordCommand, Self::Error> {
         let new_password = PlainPassword::new(self.new_password.clone()).map_err(|e| {
             ValidationSnafu {
                 message: e.to_string(),
@@ -28,6 +30,9 @@ impl ResetPasswordRequestPayload {
         if new_password != confirm_password {
             return PasswordsNotMatchedSnafu {}.fail();
         }
-        Ok(())
+        Ok(ResetPasswordCommand {
+            token: self.token,
+            new_password,
+        })
     }
 }

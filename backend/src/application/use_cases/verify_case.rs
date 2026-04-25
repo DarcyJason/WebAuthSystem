@@ -3,6 +3,7 @@ use crate::application::error::{
     ApplicationResult, DomainFailedSnafu, UserNotFoundSnafu, VerificationTokenAlreadyUsedSnafu,
     VerificationTokenExpiredSnafu, VerificationTokenNotFoundSnafu,
 };
+use crate::application::results::verify_result::VerifyResult;
 use crate::domain::auth::repositories::verification_token_repository::VerificationTokenRepository;
 use crate::domain::auth::value_objects::tokens::verification_token::verification_token_kind::VerificationTokenKind;
 use crate::domain::user::repositories::user_repository::{
@@ -30,7 +31,7 @@ impl VerifyCase {
         }
     }
 
-    pub async fn execute(&self, cmd: VerifyCommand) -> ApplicationResult<()> {
+    pub async fn execute(&self, cmd: VerifyCommand) -> ApplicationResult<VerifyResult> {
         let token = self
             .verification_token_repo
             .get_by_value(&cmd.token_value)
@@ -44,7 +45,6 @@ impl VerifyCase {
         if token.used().value() {
             return VerificationTokenAlreadyUsedSnafu.fail();
         }
-
         // Only EmailVerification tokens activate the account
         if let VerificationTokenKind::EmailVerification = token.kind() {
             let user = self
@@ -61,12 +61,10 @@ impl VerifyCase {
                     .context(DomainFailedSnafu)?;
             }
         }
-
         self.verification_token_repo
             .mark_used(&cmd.token_value)
             .await
             .context(DomainFailedSnafu)?;
-
-        Ok(())
+        Ok(VerifyResult {})
     }
 }

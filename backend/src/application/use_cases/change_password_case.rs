@@ -7,18 +7,25 @@ use crate::domain::auth::services::password_service::PasswordService;
 use crate::domain::user::repositories::user_repository::{
     UserCommandRepository, UserQueryRepository,
 };
+use crate::domain::user::value_objects::user::user_id::UserId;
 use crate::infrastructure::internal::layered::user_repository::LayeredUserRepository;
 use crate::infrastructure::internal::security::password::Argon2PasswordService;
 use snafu::ResultExt;
 
 pub struct ChangePasswordCase {
+    user_id: UserId,
     user_repo: LayeredUserRepository,
     password_service: Argon2PasswordService,
 }
 
 impl ChangePasswordCase {
-    pub fn new(user_repo: LayeredUserRepository, password_service: Argon2PasswordService) -> Self {
+    pub fn new(
+        user_id: UserId,
+        user_repo: LayeredUserRepository,
+        password_service: Argon2PasswordService,
+    ) -> Self {
         Self {
+            user_id,
             user_repo,
             password_service,
         }
@@ -30,7 +37,7 @@ impl ChangePasswordCase {
     ) -> ApplicationResult<ChangePasswordResult> {
         let user = self
             .user_repo
-            .get_by_id(&cmd.user_id)
+            .get_by_id(&self.user_id)
             .await
             .context(DomainFailedSnafu)?
             .ok_or_else(|| UserNotFoundSnafu.build())?;
@@ -56,7 +63,7 @@ impl ChangePasswordCase {
             .context(DomainFailedSnafu)?;
 
         self.user_repo
-            .update_password_credential(&cmd.user_id, &new_credential)
+            .update_password_credential(&self.user_id, &new_credential)
             .await
             .context(DomainFailedSnafu)?;
 

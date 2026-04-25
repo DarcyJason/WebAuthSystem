@@ -1,5 +1,6 @@
 use crate::application::commands::resend_verification_command::ResendVerificationCommand;
 use crate::application::error::{ApplicationResult, DomainFailedSnafu, UserNotFoundSnafu};
+use crate::application::results::resend_verification_result::ResendVerificationResult;
 use crate::domain::auth::repositories::verification_token_repository::VerificationTokenRepository;
 use crate::domain::auth::services::mail_service::MailService;
 use crate::domain::auth::value_objects::mail::Mail;
@@ -37,7 +38,10 @@ impl ResendVerificationCase {
         }
     }
 
-    pub async fn execute(&self, cmd: ResendVerificationCommand) -> ApplicationResult<()> {
+    pub async fn execute(
+        &self,
+        cmd: ResendVerificationCommand,
+    ) -> ApplicationResult<ResendVerificationResult> {
         let user = self
             .user_repo
             .get_by_name_or_email(&None, &Some(cmd.email.clone()))
@@ -49,7 +53,7 @@ impl ResendVerificationCase {
         // Returning success is often better to avoid leaking user info or causing confusion.
         // But for internal logic, let's check it.
         if user.status() != &UserStatus::EmailNotVerified {
-            return Ok(());
+            return Ok(ResendVerificationResult {});
         }
 
         // Issue new email verification token
@@ -72,12 +76,12 @@ impl ResendVerificationCase {
             MailSubject::new("Verify your email address"),
             MailContent::new(html),
         );
-        
+
         self.mail_service
             .send_email(vec![cmd.email], mail)
             .await
             .context(DomainFailedSnafu)?;
 
-        Ok(())
+        Ok(ResendVerificationResult {})
     }
 }
