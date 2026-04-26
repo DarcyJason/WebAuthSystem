@@ -13,7 +13,7 @@ config_roots = [
 [tools]
 rust = "1.95.0"
 node = "24.14.0"
-pnpm = "10.32.1"
+pnpm = "10.33.2"
 
 [tasks.start-infrastructure]
 run = "mise run //deployment/docker:start-infrastructure"

@@ -17,7 +17,7 @@ impl TryInto<VerifyCommand> for VerifyRequestPayload {
 
     fn try_into(self) -> Result<VerifyCommand, Self::Error> {
         Ok(VerifyCommand {
-            token_value: VerificationTokenValue::from(self.token),
+            token: VerificationTokenValue::from(self.token),
         })
     }
 }

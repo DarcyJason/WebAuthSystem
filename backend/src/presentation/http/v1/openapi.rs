@@ -8,6 +8,8 @@ use crate::presentation::http::v1::handlers::login_handler::response::LoginRespo
 use crate::presentation::http::v1::handlers::logout_handler::response::LogoutResponseData;
 use crate::presentation::http::v1::handlers::register_handler::request::RegisterRequestPayload;
 use crate::presentation::http::v1::handlers::register_handler::response::RegisterResponseData;
+use crate::presentation::http::v1::handlers::resend_verification_handler::request::ResendVerificationRequestPayload;
+use crate::presentation::http::v1::handlers::resend_verification_handler::response::ResendVerificationResponseData;
 use crate::presentation::http::v1::handlers::reset_password_handler::request::ResetPasswordRequestPayload;
 use crate::presentation::http::v1::handlers::reset_password_handler::response::ResetPasswordResponseData;
 use crate::presentation::http::v1::handlers::rotate_refresh_token_handler::response::RotateRefreshTokenResponseData;
@@ -43,6 +45,7 @@ impl Modify for BearerAuth {
         crate::presentation::http::v1::handlers::login_handler::login_handler,
         crate::presentation::http::v1::handlers::logout_handler::logout_handler,
         crate::presentation::http::v1::handlers::verify_handler::verify_handler,
+        crate::presentation::http::v1::handlers::resend_verification_handler::resend_verification_handler,
         crate::presentation::http::v1::handlers::forgot_password_handler::forgot_password_handler,
         crate::presentation::http::v1::handlers::reset_password_handler::reset_password_handler,
         crate::presentation::http::v1::handlers::rotate_refresh_token_handler::rotate_refresh_token_handler,
@@ -57,6 +60,8 @@ impl Modify for BearerAuth {
         LogoutResponseData,
         VerifyRequestPayload,
         VerifyResponseData,
+        ResendVerificationRequestPayload,
+        ResendVerificationResponseData,
         ForgotPasswordRequestPayload,
         ForgotPasswordResponseData,
         ResetPasswordRequestPayload,

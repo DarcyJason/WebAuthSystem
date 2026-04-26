@@ -34,7 +34,7 @@ impl VerifyCase {
     pub async fn execute(&self, cmd: VerifyCommand) -> ApplicationResult<VerifyResult> {
         let token = self
             .verification_token_repo
-            .get_by_value(&cmd.token_value)
+            .get_by_value(&cmd.token)
             .await
             .context(DomainFailedSnafu)?
             .ok_or_else(|| VerificationTokenNotFoundSnafu.build())?;
@@ -62,7 +62,7 @@ impl VerifyCase {
             }
         }
         self.verification_token_repo
-            .mark_used(&cmd.token_value)
+            .mark_used(&cmd.token)
             .await
             .context(DomainFailedSnafu)?;
         Ok(VerifyResult {})

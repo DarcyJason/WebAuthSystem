@@ -49,14 +49,10 @@ impl ResendVerificationCase {
             .context(DomainFailedSnafu)?
             .ok_or_else(|| UserNotFoundSnafu.build())?;
 
-        // If user is already verified, we could either return success or an error.
-        // Returning success is often better to avoid leaking user info or causing confusion.
-        // But for internal logic, let's check it.
         if user.status() != &UserStatus::EmailNotVerified {
             return Ok(ResendVerificationResult {});
         }
 
-        // Issue new email verification token
         let token = self
             .verification_token_service
             .issue_email_verification(user.id().to_owned());
@@ -69,7 +65,6 @@ impl ResendVerificationCase {
             .await
             .context(DomainFailedSnafu)?;
 
-        // Send verification email
         let ttl = TTL::from_seconds(expires_secs as u64);
         let html = build_verification_email(cmd.email.clone(), saved_token, ttl);
         let mail = Mail::new(

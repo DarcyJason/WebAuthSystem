@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 use uuid::{Timestamp, Uuid};
 
 #[derive(Debug, Clone, Serialize, Deserialize, sqlx::Type)]
+#[sqlx(transparent)]
 pub struct AccessTokenVersion(Uuid);
 
 impl AccessTokenVersion {
