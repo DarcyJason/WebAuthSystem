@@ -1,8 +1,8 @@
 use crate::domain::auth::repositories::verification_token_repository::VerificationTokenRepository;
 use crate::domain::auth::value_objects::tokens::verification_token::VerificationToken;
 use crate::domain::auth::value_objects::tokens::verification_token::verification_token_kind::VerificationTokenKind;
+use crate::domain::auth::value_objects::tokens::verification_token::verification_token_status::VerificationTokenStatus;
 use crate::domain::auth::value_objects::tokens::verification_token::verification_token_value::VerificationTokenValue;
-use crate::domain::auth::value_objects::tokens::verification_token::verification_used::VerificationTokenUsed;
 use crate::domain::common::value_objects::time::time_stamp::Timestamp;
 use crate::domain::error::{DomainResult, VerificationTokenRepositoryDbSnafu};
 use crate::domain::user::value_objects::user::user_id::UserId;
@@ -29,7 +29,7 @@ impl VerificationTokenRepository for PostgresVerificationTokenRepository {
     async fn save(&self, token: &VerificationToken) -> DomainResult<VerificationToken> {
         sqlx::query(
             r#"
-            INSERT INTO verification_tokens (id, user_id, value, kind, used, created_at, expires_at)
+            INSERT INTO verification_tokens (id, user_id, value, kind, status, created_at, expires_at)
             VALUES ($1, $2, $3, $4, $5, $6, $7)
             "#,
         )
@@ -37,7 +37,7 @@ impl VerificationTokenRepository for PostgresVerificationTokenRepository {
         .bind(token.user_id().value())
         .bind(token.value().value())
         .bind(token.kind())
-        .bind(token.used().value())
+        .bind(token.status().value())
         .bind(token.created_at().value())
         .bind(token.expires_at().value())
         .execute(&self.pg_client.connection)
@@ -56,7 +56,7 @@ impl VerificationTokenRepository for PostgresVerificationTokenRepository {
         value: &VerificationTokenValue,
     ) -> DomainResult<Option<VerificationToken>> {
         let row = sqlx::query(
-            r#"SELECT value, user_id, kind::text, used, created_at, expires_at
+            r#"SELECT value, user_id, kind::text, status::text, created_at, expires_at
                FROM verification_tokens WHERE value = $1"#,
         )
         .bind(value.value())
@@ -83,11 +83,17 @@ impl VerificationTokenRepository for PostgresVerificationTokenRepository {
                     "EmailVerification" => VerificationTokenKind::EmailVerification,
                     _ => VerificationTokenKind::PasswordReset,
                 };
-                let used: bool = r
-                    .try_get("used")
-                    .context(VerificationTokenRepositoryDbSnafu {
-                        message: "read used failed".to_string(),
-                    })?;
+                let status_str: String =
+                    r.try_get("status")
+                        .context(VerificationTokenRepositoryDbSnafu {
+                            message: "read status failed".to_string(),
+                        })?;
+                let status = match status_str.as_str() {
+                    "Unused" => VerificationTokenStatus::Unused,
+                    "Used" => VerificationTokenStatus::Used,
+                    "Invalid" => VerificationTokenStatus::Invalid,
+                    _ => VerificationTokenStatus::Unused,
+                };
                 let created_at: DateTime<Utc> =
                     r.try_get("created_at")
                         .context(VerificationTokenRepositoryDbSnafu {
@@ -108,7 +114,7 @@ impl VerificationTokenRepository for PostgresVerificationTokenRepository {
                     VerificationTokenValue::from(token_value),
                     user_id,
                     kind,
-                    VerificationTokenUsed::from_bool(used),
+                    status,
                     Timestamp::new(created_at),
                     Timestamp::new(expires_at),
                 )
@@ -118,13 +124,33 @@ impl VerificationTokenRepository for PostgresVerificationTokenRepository {
     }
 
     async fn mark_used(&self, value: &VerificationTokenValue) -> DomainResult<()> {
-        sqlx::query(r#"UPDATE verification_tokens SET used = TRUE WHERE value = $1"#)
+        sqlx::query(r#"UPDATE verification_tokens SET status = 'Used' WHERE value = $1"#)
             .bind(value.value())
             .execute(&self.pg_client.connection)
             .await
             .context(VerificationTokenRepositoryDbSnafu {
                 message: "mark verification token used failed".to_string(),
             })?;
+        Ok(())
+    }
+
+    async fn invalidate_by_user_id_and_kind(
+        &self,
+        user_id: &UserId,
+        kind: VerificationTokenKind,
+    ) -> DomainResult<()> {
+        sqlx::query(
+            r#"UPDATE verification_tokens
+               SET status = 'Invalid'
+               WHERE user_id = $1 AND kind = $2 AND status != 'Invalid'"#,
+        )
+        .bind(user_id.value())
+        .bind(kind)
+        .execute(&self.pg_client.connection)
+        .await
+        .context(VerificationTokenRepositoryDbSnafu {
+            message: "invalidate verification tokens failed".to_string(),
+        })?;
         Ok(())
     }
 }

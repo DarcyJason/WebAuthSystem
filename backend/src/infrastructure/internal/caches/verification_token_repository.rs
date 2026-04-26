@@ -1,8 +1,10 @@
 use crate::domain::auth::repositories::verification_token_repository::VerificationTokenRepository;
 use crate::domain::auth::value_objects::tokens::verification_token::VerificationToken;
+use crate::domain::auth::value_objects::tokens::verification_token::verification_token_kind::VerificationTokenKind;
 use crate::domain::auth::value_objects::tokens::verification_token::verification_token_value::VerificationTokenValue;
 use crate::domain::common::value_objects::time::ttl::TTL;
 use crate::domain::error::{DomainResult, UserRepositoryJsonSnafu};
+use crate::domain::user::value_objects::user::user_id::UserId;
 use crate::infrastructure::internal::layered::cache_operation::CacheOperation;
 use crate::infrastructure::internal::layered::cache_store::CacheStore;
 use async_trait::async_trait;
@@ -97,6 +99,20 @@ impl<S: CacheStore> VerificationTokenRepository for CacheVerificationTokenReposi
         // without a full read-modify-write. For simplicity, we skip cache invalidation here —
         // the source-of-truth mark_used is done in Postgres.
         let _ = value;
+        Ok(())
+    }
+
+    async fn invalidate_by_user_id_and_kind(
+        &self,
+        user_id: &UserId,
+        kind: VerificationTokenKind,
+    ) -> DomainResult<()> {
+        // Cache invalidation is best-effort here.
+        // The authoritative change is performed in Postgres (source of truth).
+        // Without a user->tokens index in cache we cannot deterministically evict all entries.
+        // So we simply no-op at the cache layer to satisfy the trait while leaving
+        // source_repo.invalidate_by_user_id_and_kind responsible for correctness.
+        let _ = (user_id, kind);
         Ok(())
     }
 }

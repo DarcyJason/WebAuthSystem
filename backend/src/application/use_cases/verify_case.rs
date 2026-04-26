@@ -6,6 +6,7 @@ use crate::application::error::{
 use crate::application::results::verify_result::VerifyResult;
 use crate::domain::auth::repositories::verification_token_repository::VerificationTokenRepository;
 use crate::domain::auth::value_objects::tokens::verification_token::verification_token_kind::VerificationTokenKind;
+use crate::domain::auth::value_objects::tokens::verification_token::verification_token_status::VerificationTokenStatus;
 use crate::domain::user::repositories::user_repository::{
     UserCommandRepository, UserQueryRepository,
 };
@@ -42,7 +43,7 @@ impl VerifyCase {
         if token.expires_at().value() < &Utc::now() {
             return VerificationTokenExpiredSnafu.fail();
         }
-        if token.used().value() {
+        if token.status().value() == &VerificationTokenStatus::Used {
             return VerificationTokenAlreadyUsedSnafu.fail();
         }
         // Only EmailVerification tokens activate the account

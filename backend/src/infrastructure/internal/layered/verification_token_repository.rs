@@ -1,7 +1,9 @@
 use crate::domain::auth::repositories::verification_token_repository::VerificationTokenRepository;
 use crate::domain::auth::value_objects::tokens::verification_token::VerificationToken;
+use crate::domain::auth::value_objects::tokens::verification_token::verification_token_kind::VerificationTokenKind;
 use crate::domain::auth::value_objects::tokens::verification_token::verification_token_value::VerificationTokenValue;
 use crate::domain::error::DomainResult;
+use crate::domain::user::value_objects::user::user_id::UserId;
 use crate::infrastructure::internal::caches::moka::verification_token_repository::MokaVerificationTokenRepository;
 use crate::infrastructure::internal::caches::redis::verification_token_repository::RedisVerificationTokenRepository;
 use crate::infrastructure::internal::persistence::postgres::verification_token_repository::PostgresVerificationTokenRepository;
@@ -71,5 +73,26 @@ impl VerificationTokenRepository for LayeredVerificationTokenRepository {
 
     async fn mark_used(&self, value: &VerificationTokenValue) -> DomainResult<()> {
         self.source_repo.mark_used(value).await
+    }
+
+    async fn invalidate_by_user_id_and_kind(
+        &self,
+        user_id: &UserId,
+        kind: VerificationTokenKind,
+    ) -> DomainResult<()> {
+        // Invalidate at the source of truth (Postgres)
+        self.source_repo
+            .invalidate_by_user_id_and_kind(user_id, kind)
+            .await?;
+
+        // Best-effort cache invalidation:
+        // We attempt to remove any cached tokens related to this user from L2 and L1.
+        // The cache repositories store tokens keyed by value; unless we maintain
+        // an index of user->tokens in cache, we cannot deterministically remove all
+        // entries here. Therefore, we rely on source invalidation as authoritative.
+        // If cache implementations provide a user-scoped invalidation API in future,
+        // call them here (e.g., self.l2_cache.invalidate_by_user(user_id).await;).
+
+        Ok(())
     }
 }

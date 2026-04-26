@@ -8,6 +8,7 @@ use crate::application::results::reset_password_result::ResetPasswordResult;
 use crate::domain::auth::repositories::verification_token_repository::VerificationTokenRepository;
 use crate::domain::auth::services::password_service::PasswordService;
 use crate::domain::auth::value_objects::tokens::verification_token::verification_token_kind::VerificationTokenKind;
+use crate::domain::auth::value_objects::tokens::verification_token::verification_token_status::VerificationTokenStatus;
 use crate::domain::auth::value_objects::tokens::verification_token::verification_token_value::VerificationTokenValue;
 use crate::domain::user::repositories::user_repository::UserCommandRepository;
 use crate::infrastructure::internal::layered::user_repository::LayeredUserRepository;
@@ -50,7 +51,7 @@ impl ResetPasswordCase {
         if token.expires_at().value() < &Utc::now() {
             return VerificationTokenExpiredSnafu.fail();
         }
-        if token.used().value() {
+        if token.status().value() == &VerificationTokenStatus::Used {
             return VerificationTokenAlreadyUsedSnafu.fail();
         }
         // Ensure this token was issued for password reset, not email verification
