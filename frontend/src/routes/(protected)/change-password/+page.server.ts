@@ -1,5 +1,5 @@
-import { registerSchema } from "$lib/schema/register";
-import { fail, type Actions } from "@sveltejs/kit";
+import { changePasswordSchema } from "$lib/schema/change-password";
+import { fail, redirect, type Actions, type ServerLoad } from "@sveltejs/kit";
 import { superValidate } from "sveltekit-superforms";
 import { zod4 } from "sveltekit-superforms/adapters";
 
@@ -9,24 +9,33 @@ const API_BASE_URL = (
   ""
 ).replace(/\/$/, "");
 
-export const load = async (event) => {
-  const form = await superValidate(event, zod4(registerSchema));
+export const load: ServerLoad = async (event) => {
+  const res = await event.fetch(`${API_BASE_URL}/api/v1/me`);
+  if (!res.ok) {
+    throw redirect(303, "/login");
+  }
+
+  const form = await superValidate(event, zod4(changePasswordSchema));
   return { form };
 };
 
 export const actions: Actions = {
   default: async (event) => {
-    const form = await superValidate(event, zod4(registerSchema));
+    const form = await superValidate(event, zod4(changePasswordSchema));
     if (!form.valid) {
       return fail(400, { form });
     }
 
     let response: Response;
     try {
-      response = await event.fetch(`${API_BASE_URL}/api/v1/auth/register`, {
+      response = await event.fetch(`${API_BASE_URL}/api/v1/change-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form.data),
+        body: JSON.stringify({
+          currentPassword: form.data.currentPassword,
+          newPassword: form.data.newPassword,
+          confirmPassword: form.data.confirmPassword,
+        }),
       });
     } catch {
       return fail(500, {
@@ -42,7 +51,7 @@ export const actions: Actions = {
         form,
         result: {
           status: response.status,
-          message: resultData.message ?? "Registration failed",
+          message: resultData.message ?? "Failed to change password",
         },
       });
     }
@@ -51,9 +60,7 @@ export const actions: Actions = {
       form,
       result: {
         status: 200,
-        message:
-          resultData.message ??
-          "Account created! Please check your email to verify your account.",
+        message: resultData.message ?? "Password changed successfully!",
       },
     };
   },
