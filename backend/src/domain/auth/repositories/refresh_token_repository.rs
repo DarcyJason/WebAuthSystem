@@ -4,8 +4,12 @@ use crate::domain::error::DomainResult;
 use async_trait::async_trait;
 
 #[async_trait]
-pub trait RefreshTokenRepository: Send + Sync {
+pub trait RefreshTokenCommandRepository: Send + Sync {
     async fn save(&self, refresh_token: &RefreshTokenEntity) -> DomainResult<RefreshTokenEntity>;
+}
+
+#[async_trait]
+pub trait RefreshTokenQueryRepository: Send + Sync {
     async fn get_by_hash(
         &self,
         hash: &RefreshTokenHash,

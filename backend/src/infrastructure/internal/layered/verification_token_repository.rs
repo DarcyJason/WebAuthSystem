@@ -1,4 +1,6 @@
-use crate::domain::auth::repositories::verification_token_repository::VerificationTokenRepository;
+use crate::domain::auth::repositories::verification_token_repository::{
+    VerificationTokenCommandRepository, VerificationTokenQueryRepository,
+};
 use crate::domain::auth::value_objects::tokens::verification_token::VerificationToken;
 use crate::domain::auth::value_objects::tokens::verification_token::verification_token_kind::VerificationTokenKind;
 use crate::domain::auth::value_objects::tokens::verification_token::verification_token_value::VerificationTokenValue;
@@ -46,29 +48,11 @@ impl LayeredVerificationTokenRepository {
 }
 
 #[async_trait]
-impl VerificationTokenRepository for LayeredVerificationTokenRepository {
+impl VerificationTokenCommandRepository for LayeredVerificationTokenRepository {
     async fn save(&self, token: &VerificationToken) -> DomainResult<VerificationToken> {
         let saved = self.source_repo.save(token).await?;
         self.warm_up_l2_and_l1(&saved).await;
         Ok(saved)
-    }
-
-    async fn get_by_value(
-        &self,
-        value: &VerificationTokenValue,
-    ) -> DomainResult<Option<VerificationToken>> {
-        if let Some(token) = self.l1_cache.get_by_value(value).await? {
-            return Ok(Some(token));
-        }
-        if let Some(token) = self.l2_cache.get_by_value(value).await? {
-            self.warm_up_l1(&token).await;
-            return Ok(Some(token));
-        }
-        let token = self.source_repo.get_by_value(value).await?;
-        if let Some(ref t) = token {
-            self.warm_up_l2_and_l1(t).await;
-        }
-        Ok(token)
     }
 
     async fn mark_used(&self, value: &VerificationTokenValue) -> DomainResult<()> {
@@ -94,5 +78,26 @@ impl VerificationTokenRepository for LayeredVerificationTokenRepository {
         // call them here (e.g., self.l2_cache.invalidate_by_user(user_id).await;).
 
         Ok(())
+    }
+}
+
+#[async_trait]
+impl VerificationTokenQueryRepository for LayeredVerificationTokenRepository {
+    async fn get_by_value(
+        &self,
+        value: &VerificationTokenValue,
+    ) -> DomainResult<Option<VerificationToken>> {
+        if let Some(token) = self.l1_cache.get_by_value(value).await? {
+            return Ok(Some(token));
+        }
+        if let Some(token) = self.l2_cache.get_by_value(value).await? {
+            self.warm_up_l1(&token).await;
+            return Ok(Some(token));
+        }
+        let token = self.source_repo.get_by_value(value).await?;
+        if let Some(ref t) = token {
+            self.warm_up_l2_and_l1(t).await;
+        }
+        Ok(token)
     }
 }

@@ -3,7 +3,7 @@ use crate::application::error::{
     ApplicationResult, DomainFailedSnafu, PasswordServiceFailedSnafu, UserAlreadyExistsSnafu,
 };
 use crate::application::results::register_result::RegisterResult;
-use crate::domain::auth::repositories::verification_token_repository::VerificationTokenRepository;
+use crate::domain::auth::repositories::verification_token_repository::VerificationTokenCommandRepository;
 use crate::domain::auth::services::mail_service::MailService;
 use crate::domain::auth::services::password_service::PasswordService;
 use crate::domain::auth::value_objects::mail::Mail;

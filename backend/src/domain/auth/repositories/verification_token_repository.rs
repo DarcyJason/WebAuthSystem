@@ -6,12 +6,8 @@ use crate::domain::user::value_objects::user::user_id::UserId;
 use async_trait::async_trait;
 
 #[async_trait]
-pub trait VerificationTokenRepository: Send + Sync {
+pub trait VerificationTokenCommandRepository: Send + Sync {
     async fn save(&self, token: &VerificationToken) -> DomainResult<VerificationToken>;
-    async fn get_by_value(
-        &self,
-        value: &VerificationTokenValue,
-    ) -> DomainResult<Option<VerificationToken>>;
     async fn mark_used(&self, value: &VerificationTokenValue) -> DomainResult<()>;
 
     /// Invalidate all verification tokens for a given user and token kind.
@@ -22,4 +18,12 @@ pub trait VerificationTokenRepository: Send + Sync {
         user_id: &UserId,
         kind: VerificationTokenKind,
     ) -> DomainResult<()>;
+}
+
+#[async_trait]
+pub trait VerificationTokenQueryRepository: Send + Sync {
+    async fn get_by_value(
+        &self,
+        value: &VerificationTokenValue,
+    ) -> DomainResult<Option<VerificationToken>>;
 }

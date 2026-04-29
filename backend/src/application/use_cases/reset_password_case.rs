@@ -5,7 +5,9 @@ use crate::application::error::{
     VerificationTokenNotFoundSnafu,
 };
 use crate::application::results::reset_password_result::ResetPasswordResult;
-use crate::domain::auth::repositories::verification_token_repository::VerificationTokenRepository;
+use crate::domain::auth::repositories::verification_token_repository::{
+    VerificationTokenCommandRepository, VerificationTokenQueryRepository,
+};
 use crate::domain::auth::services::password_service::PasswordService;
 use crate::domain::auth::value_objects::tokens::verification_token::verification_token_kind::VerificationTokenKind;
 use crate::domain::auth::value_objects::tokens::verification_token::verification_token_status::VerificationTokenStatus;

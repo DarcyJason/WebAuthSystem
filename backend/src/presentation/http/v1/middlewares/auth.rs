@@ -43,12 +43,14 @@ pub async fn auth(
         UserId::from_raw_user_id(claims.sub().to_string()).map_err(|_| ApiError::Unauthorized {
             message: "invalid or expired access token".to_string(),
         })?;
-    let user = app_state.user_repo.get_by_id(&user_id).await.map_err(|_| {
-        ApiError::InternalServerError {
+    let user = app_state
+        .user_repo
+        .get_by_id(&user_id)
+        .await
+        .map_err(|_| ApiError::InternalServerError {
             code: 500,
             message: "internal server error".to_string(),
-        }
-    })?;
+        })?;
     let user = user.ok_or(ApiError::NotFound {
         message: "user not found".to_string(),
     })?;

@@ -4,7 +4,7 @@
 
 随着互联网应用规模的持续扩张与安全威胁的日益复杂化，Web身份认证系统面临着前所未有的挑战。一方面，用户对无缝、流畅的登录体验有着越来越高的期望；另一方面，XSS、CSRF、Token劫持等攻击手段不断演进，对认证系统的安全性提出了严苛要求。传统的单Token认证方案在这两个维度上难以兼顾：若将Token有效期设置较长，一旦Token泄露攻击者便可长期冒充合法用户；若将有效期设置较短，则用户需要频繁重新登录，严重损害使用体验。
 
-本文针对上述矛盾，提出并完整实现了一种基于双Token机制的安全Web认证系统。系统采用短期有效的JWT（JSON Web Token）作为Access Token，负责日常接口鉴权，有效期默认为3600秒，JWT载荷中嵌入`ver`（access_token_version）字段以支持主动吊销；同时采用长期有效的UUID v4随机字符串作为Refresh Token，负责在Access Token过期后无感刷新，有效期为7天。Refresh Token经SHA-256哈希后持久化存储于PostgreSQL，原始值通过HttpOnly Cookie下发至客户端，使JavaScript脚本无法读取，从根本上切断了XSS攻击的Token窃取路径。
+本文针对上述矛盾，提出并完整实现了一种基于双Token机制的安全Web认证系统。Access Token则采用内存存储，通过Svelte的`$writable` store在客户端进行管理，避免了将Token暴露在存储层。JWT载荷中嵌入`ver`（access_token_version）字段以支持主动吊销；同时采用长期有效的UUID v4随机字符串作为Refresh Token，负责在Access Token过期后无感刷新，有效期为7天。Refresh Token经SHA-256哈希后持久化存储于PostgreSQL，原始值通过HttpOnly Cookie下发至客户端，使JavaScript脚本无法读取，从根本上切断了XSS攻击的Token窃取路径。
 
 在技术实现层面，系统后端采用Rust语言与Axum框架构建，充分利用Rust的内存安全保证和Tokio异步运行时的高并发能力；前端采用SvelteKit框架，结合TypeScript、Zod表单验证与shadcn-svelte组件库构建完整的服务端渲染应用，`hooks.server.ts`拦截器透明地处理Access Token的自动刷新逻辑。数据访问层引入Moka进程内缓存（L1）、Redis分布式缓存（L2）、PostgreSQL持久化存储（L3）构成的三级缓存架构，将热点用户数据的查询延迟从毫秒级降低至微秒级。系统整体遵循领域驱动设计（DDD）原则，将业务逻辑与技术实现严格解耦，保证了代码的可维护性与可扩展性。系统已完整实现注册、邮箱验证、登录、登出、Token轮换、密码重置、修改密码等全套认证功能。密码存储采用Argon2id算法，数据库操作全部使用参数化查询，配合CORS策略和结构化错误处理，构建了多层次的纵深防御体系。
 
@@ -289,7 +289,7 @@ let (redis_client, postgres_client) = tokio::try_join!(
 
 双Token方案的核心设计原则如下：
 
-1. **Access Token**：短期有效（默认配置为3600秒），以JWT格式签发，携带用户ID（`sub`字段）、access_token版本（`ver`字段）、签发时间（`iat`）和过期时间（`exp`）。后端通过`Authorization: Bearer <token>`响应头将其返回给SvelteKit服务端，服务端将其写入`HttpOnly; SameSite=Lax`的`access_token` Cookie，后续所有API请求由`hooks.server.ts`自动从Cookie读取并注入`Authorization`头，前端页面代码无需感知Token的存在。
+Access Token：短期有效（默认配置为3600秒），以JWT格式签发，携带用户ID（`sub`字段）、access_token版本（`ver`字段）、签发时间（`iat`）和过期时间（`exp`）。后端在登录或轮换成功后，将Access Token置于`Authorization`响应头返回给客户端，前端应用接收后通过`$writable` store存储在内存中，后续所有API请求在`handleFetch`或全局请求拦截器中自动从内存读取并注入`Authorization`头，避免了将Token持久化到浏览器的存储介质中。
 2. **Refresh Token**：长期有效（7天），以UUID v4格式生成，原始值通过`Set-Cookie: refresh_token=<RT>; HttpOnly; Secure; SameSite=Strict; Path=/`响应头写入客户端Cookie，服务端持久化存储其SHA-256哈希值（而非原始值），使JavaScript脚本无法读取原始Token。每次使用Refresh Token后立即签发新Token并删除旧记录（Token Rotation），进一步缩短泄露影响窗口。
 3. **职责分离**：Access Token负责接口鉴权，Refresh Token仅用于轮换获取新的Access Token，两者的传输通道和存储位置均不同。Access Token泄露的最长影响窗口为1小时；Refresh Token存储于HttpOnly Cookie，无法被XSS脚本读取，且服务端以哈希形式存储，即使数据库泄露也无法直接使用原始Token。
 4. **登出即时吊销**：`access_token_version`字段嵌入JWT载荷并同步存储于用户记录。登出时服务端递增该版本号，所有使用旧版本JWT的请求在Auth中间件验证时均会失败，实现了无需黑名单的即时令牌吊销。
@@ -481,11 +481,11 @@ pub async fn login_handler(
 
 这里有几个值得关注的设计细节：
 
-- **Access Token通过`Authorization`响应头返回**：SvelteKit服务端的`+page.server.ts`从响应头中提取Token值，调用`event.cookies.set("access_token", ...)`写入`HttpOnly; SameSite=Lax`属性的Cookie，使浏览器JavaScript脚本无论何时都无法读取该Token；
-- **Refresh Token通过`Set-Cookie`响应头设置**：后端已配置`HttpOnly; Secure; SameSite=Strict`，SvelteKit服务端进一步解析并以`sameSite: "strict"`重新写入Cookie，确保安全属性不丢失；
+- **Access Token通过`Authorization`响应头返回**：客户端接收到响应后提取Token值并存入内存中的`$writable` store，后续API请求自动从中读取并注入`Authorization: Bearer <token>`头；
+- **Refresh Token通过`Set-Cookie`响应头设置**：后端已配置`HttpOnly; Secure; SameSite=Strict`，确保安全属性不丢失；
 - `http_only(true)`和`secure(true)`是关键安全属性，分别防御XSS窃取和网络窃听；
 - `SameSite::Strict`有效防御CSRF攻击：跨站请求不会携带Cookie，攻击者无法触发Refresh Token刷新；
-- `hooks.server.ts`中的`handleFetch`拦截器在每次向后端API发起请求时，自动从`access_token` Cookie中读取值并注入`Authorization: Bearer <token>`头，业务代码完全不需要手动处理Token。
+- `hooks.server.ts`中的全局拦截器或前端请求封装在每次向后端API发起请求时，自动从内存`$writable` store中读取值并注入`Authorization: Bearer <token>`头，业务代码完全不需要手动处理Token。
 
 ### 4.6 登录用例的业务逻辑
 

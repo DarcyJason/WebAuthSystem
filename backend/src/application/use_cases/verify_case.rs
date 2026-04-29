@@ -4,7 +4,9 @@ use crate::application::error::{
     VerificationTokenExpiredSnafu, VerificationTokenNotFoundSnafu,
 };
 use crate::application::results::verify_result::VerifyResult;
-use crate::domain::auth::repositories::verification_token_repository::VerificationTokenRepository;
+use crate::domain::auth::repositories::verification_token_repository::{
+    VerificationTokenCommandRepository, VerificationTokenQueryRepository,
+};
 use crate::domain::auth::value_objects::tokens::verification_token::verification_token_kind::VerificationTokenKind;
 use crate::domain::auth::value_objects::tokens::verification_token::verification_token_status::VerificationTokenStatus;
 use crate::domain::user::repositories::user_repository::{

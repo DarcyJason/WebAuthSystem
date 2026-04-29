@@ -1,5 +1,7 @@
 use crate::domain::auth::entities::refresh_token::RefreshTokenEntity;
-use crate::domain::auth::repositories::refresh_token_repository::RefreshTokenRepository;
+use crate::domain::auth::repositories::refresh_token_repository::{
+    RefreshTokenCommandRepository, RefreshTokenQueryRepository,
+};
 use crate::domain::auth::value_objects::tokens::refresh_token_hash::RefreshTokenHash;
 use crate::domain::common::value_objects::time::ttl::TTL;
 use crate::domain::error::{DomainResult, UserRepositoryJsonSnafu};
@@ -75,13 +77,16 @@ impl<S: CacheStore> CacheRefreshTokenRepository<S> {
 }
 
 #[async_trait]
-impl<S: CacheStore> RefreshTokenRepository for CacheRefreshTokenRepository<S> {
+impl<S: CacheStore> RefreshTokenCommandRepository for CacheRefreshTokenRepository<S> {
     async fn save(&self, refresh_token: &RefreshTokenEntity) -> DomainResult<RefreshTokenEntity> {
         let entity_ttl = Self::ttl_from_entity(refresh_token);
         let ttl = entity_ttl.as_ref().or(self.ttl());
         self.save_with_ttl(refresh_token, ttl).await
     }
+}
 
+#[async_trait]
+impl<S: CacheStore> RefreshTokenQueryRepository for CacheRefreshTokenRepository<S> {
     async fn get_by_hash(
         &self,
         hash: &RefreshTokenHash,

@@ -4,7 +4,9 @@ use crate::application::error::{
 };
 use crate::application::results::rotate_refresh_token_result::RotateRefreshTokenResult;
 use crate::domain::auth::entities::refresh_token::RefreshTokenEntity;
-use crate::domain::auth::repositories::refresh_token_repository::RefreshTokenRepository;
+use crate::domain::auth::repositories::refresh_token_repository::{
+    RefreshTokenCommandRepository, RefreshTokenQueryRepository,
+};
 use crate::domain::auth::services::access_token_service::AccessTokenService;
 use crate::domain::auth::services::refresh_token_service::RefreshTokenService;
 use crate::domain::auth::value_objects::tokens::refresh_token::RefreshToken;

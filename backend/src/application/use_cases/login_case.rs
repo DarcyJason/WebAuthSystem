@@ -5,7 +5,7 @@ use crate::application::error::{
 };
 use crate::application::results::login_result::LoginResult;
 use crate::domain::auth::entities::refresh_token::RefreshTokenEntity;
-use crate::domain::auth::repositories::refresh_token_repository::RefreshTokenRepository;
+use crate::domain::auth::repositories::refresh_token_repository::RefreshTokenCommandRepository;
 use crate::domain::auth::services::access_token_service::AccessTokenService;
 use crate::domain::auth::services::password_service::PasswordService;
 use crate::domain::auth::services::refresh_token_service::RefreshTokenService;

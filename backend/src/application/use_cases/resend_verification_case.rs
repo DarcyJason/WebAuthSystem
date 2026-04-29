@@ -1,7 +1,7 @@
 use crate::application::commands::resend_verification_command::ResendVerificationCommand;
 use crate::application::error::{ApplicationResult, DomainFailedSnafu, UserNotFoundSnafu};
 use crate::application::results::resend_verification_result::ResendVerificationResult;
-use crate::domain::auth::repositories::verification_token_repository::VerificationTokenRepository;
+use crate::domain::auth::repositories::verification_token_repository::VerificationTokenCommandRepository;
 use crate::domain::auth::services::mail_service::MailService;
 use crate::domain::auth::value_objects::mail::Mail;
 use crate::domain::auth::value_objects::mail::mail_content::MailContent;

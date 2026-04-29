@@ -1,4 +1,6 @@
-use crate::domain::auth::repositories::verification_token_repository::VerificationTokenRepository;
+use crate::domain::auth::repositories::verification_token_repository::{
+    VerificationTokenCommandRepository, VerificationTokenQueryRepository,
+};
 use crate::domain::auth::value_objects::tokens::verification_token::VerificationToken;
 use crate::domain::auth::value_objects::tokens::verification_token::verification_token_kind::VerificationTokenKind;
 use crate::domain::auth::value_objects::tokens::verification_token::verification_token_value::VerificationTokenValue;
@@ -68,30 +70,11 @@ impl<S: CacheStore> CacheVerificationTokenRepository<S> {
 }
 
 #[async_trait]
-impl<S: CacheStore> VerificationTokenRepository for CacheVerificationTokenRepository<S> {
+impl<S: CacheStore> VerificationTokenCommandRepository for CacheVerificationTokenRepository<S> {
     async fn save(&self, token: &VerificationToken) -> DomainResult<VerificationToken> {
         let entity_ttl = Self::ttl_from_token(token);
         let ttl = entity_ttl.as_ref().or(self.ttl());
         self.save_with_ttl(token, ttl).await
-    }
-
-    async fn get_by_value(
-        &self,
-        value: &VerificationTokenValue,
-    ) -> DomainResult<Option<VerificationToken>> {
-        let raw = self.store.get(&Self::key(value)).await?;
-        match raw {
-            None => Ok(None),
-            Some(s) => {
-                let token: VerificationToken =
-                    serde_json::from_str(&s).context(UserRepositoryJsonSnafu {
-                        layer: self.store.layer(),
-                        operation: CacheOperation::Deserialize,
-                        message: "deserialize verification token failed".to_string(),
-                    })?;
-                Ok(Some(token))
-            }
-        }
     }
 
     async fn mark_used(&self, value: &VerificationTokenValue) -> DomainResult<()> {
@@ -114,5 +97,27 @@ impl<S: CacheStore> VerificationTokenRepository for CacheVerificationTokenReposi
         // source_repo.invalidate_by_user_id_and_kind responsible for correctness.
         let _ = (user_id, kind);
         Ok(())
+    }
+}
+
+#[async_trait]
+impl<S: CacheStore> VerificationTokenQueryRepository for CacheVerificationTokenRepository<S> {
+    async fn get_by_value(
+        &self,
+        value: &VerificationTokenValue,
+    ) -> DomainResult<Option<VerificationToken>> {
+        let raw = self.store.get(&Self::key(value)).await?;
+        match raw {
+            None => Ok(None),
+            Some(s) => {
+                let token: VerificationToken =
+                    serde_json::from_str(&s).context(UserRepositoryJsonSnafu {
+                        layer: self.store.layer(),
+                        operation: CacheOperation::Deserialize,
+                        message: "deserialize verification token failed".to_string(),
+                    })?;
+                Ok(Some(token))
+            }
+        }
     }
 }

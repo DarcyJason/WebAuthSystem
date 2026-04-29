@@ -1,5 +1,7 @@
 use crate::domain::auth::entities::refresh_token::RefreshTokenEntity;
-use crate::domain::auth::repositories::refresh_token_repository::RefreshTokenRepository;
+use crate::domain::auth::repositories::refresh_token_repository::{
+    RefreshTokenCommandRepository, RefreshTokenQueryRepository,
+};
 use crate::domain::auth::value_objects::tokens::refresh_token_hash::RefreshTokenHash;
 use crate::domain::auth::value_objects::tokens::refresh_token_id::RefreshTokenId;
 use crate::domain::common::value_objects::time::time_stamp::Timestamp;
@@ -24,7 +26,7 @@ impl PostgresRefreshTokenRepository {
 }
 
 #[async_trait]
-impl RefreshTokenRepository for PostgresRefreshTokenRepository {
+impl RefreshTokenCommandRepository for PostgresRefreshTokenRepository {
     async fn save(&self, refresh_token: &RefreshTokenEntity) -> DomainResult<RefreshTokenEntity> {
         sqlx::query(
             r#"INSERT INTO refresh_tokens (id, user_id, token_hash, expires_at, created_at)
@@ -45,7 +47,10 @@ impl RefreshTokenRepository for PostgresRefreshTokenRepository {
         })?;
         Ok(refresh_token.clone())
     }
+}
 
+#[async_trait]
+impl RefreshTokenQueryRepository for PostgresRefreshTokenRepository {
     async fn get_by_hash(
         &self,
         hash: &RefreshTokenHash,

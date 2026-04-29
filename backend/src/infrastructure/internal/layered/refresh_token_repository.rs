@@ -1,5 +1,7 @@
 use crate::domain::auth::entities::refresh_token::RefreshTokenEntity;
-use crate::domain::auth::repositories::refresh_token_repository::RefreshTokenRepository;
+use crate::domain::auth::repositories::refresh_token_repository::{
+    RefreshTokenCommandRepository, RefreshTokenQueryRepository,
+};
 use crate::domain::auth::value_objects::tokens::refresh_token_hash::RefreshTokenHash;
 use crate::domain::error::DomainResult;
 use crate::infrastructure::internal::caches::moka::refresh_token_repository::MokaRefreshTokenRepository;
@@ -44,13 +46,16 @@ impl LayeredRefreshTokenRepository {
 }
 
 #[async_trait]
-impl RefreshTokenRepository for LayeredRefreshTokenRepository {
+impl RefreshTokenCommandRepository for LayeredRefreshTokenRepository {
     async fn save(&self, refresh_token: &RefreshTokenEntity) -> DomainResult<RefreshTokenEntity> {
         let saved = self.source_repo.save(refresh_token).await?;
         self.warm_up_l2_and_l1(&saved).await;
         Ok(saved)
     }
+}
 
+#[async_trait]
+impl RefreshTokenQueryRepository for LayeredRefreshTokenRepository {
     async fn get_by_hash(
         &self,
         hash: &RefreshTokenHash,

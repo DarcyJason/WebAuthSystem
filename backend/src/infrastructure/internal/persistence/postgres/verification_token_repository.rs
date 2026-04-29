@@ -1,4 +1,6 @@
-use crate::domain::auth::repositories::verification_token_repository::VerificationTokenRepository;
+use crate::domain::auth::repositories::verification_token_repository::{
+    VerificationTokenCommandRepository, VerificationTokenQueryRepository,
+};
 use crate::domain::auth::value_objects::tokens::verification_token::VerificationToken;
 use crate::domain::auth::value_objects::tokens::verification_token::verification_token_kind::VerificationTokenKind;
 use crate::domain::auth::value_objects::tokens::verification_token::verification_token_status::VerificationTokenStatus;
@@ -25,7 +27,7 @@ impl PostgresVerificationTokenRepository {
 }
 
 #[async_trait]
-impl VerificationTokenRepository for PostgresVerificationTokenRepository {
+impl VerificationTokenCommandRepository for PostgresVerificationTokenRepository {
     async fn save(&self, token: &VerificationToken) -> DomainResult<VerificationToken> {
         sqlx::query(
             r#"
@@ -51,6 +53,40 @@ impl VerificationTokenRepository for PostgresVerificationTokenRepository {
         Ok(token.clone())
     }
 
+    async fn mark_used(&self, value: &VerificationTokenValue) -> DomainResult<()> {
+        sqlx::query(r#"UPDATE verification_tokens SET status = 'Used' WHERE value = $1"#)
+            .bind(value.value())
+            .execute(&self.pg_client.connection)
+            .await
+            .context(VerificationTokenRepositoryDbSnafu {
+                message: "mark verification token used failed".to_string(),
+            })?;
+        Ok(())
+    }
+
+    async fn invalidate_by_user_id_and_kind(
+        &self,
+        user_id: &UserId,
+        kind: VerificationTokenKind,
+    ) -> DomainResult<()> {
+        sqlx::query(
+            r#"UPDATE verification_tokens
+               SET status = 'Invalid'
+               WHERE user_id = $1 AND kind = $2 AND status != 'Invalid'"#,
+        )
+        .bind(user_id.value())
+        .bind(kind)
+        .execute(&self.pg_client.connection)
+        .await
+        .context(VerificationTokenRepositoryDbSnafu {
+            message: "invalidate verification tokens failed".to_string(),
+        })?;
+        Ok(())
+    }
+}
+
+#[async_trait]
+impl VerificationTokenQueryRepository for PostgresVerificationTokenRepository {
     async fn get_by_value(
         &self,
         value: &VerificationTokenValue,
@@ -121,36 +157,5 @@ impl VerificationTokenRepository for PostgresVerificationTokenRepository {
             }
         };
         Ok(Some(token))
-    }
-
-    async fn mark_used(&self, value: &VerificationTokenValue) -> DomainResult<()> {
-        sqlx::query(r#"UPDATE verification_tokens SET status = 'Used' WHERE value = $1"#)
-            .bind(value.value())
-            .execute(&self.pg_client.connection)
-            .await
-            .context(VerificationTokenRepositoryDbSnafu {
-                message: "mark verification token used failed".to_string(),
-            })?;
-        Ok(())
-    }
-
-    async fn invalidate_by_user_id_and_kind(
-        &self,
-        user_id: &UserId,
-        kind: VerificationTokenKind,
-    ) -> DomainResult<()> {
-        sqlx::query(
-            r#"UPDATE verification_tokens
-               SET status = 'Invalid'
-               WHERE user_id = $1 AND kind = $2 AND status != 'Invalid'"#,
-        )
-        .bind(user_id.value())
-        .bind(kind)
-        .execute(&self.pg_client.connection)
-        .await
-        .context(VerificationTokenRepositoryDbSnafu {
-            message: "invalidate verification tokens failed".to_string(),
-        })?;
-        Ok(())
     }
 }
