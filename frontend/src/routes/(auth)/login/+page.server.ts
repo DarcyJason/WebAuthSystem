@@ -50,14 +50,9 @@ export const actions: Actions = {
     const authHeader =
       response.headers.get("authorization") ??
       response.headers.get("Authorization");
+    let accessToken: string | null = null;
     if (authHeader?.startsWith("Bearer ")) {
-      event.cookies.set("access_token", authHeader.slice("Bearer ".length), {
-        httpOnly: true,
-        path: "/",
-        sameSite: "lax",
-        secure: !!import.meta.env.PROD,
-        maxAge: 60 * 60,
-      });
+      accessToken = authHeader.slice("Bearer ".length);
     }
 
     const setCookieHeader = response.headers.get("set-cookie");
@@ -74,6 +69,13 @@ export const actions: Actions = {
       }
     }
 
-    throw redirect(303, "/dashboard");
+    return {
+      form,
+      result: {
+        status: 200,
+        message: "Login successful",
+        accessToken,
+      },
+    };
   },
 };

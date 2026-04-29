@@ -8,8 +8,15 @@
     import { loginSchema } from "$lib/schema/login.js";
     import { untrack } from "svelte";
     import { toast } from "svelte-sonner";
+    import { accessToken, logout } from "$lib/authStore";
+    import { goto } from "$app/navigation";
+    import { onMount } from "svelte";
 
     let { data } = $props();
+
+    onMount(() => {
+        logout();
+    });
 
     let submitting = $state(false);
 
@@ -32,6 +39,10 @@
                     toast.error(actionResult.result.message);
                 } else {
                     toast.success(actionResult.result.message);
+                    if (actionResult.result.accessToken) {
+                        accessToken.set(actionResult.result.accessToken);
+                    }
+                    goto("/dashboard");
                 }
                 submitting = false;
             },

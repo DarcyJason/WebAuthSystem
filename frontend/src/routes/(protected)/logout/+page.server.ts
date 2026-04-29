@@ -29,7 +29,6 @@ export const load: ServerLoad = async ({ fetch, cookies }) => {
   } finally {
     // Clear cookies locally (ensure path matches how they were set)
     try {
-      cookies.delete("access_token", { path: "/" });
       cookies.delete("refresh_token", { path: "/" });
     } catch {
       // ignore
@@ -51,7 +50,6 @@ export const actions: Actions = {
       // ignore
     } finally {
       try {
-        event.cookies.delete("access_token", { path: "/" });
         event.cookies.delete("refresh_token", { path: "/" });
       } catch {
         // ignore

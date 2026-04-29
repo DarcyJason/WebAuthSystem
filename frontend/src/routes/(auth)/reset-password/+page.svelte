@@ -86,7 +86,7 @@
             </Card.Header>
             <Card.Content>
                 <form method="POST" use:enhance>
-                    <input type="hidden" name="token" value={$form.token} />
+                    <input type="hidden" name="token" bind:value={$form.token} />
                     <Field.Group>
                         <Field.Field>
                             <Field.Label for="newPassword">New Password</Field.Label>
