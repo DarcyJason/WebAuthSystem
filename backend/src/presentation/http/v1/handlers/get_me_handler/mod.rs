@@ -10,7 +10,7 @@ use tracing::instrument;
 
 #[utoipa::path(
     get,
-    path = "/api/v1/me",
+    path = "/api/v1/protected/me",
     tag = "User",
     security(("Bearer" = [])),
     responses(

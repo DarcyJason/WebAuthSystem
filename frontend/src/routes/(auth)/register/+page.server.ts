@@ -1,15 +1,12 @@
 import { registerSchema } from "$lib/schema/register";
-import { fail, type Actions } from "@sveltejs/kit";
+import { fail, redirect, type Actions } from "@sveltejs/kit";
 import { superValidate } from "sveltekit-superforms";
 import { zod4 } from "sveltekit-superforms/adapters";
+import { PUBLIC_API_BASE_URL } from "$env/static/public";
 
-const API_BASE_URL = (
-  import.meta.env.PUBLIC_API_BASE_URL ??
-  import.meta.env.API_BASE_URL ??
-  ""
-).replace(/\/$/, "");
+const API_BASE_URL = PUBLIC_API_BASE_URL.replace(/\/$/, "");
 
-export const load = async (event) => {
+export const load = async (event: any) => {
   const form = await superValidate(event, zod4(registerSchema));
   return { form };
 };
@@ -47,14 +44,7 @@ export const actions: Actions = {
       });
     }
 
-    return {
-      form,
-      result: {
-        status: 200,
-        message:
-          resultData.message ??
-          "Account created! Please check your email to verify your account.",
-      },
-    };
+    const email = encodeURIComponent(form.data.email);
+    throw redirect(303, `/verify?email=${email}`);
   },
 };

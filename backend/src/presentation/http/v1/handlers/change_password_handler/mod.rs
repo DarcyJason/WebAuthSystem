@@ -17,7 +17,7 @@ use tracing::instrument;
 
 #[utoipa::path(
     post,
-    path = "/api/v1/change-password",
+    path = "/api/v1/protected/change-password",
     tag = "User",
     security(("Bearer" = [])),
     request_body = ChangePasswordRequestPayload,

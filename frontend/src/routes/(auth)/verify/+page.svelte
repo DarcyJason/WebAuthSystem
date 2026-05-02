@@ -8,10 +8,13 @@
 
     let { data, form } = $props();
 
-    let isLoading = $state(false);
+    let verifying = $state(false);
+    let resending = $state(false);
 
     $effect(() => {
-        if (form?.success) {
+        if (form?.verifyError) {
+            toast.error(form.verifyError);
+        } else if (form?.success) {
             toast.success(form.message ?? "Verification email sent!");
         } else if (form?.error) {
             toast.error(form.error);
@@ -26,54 +29,57 @@
     </a>
 </div>
 <div class="flex min-h-svh w-full items-center justify-center px-4">
-    {#if data.verified === true}
-        <Card.Root class="mx-auto w-full max-w-sm text-center">
-            <Card.Header>
-                <Card.Title class="text-2xl">Email Verified!</Card.Title>
-                <Card.Description>{data.message}</Card.Description>
-            </Card.Header>
-            <Card.Content>
-                <a href="/login">
-                    <Button class="w-full">Go to Login</Button>
-                </a>
-            </Card.Content>
-        </Card.Root>
-    {:else if data.verified === false}
-        <Card.Root class="mx-auto w-full max-w-sm text-center">
-            <Card.Header>
-                <Card.Title class="text-2xl text-destructive">Verification Failed</Card.Title>
-                <Card.Description>{data.message}</Card.Description>
-            </Card.Header>
-            <Card.Content class="space-y-3">
+    <Card.Root class="mx-auto w-full max-w-sm">
+        <Card.Header>
+            <Card.Title class="text-2xl">Verify Your Email</Card.Title>
+            <Card.Description>
+                Paste the verification token from your email to activate your account.
+            </Card.Description>
+            {#if data.email}
                 <p class="text-sm text-muted-foreground">
-                    The link may be expired or already used. Please request a new one.
+                    Email: <span class="font-medium">{data.email}</span>
                 </p>
-                <a href="/verify">
-                    <Button variant="outline" class="w-full">Request New Verification Link</Button>
-                </a>
-            </Card.Content>
-        </Card.Root>
-    {:else}
-        <Card.Root class="mx-auto w-full max-w-sm">
-            <Card.Header>
-                <Card.Title class="text-2xl">Verify Your Email</Card.Title>
-                <Card.Description>
-                    Enter your email address to receive a new verification link.
-                </Card.Description>
-            </Card.Header>
-            <Card.Content>
-                {#if form?.success}
-                    <div class="mb-4 rounded-md bg-green-50 dark:bg-green-950 p-3 text-sm text-green-700 dark:text-green-300">
-                        {form.message}
-                    </div>
-                {/if}
+            {/if}
+        </Card.Header>
+        <Card.Content class="space-y-5">
+            <form
+                method="POST"
+                action="?/verify"
+                use:enhance={() => {
+                    verifying = true;
+                    return async ({ update }) => {
+                        verifying = false;
+                        await update();
+                    };
+                }}
+            >
+                <Field.Group>
+                    <Field.Field>
+                        <Field.Label for="token">Verification Token</Field.Label>
+                        <Input
+                            id="token"
+                            name="token"
+                            placeholder="e.g. 2565b98c-a542-49f2-b5f0-a3bde220a03b"
+                            required
+                            type="text"
+                            disabled={verifying}
+                        />
+                    </Field.Field>
+                    <Button class="w-full" type="submit" disabled={verifying}>
+                        {verifying ? "Verifying..." : "Verify Email"}
+                    </Button>
+                </Field.Group>
+            </form>
+
+            <div class="border-t pt-4">
+                <p class="mb-3 text-sm text-muted-foreground">Didn't receive the email? Resend it.</p>
                 <form
                     method="POST"
                     action="?/resend"
                     use:enhance={() => {
-                        isLoading = true;
+                        resending = true;
                         return async ({ update }) => {
-                            isLoading = false;
+                            resending = false;
                             await update();
                         };
                     }}
@@ -87,18 +93,19 @@
                                 placeholder="m@example.com"
                                 required
                                 type="email"
-                                disabled={isLoading}
+                                value={data.email}
+                                disabled={resending}
                             />
                         </Field.Field>
-                        <Button class="w-full" type="submit" disabled={isLoading}>
-                            {isLoading ? "Sending..." : "Resend Verification Email"}
+                        <Button class="w-full" type="submit" disabled={resending}>
+                            {resending ? "Sending..." : "Resend Verification Email"}
                         </Button>
                         <Field.Description class="text-center">
                             Already verified? <a href="/login">Sign in</a>
                         </Field.Description>
                     </Field.Group>
                 </form>
-            </Card.Content>
-        </Card.Root>
-    {/if}
+            </div>
+        </Card.Content>
+    </Card.Root>
 </div>

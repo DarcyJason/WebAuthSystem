@@ -1,15 +1,7 @@
-/**
- * frontend/src/hooks.server.ts
- *
- * SvelteKit server hook to:
- *  - inject Authorization header from event.locals.accessToken for requests to the API backend,
- *  - on 401 responses or if accessToken is missing, attempt to refresh access token using the httpOnly `refresh_token` cookie
- *  - if refresh succeeds, update event.locals.accessToken and retry the original request once.
- */
-
 import type { Handle, HandleFetch } from "@sveltejs/kit";
+import { PUBLIC_API_BASE_URL } from "$env/static/public";
 
-const API_BASE = (import.meta.env.PUBLIC_API_BASE_URL ?? "").replace(/\/$/, "");
+const API_BASE = PUBLIC_API_BASE_URL.replace(/\/$/, "");
 const IS_PROD = !!import.meta.env.PROD;
 
 function extractCookieValueFromSetCookie(setCookieHeader: string | null, cookieName: string): string | null {
@@ -24,8 +16,6 @@ function extractCookieValueFromSetCookie(setCookieHeader: string | null, cookieN
 }
 
 export const handle: Handle = async ({ event, resolve }) => {
-  // We can't get accessToken from cookie anymore as it's in-memory on client.
-  // However, we might want to initialize it to null.
   event.locals.accessToken = null;
   return resolve(event);
 };
@@ -43,8 +33,6 @@ export const handleFetch: HandleFetch = async ({ event, request, fetch }) => {
     url.pathname.endsWith(refreshEndpointPath) ||
     request.url.endsWith(refreshEndpointPath);
 
-  // 1. Inject Authorization header from event.locals.accessToken (if exists)
-  // or from request headers if already set by client
   let accessToken = event.locals.accessToken;
   let modifiedRequest = request;
 
@@ -56,15 +44,12 @@ export const handleFetch: HandleFetch = async ({ event, request, fetch }) => {
     modifiedRequest = new Request(request, { headers });
   }
 
-  // 2. Perform the request
   let response = await fetch(modifiedRequest);
 
-  // 3. If not 401, return immediately
   if (response.status !== 401) {
     return response;
   }
 
-  // 4. On 401, attempt token refresh
   if (isRefreshRequest) {
     return response;
   }
@@ -86,7 +71,6 @@ export const handleFetch: HandleFetch = async ({ event, request, fetch }) => {
     });
 
     if (!rotateResp.ok) {
-      // Refresh failed. Clear refresh_token cookie.
       event.cookies.delete("refresh_token", { path: "/" });
       event.locals.accessToken = null;
       return response;
@@ -114,7 +98,6 @@ export const handleFetch: HandleFetch = async ({ event, request, fetch }) => {
       });
     }
 
-    // 5. Retry the original request
     if (!newAccessToken) {
       return response;
     }
@@ -124,7 +107,7 @@ export const handleFetch: HandleFetch = async ({ event, request, fetch }) => {
     const retryRequest = new Request(request, { headers: retryHeaders });
 
     return fetch(retryRequest);
-  } catch (err) {
+  } catch {
     return response;
   }
 };

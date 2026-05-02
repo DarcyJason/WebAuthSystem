@@ -1,49 +1,44 @@
-import { fail, type Actions } from "@sveltejs/kit";
+import { fail, redirect, type Actions } from "@sveltejs/kit";
+import { PUBLIC_API_BASE_URL } from "$env/static/public";
 
-const API_BASE_URL = (
-  import.meta.env.PUBLIC_API_BASE_URL ??
-  import.meta.env.API_BASE_URL ??
-  ""
-).replace(/\/$/, "");
+const API_BASE_URL = PUBLIC_API_BASE_URL.replace(/\/$/, "");
 
-export const load = async ({ url, fetch }) => {
-  const token = url.searchParams.get("token");
-
-  if (!token) {
-    return { verified: null as null, message: null as null };
-  }
-
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/v1/auth/verify`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token }),
-    });
-
-    const data = await response.json().catch(() => ({}));
-
-    if (response.ok) {
-      return {
-        verified: true as const,
-        message: (data.message as string) ?? "Email verified successfully!",
-      };
-    } else {
-      return {
-        verified: false as const,
-        message:
-          (data.message as string) ??
-          "Verification failed. The link may be expired or invalid.",
-      };
-    }
-  } catch {
-    return {
-      verified: false as const,
-      message: "Server unreachable. Please try again later.",
-    };
-  }
+export const load = async ({ url }: { url: URL }) => {
+  const email = url.searchParams.get("email") ?? "";
+  return { email };
 };
 
 export const actions: Actions = {
+  verify: async (event) => {
+    const formData = await event.request.formData();
+    const token = String(formData.get("token") ?? "").trim();
+
+    if (!token) {
+      return fail(400, { verifyError: "Please enter a verification token." });
+    }
+
+    let response: Response;
+    try {
+      response = await event.fetch(`${API_BASE_URL}/api/v1/auth/verify`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token }),
+      });
+    } catch {
+      return fail(500, {
+        verifyError: "Server unreachable. Please try again later.",
+      });
+    }
+
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      return fail(response.status, {
+        verifyError: data.message ?? "Verification failed. Token may be invalid or expired.",
+      });
+    }
+
+    throw redirect(303, "/login");
+  },
   resend: async (event) => {
     const formData = await event.request.formData();
     const email = formData.get("email") as string;

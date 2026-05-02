@@ -1,11 +1,9 @@
 [tasks."start-infrastructure"]
-run = [
-    "rm -rf postgres",
-    "rm -rf redis",
-    "./docker-compose-infrastructure.sh up --build -d"
-]
+run = ["./docker-compose-infrastructure.sh up --build -d"]
 
 [tasks."stop-infrastructure"]
 run = [
-    "./docker-compose-infrastructure.sh down"
+  "./docker-compose-infrastructure.sh down",
+  "rm -rf postgres",
+  "rm -rf redis",
 ]

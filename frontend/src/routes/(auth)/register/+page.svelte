@@ -8,11 +8,13 @@
     import { zod4 } from "sveltekit-superforms/adapters";
     import { toast } from "svelte-sonner";
     import { untrack } from "svelte";
+    import { goto } from "$app/navigation";
 
     let { data } = $props();
 
     let submitting = $state(false);
     let registered = $state(false);
+    let submittedEmail = $state("");
 
     const { form, enhance } = untrack(() =>
         superForm(data.form, {
@@ -21,6 +23,7 @@
             dataType: "json",
             onSubmit() {
                 submitting = true;
+                submittedEmail = $form.email ?? "";
             },
             onUpdate({ result }) {
                 const actionResult = result.data;
@@ -34,6 +37,7 @@
                 } else {
                     registered = true;
                     toast.success(actionResult.result.message);
+                    goto(`/verify?email=${encodeURIComponent(submittedEmail)}`);
                 }
                 submitting = false;
             },
@@ -58,7 +62,7 @@
                 <Card.Header>
                     <Card.Title>Check Your Email</Card.Title>
                     <Card.Description>
-                        We've sent a verification link to <strong>{$form.email}</strong>.
+                        We've sent a verification link to <strong>{submittedEmail}</strong>.
                         Please check your inbox and click the link to activate your account.
                     </Card.Description>
                 </Card.Header>

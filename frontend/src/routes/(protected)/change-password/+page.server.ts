@@ -2,15 +2,12 @@ import { changePasswordSchema } from "$lib/schema/change-password";
 import { fail, redirect, type Actions, type ServerLoad } from "@sveltejs/kit";
 import { superValidate } from "sveltekit-superforms";
 import { zod4 } from "sveltekit-superforms/adapters";
+import { PUBLIC_API_BASE_URL } from "$env/static/public";
 
-const API_BASE_URL = (
-  import.meta.env.PUBLIC_API_BASE_URL ??
-  import.meta.env.API_BASE_URL ??
-  ""
-).replace(/\/$/, "");
+const API_BASE_URL = PUBLIC_API_BASE_URL.replace(/\/$/, "");
 
 export const load: ServerLoad = async (event) => {
-  const res = await event.fetch(`${API_BASE_URL}/api/v1/me`);
+  const res = await event.fetch(`${API_BASE_URL}/api/v1/protected/me`);
   if (!res.ok) {
     throw redirect(303, "/login");
   }
@@ -28,7 +25,7 @@ export const actions: Actions = {
 
     let response: Response;
     try {
-      response = await event.fetch(`${API_BASE_URL}/api/v1/change-password`, {
+      response = await event.fetch(`${API_BASE_URL}/api/v1/protected/change-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

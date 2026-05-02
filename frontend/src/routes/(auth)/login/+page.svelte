@@ -8,7 +8,7 @@
     import { loginSchema } from "$lib/schema/login.js";
     import { untrack } from "svelte";
     import { toast } from "svelte-sonner";
-    import { accessToken, logout } from "$lib/authStore";
+    import { accessToken, logout } from "$lib/stores/auth";
     import { goto } from "$app/navigation";
     import { onMount } from "svelte";
 
@@ -30,19 +30,24 @@
             },
             onUpdate({ result }) {
                 const actionResult = result.data;
-                if (!actionResult.form.valid) {
+                if (!actionResult?.form?.valid) {
                     toast.error("Please check the form for errors");
                     submitting = false;
                     return;
                 }
-                if (actionResult.result.status != 200) {
-                    toast.error(actionResult.result.message);
-                } else {
-                    toast.success(actionResult.result.message);
-                    if (actionResult.result.accessToken) {
-                        accessToken.set(actionResult.result.accessToken);
-                    }
-                    goto("/dashboard");
+                if (actionResult?.result?.status && actionResult.result.status !== 200) {
+                    toast.error(actionResult.result.message ?? "Login failed");
+                } else if (actionResult?.result?.accessToken) {
+                    toast.success(actionResult.result.message ?? "Login successful");
+                    accessToken.set(actionResult.result.accessToken);
+                    setTimeout(async () => {
+                        const navPromise = goto("/dashboard");
+                        try {
+                            await navPromise;
+                        } catch {
+                        }
+                    }, 0);
+                    return;
                 }
                 submitting = false;
             },

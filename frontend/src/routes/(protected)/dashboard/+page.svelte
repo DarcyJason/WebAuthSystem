@@ -1,6 +1,25 @@
 <script lang="ts">
-    let { data } = $props();
-    const user = $derived(data.user);
+    import { onMount } from "svelte";
+    import { goto } from "$app/navigation";
+    import { authenticatedFetch } from "$lib/stores/auth";
+    import { PUBLIC_API_BASE_URL } from "$env/static/public";
+
+    const API_BASE_URL = PUBLIC_API_BASE_URL.replace(/\/$/, "");
+    let user = $state<{ name?: string; email?: string; status?: string } | null>(null);
+
+    onMount(async () => {
+        try {
+            const res = await authenticatedFetch(`${API_BASE_URL}/api/v1/protected/me`);
+            if (res.status === 401 || !res.ok) {
+                await goto("/login");
+                return;
+            }
+            const payload = await res.json().catch(() => null);
+            user = payload?.data ?? null;
+        } catch {
+            await goto("/login");
+        }
+    });
 </script>
 
 <div class="flex h-screen bg-background">

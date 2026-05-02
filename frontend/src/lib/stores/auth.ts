@@ -6,9 +6,6 @@ export function logout() {
     accessToken.set(null);
 }
 
-/**
- * A wrapper around fetch that injects the access token from the store.
- */
 export async function authenticatedFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
     const token = get(accessToken);
     if (token) {

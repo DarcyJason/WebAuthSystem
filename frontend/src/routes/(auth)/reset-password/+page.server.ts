@@ -2,12 +2,9 @@ import { resetPasswordSchema } from "$lib/schema/reset-password";
 import { fail, type Actions } from "@sveltejs/kit";
 import { superValidate } from "sveltekit-superforms";
 import { zod4 } from "sveltekit-superforms/adapters";
+import { PUBLIC_API_BASE_URL } from "$env/static/public";
 
-const API_BASE_URL = (
-  import.meta.env.PUBLIC_API_BASE_URL ??
-  import.meta.env.API_BASE_URL ??
-  ""
-).replace(/\/$/, "");
+const API_BASE_URL = PUBLIC_API_BASE_URL.replace(/\/$/, "");
 
 export const load = async ({ url }) => {
   const token = url.searchParams.get("token") ?? "";

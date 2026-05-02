@@ -3,15 +3,8 @@
     import favicon from '$lib/assets/favicon.svg';
     import {ModeWatcher} from "mode-watcher";
     import { Toaster } from '$lib/components/ui/sonner/index';
-    import { accessToken } from '$lib/authStore';
 
-    let {data, children} = $props();
-
-    $effect(() => {
-        if (data.accessToken) {
-            accessToken.set(data.accessToken);
-        }
-    });
+    let {children} = $props();
 </script>
 
 <svelte:head>
