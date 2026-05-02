@@ -1,126 +1,89 @@
 <script lang="ts">
-    import * as Card from "$lib/components/ui/card/index";
-    import { Input } from "$lib/components/ui/input/index";
-    import { Button } from "$lib/components/ui/button/index";
-    import * as Field from "$lib/components/ui/field/index";
-    import { superForm } from "sveltekit-superforms";
-    import { zod4 } from "sveltekit-superforms/adapters";
-    import { loginSchema } from "$lib/schema/login.js";
-    import { untrack } from "svelte";
-    import { toast } from "svelte-sonner";
-    import { accessToken, logout } from "$lib/stores/auth";
-    import { goto } from "$app/navigation";
-    import { onMount } from "svelte";
+	import { Button } from '$lib/components/ui/button';
+	import { Input } from '$lib/components/ui/input';
+	import PasswordInput from '$lib/components/PasswordInput.svelte';
+	import { Label } from '$lib/components/ui/label';
+	import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '$lib/components/ui/card';
+	import { accessToken } from '$lib/stores/auth';
+	import { goto } from '$app/navigation';
+	import { loginSchema } from '$lib/schemas';
+	import { toast } from 'svelte-sonner';
 
-    let { data } = $props();
+	let nameOrEmail = $state('');
+	let password = $state('');
+	let fieldErrors = $state<Record<string, string>>({});
+	let loading = $state(false);
 
-    onMount(() => {
-        logout();
-    });
+	async function handleSubmit(e: SubmitEvent) {
+		e.preventDefault();
+		fieldErrors = {};
 
-    let submitting = $state(false);
+		const result = loginSchema.safeParse({ nameOrEmail, password });
+		if (!result.success) {
+			fieldErrors = Object.fromEntries(
+				result.error.issues.map((i) => [i.path[0], i.message])
+			);
+			return;
+		}
 
-    const { form, enhance } = untrack(() =>
-        superForm(data.form, {
-            validators: zod4(loginSchema),
-            clearOnSubmit: "errors-and-message",
-            dataType: "json",
-            onSubmit() {
-                submitting = true;
-            },
-            onUpdate({ result }) {
-                const actionResult = result.data;
-                if (!actionResult?.form?.valid) {
-                    toast.error("Please check the form for errors");
-                    submitting = false;
-                    return;
-                }
-                if (actionResult?.result?.status && actionResult.result.status !== 200) {
-                    toast.error(actionResult.result.message ?? "Login failed");
-                } else if (actionResult?.result?.accessToken) {
-                    toast.success(actionResult.result.message ?? "Login successful");
-                    accessToken.set(actionResult.result.accessToken);
-                    setTimeout(async () => {
-                        const navPromise = goto("/dashboard");
-                        try {
-                            await navPromise;
-                        } catch {
-                        }
-                    }, 0);
-                    return;
-                }
-                submitting = false;
-            },
-            onError() {
-                submitting = false;
-                toast.error("An unexpected error occurred.");
-            },
-        }),
-    );
+		loading = true;
+		try {
+			const res = await fetch('/api/v1/auth/login', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				credentials: 'include',
+				body: JSON.stringify(result.data)
+			});
+
+			if (res.ok) {
+				const token = res.headers.get('Authorization')?.replace('Bearer ', '') ?? null;
+				accessToken.set(token);
+				goto('/dashboard');
+			} else if (res.status === 404) {
+				toast.error('User not found.');
+			} else {
+				const data = await res.json().catch(() => ({}));
+				toast.error(data?.message ?? 'Invalid credentials or email not verified.');
+			}
+		} catch {
+			toast.error('Network error. Please try again.');
+		} finally {
+			loading = false;
+		}
+	}
 </script>
 
-<div class="grid grid-cols-3 h-fit">
-    <a class="flex justify-center items-center" href="/">
-        <img alt="logo" height="64px" src="/logo.svg" width="64px" />
-        <span class="text-2xl">Homeryland</span>
-    </a>
-</div>
-<div class="flex h-screen w-full items-center justify-center px-4">
-    <Card.Root class="mx-auto w-full max-w-sm">
-        <Card.Header>
-            <Card.Title class="text-2xl">Login</Card.Title>
-            <Card.Description>
-                Enter your email below to login to your account
-            </Card.Description>
-        </Card.Header>
-        <Card.Content>
-            <form method="POST" use:enhance>
-                <Field.Group>
-                    <Field.Field>
-                        <Field.Label for="nameOrEmail"
-                            >Name or Email</Field.Label
-                        >
-                        <Input
-                            bind:value={$form.nameOrEmail}
-                            id="nameOrEmail"
-                            name="nameOrEmail"
-                            placeholder="Enter your name or email"
-                            required
-                            type="text"
-                            disabled={submitting}
-                        />
-                    </Field.Field>
-                    <Field.Field>
-                        <div class="flex items-center">
-                            <Field.Label for="password">Password</Field.Label>
-                            <a
-                                class="ms-auto inline-block text-sm underline"
-                                href="/forgot-password"
-                            >
-                                Forgot your password?
-                            </a>
-                        </div>
-                        <Input
-                            bind:value={$form.password}
-                            id="password"
-                            name="password"
-                            required
-                            type="password"
-                            disabled={submitting}
-                        />
-                    </Field.Field>
-                    <Field.Field>
-                        <Button class="w-full" type="submit">
-                            {submitting ? "Login in..." : "Login"}
-                        </Button>
-                        <Field.Description class="text-center">
-                            Don't have an account? <a href="/register"
-                                >Sign up</a
-                            >
-                        </Field.Description>
-                    </Field.Field>
-                </Field.Group>
-            </form>
-        </Card.Content>
-    </Card.Root>
+<div class="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-12">
+	<Card class="w-full max-w-sm">
+		<CardHeader class="text-center">
+			<CardTitle class="text-2xl">Sign in</CardTitle>
+			<CardDescription>Enter your name or email and password</CardDescription>
+		</CardHeader>
+		<CardContent>
+			<form onsubmit={handleSubmit} class="flex flex-col gap-4">
+				<div class="flex flex-col gap-1.5">
+					<Label for="nameOrEmail">Name or Email</Label>
+					<Input id="nameOrEmail" type="text" placeholder="John Doe or you@example.com" bind:value={nameOrEmail} />
+					{#if fieldErrors.nameOrEmail}<p class="text-sm text-destructive">{fieldErrors.nameOrEmail}</p>{/if}
+				</div>
+
+				<div class="flex flex-col gap-1.5">
+					<div class="flex items-center justify-between">
+						<Label for="password">Password</Label>
+						<a href="/forgot-password" class="text-sm underline underline-offset-4">Forgot password?</a>
+					</div>
+					<PasswordInput id="password" bind:value={password} />
+					{#if fieldErrors.password}<p class="text-sm text-destructive">{fieldErrors.password}</p>{/if}
+				</div>
+
+				<Button type="submit" class="w-full" disabled={loading}>
+					{loading ? 'Signing in…' : 'Sign in'}
+				</Button>
+
+				<p class="text-center text-sm text-muted-foreground">
+					Don't have an account? <a href="/register" class="underline underline-offset-4">Register</a>
+				</p>
+			</form>
+		</CardContent>
+	</Card>
 </div>

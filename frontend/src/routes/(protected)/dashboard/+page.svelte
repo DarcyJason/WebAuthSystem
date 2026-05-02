@@ -1,105 +1,88 @@
 <script lang="ts">
-    import { onMount } from "svelte";
-    import { goto } from "$app/navigation";
-    import { authenticatedFetch } from "$lib/stores/auth";
-    import { PUBLIC_API_BASE_URL } from "$env/static/public";
+	import { goto } from '$app/navigation';
+	import { onMount } from 'svelte';
+	import { accessToken } from '$lib/stores/auth';
+	import { get } from 'svelte/store';
+	import { Button } from '$lib/components/ui/button';
+	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
+	import { Separator } from '$lib/components/ui/separator';
+	import { toast } from 'svelte-sonner';
 
-    const API_BASE_URL = PUBLIC_API_BASE_URL.replace(/\/$/, "");
-    let user = $state<{ name?: string; email?: string; status?: string } | null>(null);
+	type UserInfo = { userId: string; name: string; email: string; status: string };
 
-    onMount(async () => {
-        try {
-            const res = await authenticatedFetch(`${API_BASE_URL}/api/v1/protected/me`);
-            if (res.status === 401 || !res.ok) {
-                await goto("/login");
-                return;
-            }
-            const payload = await res.json().catch(() => null);
-            user = payload?.data ?? null;
-        } catch {
-            await goto("/login");
-        }
-    });
+	let user = $state<UserInfo | null>(null);
+
+	onMount(async () => {
+		const token = get(accessToken);
+		if (!token) { goto('/login'); return; }
+
+		try {
+			const res = await fetch('/api/v1/protected/me', {
+				headers: { Authorization: `Bearer ${token}` }
+			});
+
+			if (res.ok) {
+				const data = await res.json();
+				user = data.data ?? data;
+			} else if (res.status === 401) {
+				accessToken.set(null);
+				goto('/login');
+			} else {
+				toast.error('Failed to load user info.');
+			}
+		} catch {
+			toast.error('Network error. Please try again.');
+		}
+	});
+
+	async function logout() {
+		const token = get(accessToken);
+		await fetch('/api/v1/auth/logout', {
+			method: 'POST',
+			headers: { Authorization: `Bearer ${token}` },
+			credentials: 'include'
+		}).catch(() => {});
+		accessToken.set(null);
+		goto('/login');
+	}
 </script>
 
-<div class="flex h-screen bg-background">
-    <aside class="w-64 border-r hidden md:flex flex-col p-4">
-        <h2 class="text-xl font-bold mb-6">Dashboard</h2>
-        <nav class="space-y-1 flex-1">
-            <a class="block px-3 py-2 rounded-md bg-muted font-medium text-sm" href="/dashboard">
-                Overview
-            </a>
-            <a class="block px-3 py-2 rounded-md hover:bg-muted text-sm transition-colors" href="/change-password">
-                Change Password
-            </a>
-        </nav>
-        <div class="border-t pt-4">
-            <div class="px-3 py-2 mb-2">
-                <p class="text-sm font-medium truncate">{user?.name ?? "User"}</p>
-                <p class="text-xs text-muted-foreground truncate">{user?.email ?? ""}</p>
-            </div>
-            <a class="block px-3 py-2 rounded-md hover:bg-destructive/10 text-destructive text-sm transition-colors" href="/logout">
-                Logout
-            </a>
-        </div>
-    </aside>
+<div class="mx-auto max-w-lg px-4 py-16">
+	<h1 class="mb-8 text-3xl font-bold">Dashboard</h1>
 
-    <main class="flex-1 p-8 overflow-auto">
-        <header class="flex justify-between items-center mb-8">
-            <div>
-                <h1 class="text-3xl font-bold">Welcome back, {user?.name ?? ""}!</h1>
-                <p class="text-muted-foreground mt-1">Here's an overview of your account.</p>
-            </div>
-            <a class="text-sm font-medium text-destructive hover:underline md:hidden" href="/logout">
-                Logout
-            </a>
-        </header>
+	{#if !user}
+		<p class="text-muted-foreground">Loading…</p>
+	{:else}
+		<Card>
+			<CardHeader>
+				<CardTitle>Profile</CardTitle>
+			</CardHeader>
+			<CardContent class="flex flex-col gap-3 text-sm">
+				<div class="flex justify-between">
+					<span class="text-muted-foreground">User ID</span>
+					<span class="font-mono">{user.userId}</span>
+				</div>
+				<Separator />
+				<div class="flex justify-between">
+					<span class="text-muted-foreground">Name</span>
+					<span>{user.name}</span>
+				</div>
+				<Separator />
+				<div class="flex justify-between">
+					<span class="text-muted-foreground">Email</span>
+					<span>{user.email}</span>
+				</div>
+				<Separator />
+				<div class="flex justify-between">
+					<span class="text-muted-foreground">Status</span>
+					<span class="capitalize">{user.status}</span>
+				</div>
+			</CardContent>
+		</Card>
 
-        <div class="grid gap-4 md:grid-cols-2">
-            <div class="p-6 border rounded-lg">
-                <h3 class="font-semibold text-lg mb-4">Account Info</h3>
-                <dl class="space-y-3 text-sm">
-                    <div class="flex gap-3">
-                        <dt class="text-muted-foreground w-16 shrink-0">Name</dt>
-                        <dd class="font-medium">{user?.name ?? "—"}</dd>
-                    </div>
-                    <div class="flex gap-3">
-                        <dt class="text-muted-foreground w-16 shrink-0">Email</dt>
-                        <dd class="font-medium">{user?.email ?? "—"}</dd>
-                    </div>
-                    <div class="flex gap-3">
-                        <dt class="text-muted-foreground w-16 shrink-0">Status</dt>
-                        <dd>
-                            <span
-                                class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium
-                                {user?.status === 'active'
-                                    ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                                    : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'}"
-                            >
-                                {user?.status ?? "—"}
-                            </span>
-                        </dd>
-                    </div>
-                </dl>
-            </div>
-
-            <div class="p-6 border rounded-lg">
-                <h3 class="font-semibold text-lg mb-4">Quick Actions</h3>
-                <div class="space-y-2">
-                    <a
-                        href="/change-password"
-                        class="flex items-center gap-2 text-sm px-3 py-2 rounded-md border hover:bg-muted transition-colors"
-                    >
-                        Change Password
-                    </a>
-                    <a
-                        href="/logout"
-                        class="flex items-center gap-2 text-sm px-3 py-2 rounded-md border border-destructive/30 text-destructive hover:bg-destructive/10 transition-colors"
-                    >
-                        Logout
-                    </a>
-                </div>
-            </div>
-        </div>
-    </main>
+		<div class="mt-6 flex flex-col gap-3">
+			<Button variant="outline" onclick={() => goto('/change-password')}>Change password</Button>
+			<Button variant="destructive" onclick={logout}>Logout</Button>
+		</div>
+	{/if}
 </div>

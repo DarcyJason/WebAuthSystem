@@ -1,111 +1,64 @@
 <script lang="ts">
-    import * as Card from "$lib/components/ui/card/index";
-    import { Input } from "$lib/components/ui/input/index";
-    import { Button } from "$lib/components/ui/button/index";
-    import * as Field from "$lib/components/ui/field/index";
-    import { enhance } from "$app/forms";
-    import { toast } from "svelte-sonner";
+	import { page } from '$app/state';
+	import { goto } from '$app/navigation';
+	import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '$lib/components/ui/card';
+	import { Button } from '$lib/components/ui/button';
+	import { Input } from '$lib/components/ui/input';
+	import { Label } from '$lib/components/ui/label';
+	import { toast } from 'svelte-sonner';
 
-    let { data, form } = $props();
+	const urlToken = page.url.searchParams.get('token') ?? '';
 
-    let verifying = $state(false);
-    let resending = $state(false);
+	let token = $state(urlToken);
+	let status: 'idle' | 'verifying' = $state('idle');
 
-    $effect(() => {
-        if (form?.verifyError) {
-            toast.error(form.verifyError);
-        } else if (form?.success) {
-            toast.success(form.message ?? "Verification email sent!");
-        } else if (form?.error) {
-            toast.error(form.error);
-        }
-    });
+	async function verify() {
+		if (!token.trim()) { toast.error('Please enter the verification token.'); return; }
+		status = 'verifying';
+		try {
+			const res = await fetch('/api/v1/auth/verify', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ token: token.trim() })
+			});
+			if (res.ok) {
+				toast.success('Email verified. Please sign in.');
+				goto('/login');
+				return;
+			} else if (res.status === 404) {
+				toast.error('Verification token not found.');
+			} else {
+				toast.error('Token has expired or already been used.');
+			}
+		} catch {
+			toast.error('Network error. Please try again.');
+		} finally {
+			status = 'idle';
+		}
+	}
+
 </script>
 
-<div class="grid grid-cols-3 h-fit">
-    <a class="flex justify-center items-center" href="/">
-        <img alt="logo" height="64px" src="/logo.svg" width="64px" />
-        <span class="text-2xl">Homeryland</span>
-    </a>
-</div>
-<div class="flex min-h-svh w-full items-center justify-center px-4">
-    <Card.Root class="mx-auto w-full max-w-sm">
-        <Card.Header>
-            <Card.Title class="text-2xl">Verify Your Email</Card.Title>
-            <Card.Description>
-                Paste the verification token from your email to activate your account.
-            </Card.Description>
-            {#if data.email}
-                <p class="text-sm text-muted-foreground">
-                    Email: <span class="font-medium">{data.email}</span>
-                </p>
-            {/if}
-        </Card.Header>
-        <Card.Content class="space-y-5">
-            <form
-                method="POST"
-                action="?/verify"
-                use:enhance={() => {
-                    verifying = true;
-                    return async ({ update }) => {
-                        verifying = false;
-                        await update();
-                    };
-                }}
-            >
-                <Field.Group>
-                    <Field.Field>
-                        <Field.Label for="token">Verification Token</Field.Label>
-                        <Input
-                            id="token"
-                            name="token"
-                            placeholder="e.g. 2565b98c-a542-49f2-b5f0-a3bde220a03b"
-                            required
-                            type="text"
-                            disabled={verifying}
-                        />
-                    </Field.Field>
-                    <Button class="w-full" type="submit" disabled={verifying}>
-                        {verifying ? "Verifying..." : "Verify Email"}
-                    </Button>
-                </Field.Group>
-            </form>
+<div class="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-12">
+	<Card class="w-full max-w-sm">
+		<CardHeader class="text-center">
+			<CardTitle class="text-2xl">Verify your email</CardTitle>
+			<CardDescription>Enter the token from your verification email</CardDescription>
+		</CardHeader>
+		<CardContent class="flex flex-col gap-4">
+			<div class="flex flex-col gap-1.5">
+				<Label for="token">Verification Token</Label>
+				<Input id="token" placeholder="Paste your token here" bind:value={token} />
+			</div>
 
-            <div class="border-t pt-4">
-                <p class="mb-3 text-sm text-muted-foreground">Didn't receive the email? Resend it.</p>
-                <form
-                    method="POST"
-                    action="?/resend"
-                    use:enhance={() => {
-                        resending = true;
-                        return async ({ update }) => {
-                            resending = false;
-                            await update();
-                        };
-                    }}
-                >
-                    <Field.Group>
-                        <Field.Field>
-                            <Field.Label for="email">Email</Field.Label>
-                            <Input
-                                id="email"
-                                name="email"
-                                placeholder="m@example.com"
-                                required
-                                type="email"
-                                value={data.email}
-                                disabled={resending}
-                            />
-                        </Field.Field>
-                        <Button class="w-full" type="submit" disabled={resending}>
-                            {resending ? "Sending..." : "Resend Verification Email"}
-                        </Button>
-                        <Field.Description class="text-center">
-                            Already verified? <a href="/login">Sign in</a>
-                        </Field.Description>
-                    </Field.Group>
-                </form>
-            </div>
-        </Card.Content>
-    </Card.Root>
+			<Button class="w-full" disabled={status === 'verifying'} onclick={verify}>
+				{status === 'verifying' ? 'Verifying…' : 'Verify'}
+			</Button>
+
+			<p class="text-center text-sm text-muted-foreground">
+				Didn't receive an email?
+				<a href="/resend-verification" class="underline underline-offset-4">Resend</a>
+			</p>
+		</CardContent>
+	</Card>
 </div>

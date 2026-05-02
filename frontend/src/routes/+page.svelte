@@ -1,171 +1,64 @@
-<script>
-    import * as NavigationMenu from "$lib/components/ui/navigation-menu/index";
-    import {Button} from "$lib/components/ui/button/index";
-    import ToggleTheme from "$lib/components/toggle-theme.svelte";
-    import {Separator} from "$lib/components/ui/separator/index";
+<script lang="ts">
+	import { Button } from '$lib/components/ui/button';
+	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
+	import { Separator } from '$lib/components/ui/separator';
+
+	const features = [
+		{
+			title: 'Secure Authentication',
+			description: 'JWT access tokens stored in memory, refresh tokens in HttpOnly cookies — no XSS risk.'
+		},
+		{
+			title: 'Email Verification',
+			description: 'New accounts require email verification before access is granted.'
+		},
+		{
+			title: 'Password Reset',
+			description: 'Forgot your password? Reset it securely via a time-limited email link.'
+		},
+		{
+			title: 'Token Rotation',
+			description: 'Refresh tokens are rotated on every use, preventing replay attacks.'
+		},
+		{
+			title: 'Change Password',
+			description: 'Authenticated users can update their password at any time.'
+		},
+		{
+			title: 'User Profile',
+			description: 'Fetch your own profile info with a single authenticated request.'
+		}
+	];
 </script>
 
-<div class="flex flex-col w-screen h-screen">
-    <nav class="grid grid-cols-3 h-fit">
-        <a class="flex justify-center items-center" href="/">
-            <img alt="logo" height="64px" src="/logo.svg" width="64px"/>
-            <span class="text-2xl">Homeryland</span>
-        </a>
-        <div class="justify-self-center self-center">
-            <NavigationMenu.Root class="grid grid-cols-6 ">
-                <NavigationMenu.List>
-                    <NavigationMenu.Item>
-                        <NavigationMenu.Trigger>
-                            Products
-                        </NavigationMenu.Trigger>
-                        <NavigationMenu.Content>
-                            <ul>
-                                <li>
-                                    <NavigationMenu.Link href="/">
-                                        MyNotes
-                                    </NavigationMenu.Link>
-                                </li>
-                                <li>
-                                    <NavigationMenu.Link href="/">
-                                        MyDB
-                                    </NavigationMenu.Link>
-                                </li>
-                                <li>
-                                    <NavigationMenu.Link href="/">
-                                        MyVault
-                                    </NavigationMenu.Link>
-                                </li>
-                            </ul>
-                        </NavigationMenu.Content>
-                    </NavigationMenu.Item>
-                </NavigationMenu.List>
-                <NavigationMenu.List>
-                    <NavigationMenu.Item>
-                        <NavigationMenu.Link href="/">Docs</NavigationMenu.Link>
-                    </NavigationMenu.Item>
-                </NavigationMenu.List>
-                <NavigationMenu.List>
-                    <NavigationMenu.Item>
-                        <NavigationMenu.Link href="/">
-                            Pricing
-                        </NavigationMenu.Link>
-                    </NavigationMenu.Item>
-                </NavigationMenu.List>
-                <NavigationMenu.List>
-                    <NavigationMenu.Item>
-                        <NavigationMenu.Link href="/">
-                            Solutions
-                        </NavigationMenu.Link>
-                    </NavigationMenu.Item>
-                </NavigationMenu.List>
-                <NavigationMenu.List>
-                    <NavigationMenu.Item>
-                        <NavigationMenu.Link href="/">
-                            Support
-                        </NavigationMenu.Link>
-                    </NavigationMenu.Item>
-                </NavigationMenu.List>
-                <NavigationMenu.List>
-                    <NavigationMenu.Item>
-                        <NavigationMenu.Link href="/">Blog</NavigationMenu.Link>
-                    </NavigationMenu.Item>
-                </NavigationMenu.List>
-            </NavigationMenu.Root>
-        </div>
-        <div class="flex justify-center items-center">
-            <ToggleTheme/>
-            <Button variant="ghost">
-                <a href="/login">Login in</a>
-            </Button>
-            <Button>
-                <a href="/register">Sign up</a>
-            </Button>
-        </div>
-    </nav>
-    <main class="flex flex-1 flex-col w-full justify-center items-center">
-        <h1 class="text-4xl">Welcome to Homeryland</h1>
-        <p class="text-muted-foreground mt-2">
-            Make use of everything.
-        </p>
-    </main>
-    <footer class="w-full px-12 py-8">
-        <Separator class="mb-8"/>
-        <div class="grid grid-cols-4 gap-8 text-sm text-muted-foreground mb-8">
-            <div>
-                <div class="flex items-center gap-2 mb-3">
-                    <img alt="logo" height="64px" src="/logo.svg" width="64px"/>
-                    <span class="text-foreground font-semibold">Homeryland</span
-                    >
-                </div>
-                <p>All you need in here.</p>
-            </div>
-            <div>
-                <p class="text-foreground font-medium mb-3">Products</p>
-                <ul class="space-y-2">
-                    <li>
-                        <a
-                                class="hover:text-foreground transition-colors"
-                                href="/">MyNotes</a
-                        >
-                    </li>
-                    <li>
-                        <a
-                                class="hover:text-foreground transition-colors"
-                                href="/">MyDB</a
-                        >
-                    </li>
-                    <li>
-                        <a
-                                class="hover:text-foreground transition-colors"
-                                href="/">MyVault</a
-                        >
-                    </li>
-                </ul>
-            </div>
-            <div>
-                <p class="text-foreground font-medium mb-3">Resources</p>
-                <ul class="space-y-2">
-                    <li>
-                        <a
-                                class="hover:text-foreground transition-colors"
-                                href="/">Docs</a
-                        >
-                    </li>
-                    <li>
-                        <a
-                                class="hover:text-foreground transition-colors"
-                                href="/">Blog</a
-                        >
-                    </li>
-                    <li>
-                        <a
-                                class="hover:text-foreground transition-colors"
-                                href="/">Support</a
-                        >
-                    </li>
-                </ul>
-            </div>
-            <div>
-                <p class="text-foreground font-medium mb-3">Company</p>
-                <ul class="space-y-2">
-                    <li>
-                        <a
-                                class="hover:text-foreground transition-colors"
-                                href="/">Pricing</a
-                        >
-                    </li>
-                    <li>
-                        <a
-                                class="hover:text-foreground transition-colors"
-                                href="/">Solutions</a
-                        >
-                    </li>
-                </ul>
-            </div>
-        </div>
-        <Separator class="mb-4"/>
-        <p class="text-xs text-muted-foreground text-center">
-            © {new Date().getFullYear()} Homeryland. All rights reserved.
-        </p>
-    </footer>
-</div>
+<!-- Hero -->
+<section class="flex flex-col items-center gap-6 px-4 py-12 text-center">
+	<h1 class="text-4xl font-bold tracking-tight sm:text-5xl">WebAuthSystem</h1>
+	<p class="max-w-xl text-lg text-muted-foreground">
+		A production-ready authentication system built with Rust on the backend and SvelteKit on the
+		frontend. Secure, fast, and easy to extend.
+	</p>
+	<div class="flex flex-wrap justify-center gap-3">
+		<Button size="lg" href="/register">Get Started</Button>
+		<Button size="lg" variant="outline" href="/login">Sign In</Button>
+	</div>
+</section>
+
+<Separator />
+
+<!-- Features -->
+<section class="mx-auto max-w-6xl px-4 py-20">
+	<h2 class="mb-12 text-center text-3xl font-semibold tracking-tight">Features</h2>
+	<div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+		{#each features as feature}
+			<Card>
+				<CardHeader>
+					<CardTitle class="text-lg">{feature.title}</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<p class="text-sm text-muted-foreground">{feature.description}</p>
+				</CardContent>
+			</Card>
+		{/each}
+	</div>
+</section>

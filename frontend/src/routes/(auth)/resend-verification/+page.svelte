@@ -1,13 +1,15 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '$lib/components/ui/card';
-	import { forgotPasswordSchema } from '$lib/schemas';
+	import { resendVerificationSchema } from '$lib/schemas';
+	import { page } from '$app/state';
 	import { toast } from 'svelte-sonner';
 
-	let email = $state('');
+	const prefillEmail = page.url.searchParams.get('email') ?? '';
+
+	let email = $state(prefillEmail);
 	let fieldErrors = $state<Record<string, string>>({});
 	let loading = $state(false);
 
@@ -15,7 +17,7 @@
 		e.preventDefault();
 		fieldErrors = {};
 
-		const result = forgotPasswordSchema.safeParse({ email });
+		const result = resendVerificationSchema.safeParse({ email });
 		if (!result.success) {
 			fieldErrors = Object.fromEntries(result.error.issues.map((i) => [i.path[0], i.message]));
 			return;
@@ -23,16 +25,14 @@
 
 		loading = true;
 		try {
-			const res = await fetch('/api/v1/auth/forgot-password', {
+			const res = await fetch('/api/v1/auth/resend-verification', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(result.data)
 			});
 
 			if (res.ok) {
-				toast.success('If that email is registered, a password reset email has been sent.');
-				goto('/reset-password');
-				return;
+				toast.success('If your account exists and is unverified, a new verification email has been sent.');
 			} else {
 				const data = await res.json().catch(() => ({}));
 				toast.error(data?.message ?? 'Validation error. Please check your input.');
@@ -48,8 +48,8 @@
 <div class="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-12">
 	<Card class="w-full max-w-sm">
 		<CardHeader class="text-center">
-			<CardTitle class="text-2xl">Forgot password</CardTitle>
-			<CardDescription>Enter your email and we'll send you a password reset email</CardDescription>
+			<CardTitle class="text-2xl">Resend verification</CardTitle>
+			<CardDescription>Enter your email to receive a new verification link</CardDescription>
 		</CardHeader>
 		<CardContent>
 			<form onsubmit={handleSubmit} class="flex flex-col gap-4">
@@ -60,7 +60,7 @@
 				</div>
 
 				<Button type="submit" class="w-full" disabled={loading}>
-					{loading ? 'Sending…' : 'Send reset email'}
+					{loading ? 'Sending…' : 'Resend verification email'}
 				</Button>
 
 				<p class="text-center text-sm text-muted-foreground">

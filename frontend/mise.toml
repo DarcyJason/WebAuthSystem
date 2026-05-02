@@ -1,5 +1,2 @@
-[tasks.dev]
-run = [
-    "pnpm install",
-    "pnpm dev"
-]
+[tasks]
+dev = { run = "pnpm run dev" }

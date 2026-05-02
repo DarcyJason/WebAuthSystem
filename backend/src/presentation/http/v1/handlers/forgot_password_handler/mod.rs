@@ -20,7 +20,7 @@ use tracing::instrument;
     tag = "Auth",
     request_body = ForgotPasswordRequestPayload,
     responses(
-        (status = 200, description = "If the email is registered, a password reset link has been sent", body = ForgotPasswordResponseData),
+        (status = 200, description = "If the email is registered, a password reset email has been sent", body = ForgotPasswordResponseData),
         (status = 400, description = "Validation error"),
     )
 )]
@@ -40,7 +40,7 @@ pub async fn forgot_password_handler(
     case.execute(ForgotPasswordCommand { email }).await?;
     let response = ApiResponse::<ForgotPasswordResponseData>::ok(
         None,
-        "If this email is registered, a reset link has been sent",
+        "If this email is registered, a password reset email has been sent",
         ForgotPasswordResponseData,
     );
     tracing::info!("handling forgot password request successfully");

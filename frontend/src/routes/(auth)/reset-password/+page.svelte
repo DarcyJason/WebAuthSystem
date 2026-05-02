@@ -1,125 +1,84 @@
 <script lang="ts">
-    import * as Card from "$lib/components/ui/card/index";
-    import * as Field from "$lib/components/ui/field/index";
-    import { Input } from "$lib/components/ui/input/index";
-    import { Button } from "$lib/components/ui/button/index";
-    import { superForm } from "sveltekit-superforms";
-    import { zod4 } from "sveltekit-superforms/adapters";
-    import { resetPasswordSchema } from "$lib/schema/reset-password.js";
-    import { toast } from "svelte-sonner";
-    import { untrack } from "svelte";
+	import { goto } from '$app/navigation';
+	import { Button } from '$lib/components/ui/button';
+	import { Input } from '$lib/components/ui/input';
+	import PasswordInput from '$lib/components/PasswordInput.svelte';
+	import { Label } from '$lib/components/ui/label';
+	import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '$lib/components/ui/card';
+	import { resetPasswordSchema } from '$lib/schemas';
+	import { toast } from 'svelte-sonner';
 
-    let { data } = $props();
+	let token = $state('');
+	let newPassword = $state('');
+	let confirmPassword = $state('');
+	let fieldErrors = $state<Record<string, string>>({});
+	let loading = $state(false);
 
-    let submitting = $state(false);
-    let success = $state(false);
+	async function handleSubmit(e: SubmitEvent) {
+		e.preventDefault();
+		fieldErrors = {};
 
-    const { form, enhance } = untrack(() =>
-        superForm(data.form, {
-            validators: zod4(resetPasswordSchema),
-            clearOnSubmit: "errors-and-message",
-            dataType: "json",
-            onSubmit() {
-                submitting = true;
-            },
-            onUpdate({ result }) {
-                const actionResult = result.data;
-                if (!actionResult?.form?.valid) {
-                    toast.error("Please check the form for errors");
-                    submitting = false;
-                    return;
-                }
-                if (actionResult.result?.status !== 200) {
-                    toast.error(actionResult.result?.message ?? "An error occurred");
-                } else {
-                    success = true;
-                    toast.success(actionResult.result.message);
-                }
-                submitting = false;
-            },
-            onError() {
-                submitting = false;
-                toast.error("An unexpected error occurred.");
-            },
-        }),
-    );
+		const result = resetPasswordSchema.safeParse({ token, newPassword, confirmPassword });
+		if (!result.success) {
+			fieldErrors = Object.fromEntries(result.error.issues.map((i) => [i.path[0], i.message]));
+			return;
+		}
+
+		loading = true;
+		try {
+			const res = await fetch('/api/v1/auth/reset-password', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(result.data)
+			});
+
+			if (res.ok) {
+				toast.success('Password reset successfully. Please sign in.');
+				goto('/login');
+				return;
+			} else if (res.status === 404) {
+				toast.error('Reset token not found.');
+			} else {
+				toast.error('Token has expired or already been used.');
+			}
+		} catch {
+			toast.error('Network error. Please try again.');
+		} finally {
+			loading = false;
+		}
+	}
 </script>
 
-<div class="grid grid-cols-3 h-fit">
-    <a class="flex justify-center items-center" href="/">
-        <img alt="logo" height="64px" src="/logo.svg" width="64px" />
-        <span class="text-2xl">Homeryland</span>
-    </a>
-</div>
-<div class="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
-    <Card.Root class="mx-auto w-full max-w-sm">
-        {#if !data.hasToken}
-            <Card.Header>
-                <Card.Title class="text-2xl">Invalid Reset Link</Card.Title>
-                <Card.Description>
-                    This password reset link is invalid or missing. Please request a new one.
-                </Card.Description>
-            </Card.Header>
-            <Card.Content>
-                <a href="/forgot-password">
-                    <Button class="w-full">Request New Reset Link</Button>
-                </a>
-            </Card.Content>
-        {:else if success}
-            <Card.Header>
-                <Card.Title class="text-2xl">Password Reset!</Card.Title>
-                <Card.Description>
-                    Your password has been updated successfully. You can now sign in.
-                </Card.Description>
-            </Card.Header>
-            <Card.Content>
-                <a href="/login">
-                    <Button class="w-full">Go to Login</Button>
-                </a>
-            </Card.Content>
-        {:else}
-            <Card.Header>
-                <Card.Title class="text-2xl">Reset Password</Card.Title>
-                <Card.Description>
-                    Enter your new password below.
-                </Card.Description>
-            </Card.Header>
-            <Card.Content>
-                <form method="POST" use:enhance>
-                    <input type="hidden" name="token" bind:value={$form.token} />
-                    <Field.Group>
-                        <Field.Field>
-                            <Field.Label for="newPassword">New Password</Field.Label>
-                            <Input
-                                bind:value={$form.newPassword}
-                                id="newPassword"
-                                name="newPassword"
-                                required
-                                type="password"
-                                disabled={submitting}
-                            />
-                            <Field.Description>Must be 8 - 128 characters long.</Field.Description>
-                        </Field.Field>
-                        <Field.Field>
-                            <Field.Label for="confirmPassword">Confirm New Password</Field.Label>
-                            <Input
-                                bind:value={$form.confirmPassword}
-                                id="confirmPassword"
-                                name="confirmPassword"
-                                required
-                                type="password"
-                                disabled={submitting}
-                            />
-                        </Field.Field>
-                        <Button class="w-full" type="submit" disabled={submitting}>
-                            {submitting ? "Resetting..." : "Reset Password"}
-                        </Button>
-                        <Field.Description class="text-center">
-                            Remember your password? <a href="/login">Sign in</a>
-                        </Field.Description>
-                    </Field.Group>
-                </form>
-            </Card.Content>
-        {/if}
-    </Card.Root>
+<div class="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-12">
+	<Card class="w-full max-w-sm">
+		<CardHeader class="text-center">
+			<CardTitle class="text-2xl">Reset password</CardTitle>
+			<CardDescription>Enter your reset token and new password</CardDescription>
+		</CardHeader>
+		<CardContent>
+			<form onsubmit={handleSubmit} class="flex flex-col gap-4">
+				<div class="flex flex-col gap-1.5">
+					<Label for="token">Reset Token</Label>
+					<Input id="token" placeholder="Paste your token here" bind:value={token} />
+					{#if fieldErrors.token}<p class="text-sm text-destructive">{fieldErrors.token}</p>{/if}
+				</div>
+
+				<div class="flex flex-col gap-1.5">
+					<Label for="newPassword">New Password</Label>
+					<PasswordInput id="newPassword" bind:value={newPassword} />
+					{#if fieldErrors.newPassword}<p class="text-sm text-destructive">{fieldErrors.newPassword}</p>{/if}
+				</div>
+
+				<div class="flex flex-col gap-1.5">
+					<Label for="confirmPassword">Confirm Password</Label>
+					<PasswordInput id="confirmPassword" bind:value={confirmPassword} />
+					{#if fieldErrors.confirmPassword}<p class="text-sm text-destructive">{fieldErrors.confirmPassword}</p>{/if}
+				</div>
+
+				<Button type="submit" class="w-full" disabled={loading}>
+					{loading ? 'Resetting…' : 'Reset password'}
+				</Button>
+			</form>
+		</CardContent>
+	</Card>
 </div>

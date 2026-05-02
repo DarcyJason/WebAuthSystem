@@ -7,6 +7,7 @@ use crate::domain::auth::services::password_service::PasswordService;
 use crate::domain::user::repositories::user_repository::{
     UserCommandRepository, UserQueryRepository,
 };
+use crate::domain::user::value_objects::access_token_version::AccessTokenVersion;
 use crate::domain::user::value_objects::user::user_id::UserId;
 use crate::infrastructure::internal::layered::user_repository::LayeredUserRepository;
 use crate::infrastructure::internal::security::password::Argon2PasswordService;
@@ -64,6 +65,12 @@ impl ChangePasswordCase {
 
         self.user_repo
             .update_password_credential(&self.user_id, &new_credential)
+            .await
+            .context(DomainFailedSnafu)?;
+
+        let new_access_token_version = AccessTokenVersion::new();
+        self.user_repo
+            .update_access_token_version(&self.user_id, &new_access_token_version)
             .await
             .context(DomainFailedSnafu)?;
 
