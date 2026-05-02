@@ -10,10 +10,10 @@ pub struct EmptyResponseData;
 #[derive(Serialize, ToSchema)]
 pub struct ApiResponse<T> {
     #[serde(skip_serializing)]
-    headers: Option<HeaderMap<HeaderValue>>, // Add AUTHORIZATION, SET_COOKIE here
+    headers: Option<HeaderMap<HeaderValue>>, 
     code: u32,
     message: String,
-    data: Option<T>, // If it's none, use EmptyResponseData
+    data: Option<T>, 
 }
 
 impl<T> ApiResponse<T> {

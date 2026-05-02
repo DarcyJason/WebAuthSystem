@@ -4,8 +4,8 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum CredentialKind {
     Password(PasswordCredential),
-    // OAuth(OAuthCredential),
-    // Passkey(PasskeyCredential),
+    
+    
 }
 
 impl CredentialKind {

@@ -50,19 +50,19 @@ impl ResendVerificationCase {
             .context(DomainFailedSnafu)?
             .ok_or_else(|| UserNotFoundSnafu.build())?;
 
-        // Only proceed if the user's email is not yet verified
+        
         if user.status() != &UserStatus::EmailNotVerified {
             return Ok(ResendVerificationResult {});
         }
 
-        // Invalidate any previous verification tokens for this user/kind so old tokens cannot be used.
-        // This ensures resend makes prior tokens invalid and only the newly issued token is valid.
+        
+        
         self.verification_token_repo
             .invalidate_by_user_id_and_kind(user.id(), VerificationTokenKind::EmailVerification)
             .await
             .context(DomainFailedSnafu)?;
 
-        // Issue a new verification token and persist it
+        
         let token = self
             .verification_token_service
             .issue_email_verification(user.id().to_owned());

@@ -10,9 +10,9 @@ pub trait VerificationTokenCommandRepository: Send + Sync {
     async fn save(&self, token: &VerificationToken) -> DomainResult<VerificationToken>;
     async fn mark_used(&self, value: &VerificationTokenValue) -> DomainResult<()>;
 
-    /// Invalidate all verification tokens for a given user and token kind.
-    /// This will typically mark existing tokens as `Invalid` (database-side)
-    /// so that subsequent verification attempts using older tokens are rejected.
+    
+    
+    
     async fn invalidate_by_user_id_and_kind(
         &self,
         user_id: &UserId,

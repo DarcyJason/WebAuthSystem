@@ -7,7 +7,7 @@ pub type DomainResult<T> = Result<T, DomainError>;
 #[derive(Debug, Snafu)]
 #[snafu(visibility(pub))]
 pub enum DomainError {
-    // ── User value-object errors ──────────────────────────────────────────────
+    
     #[snafu(visibility(pub), display("Invalid user_id '{user_id}': {source}"))]
     InvalidUserId {
         user_id: String,
@@ -36,7 +36,7 @@ pub enum DomainError {
     )]
     UserPasswordHashMatched { new_password_hash: String },
 
-    // ── User repository errors ────────────────────────────────────────────────
+    
     #[snafu(visibility(pub), display("UserRepository db error: {message}"))]
     UserRepositoryDb {
         #[snafu(source(from(sqlx::Error, Box::new)))]
@@ -68,7 +68,7 @@ pub enum DomainError {
         message: String,
     },
 
-    // ── RefreshToken repository errors ────────────────────────────────────────
+    
     #[snafu(visibility(pub), display("RefreshTokenRepository db error: {message}"))]
     RefreshTokenRepositoryDb {
         #[snafu(source(from(sqlx::Error, Box::new)))]
@@ -76,7 +76,7 @@ pub enum DomainError {
         message: String,
     },
 
-    // ── VerificationToken repository errors ───────────────────────────────────
+    
     #[snafu(
         visibility(pub),
         display("VerificationTokenRepository db error: {message}")
@@ -87,7 +87,7 @@ pub enum DomainError {
         message: String,
     },
 
-    // ── VerificationToken domain errors ───────────────────────────────────────
+    
     #[snafu(visibility(pub), display("Verification token not found"))]
     VerificationTokenNotFound,
     #[snafu(visibility(pub), display("Verification token has expired"))]
@@ -95,19 +95,19 @@ pub enum DomainError {
     #[snafu(visibility(pub), display("Verification token has already been used"))]
     VerificationTokenAlreadyUsed,
 
-    // ── Password service errors ───────────────────────────────────────────────
+    
     #[snafu(visibility(pub), display("Failed to hash password: {message}"))]
     HashPasswordFailed { message: String },
     #[snafu(visibility(pub), display("Failed to parse hashed password: {message}"))]
     ParsedHashedPasswordFailed { message: String },
 
-    // ── Mail service errors ───────────────────────────────────────────────────
+    
     #[snafu(visibility(pub), display("System owner email is invalid: {message}"))]
     SystemOwnerEmailInvalid { message: String },
     #[snafu(visibility(pub), display("Failed to send email: {message}"))]
     SendEmailFailed { message: String },
 
-    // ── Access token service errors ───────────────────────────────────────────
+    
     #[snafu(visibility(pub), display("Failed to encode access token: {message}"))]
     EncodeAccessTokenFailed { message: String },
     #[snafu(visibility(pub), display("Failed to decode access token: {message}"))]

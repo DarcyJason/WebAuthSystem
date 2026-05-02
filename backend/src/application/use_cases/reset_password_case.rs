@@ -56,7 +56,7 @@ impl ResetPasswordCase {
         if token.status().value() == &VerificationTokenStatus::Used {
             return VerificationTokenAlreadyUsedSnafu.fail();
         }
-        // Ensure this token was issued for password reset, not email verification
+        
         if !matches!(token.kind(), VerificationTokenKind::PasswordReset) {
             return VerificationTokenNotFoundSnafu.fail();
         }

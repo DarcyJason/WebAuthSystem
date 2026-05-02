@@ -48,7 +48,7 @@ impl VerifyCase {
         if token.status().value() == &VerificationTokenStatus::Used {
             return VerificationTokenAlreadyUsedSnafu.fail();
         }
-        // Only EmailVerification tokens activate the account
+        
         if let VerificationTokenKind::EmailVerification = token.kind() {
             let user = self
                 .user_repo

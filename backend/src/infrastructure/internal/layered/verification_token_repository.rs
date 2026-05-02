@@ -64,18 +64,18 @@ impl VerificationTokenCommandRepository for LayeredVerificationTokenRepository {
         user_id: &UserId,
         kind: VerificationTokenKind,
     ) -> DomainResult<()> {
-        // Invalidate at the source of truth (Postgres)
+        
         self.source_repo
             .invalidate_by_user_id_and_kind(user_id, kind)
             .await?;
 
-        // Best-effort cache invalidation:
-        // We attempt to remove any cached tokens related to this user from L2 and L1.
-        // The cache repositories store tokens keyed by value; unless we maintain
-        // an index of user->tokens in cache, we cannot deterministically remove all
-        // entries here. Therefore, we rely on source invalidation as authoritative.
-        // If cache implementations provide a user-scoped invalidation API in future,
-        // call them here (e.g., self.l2_cache.invalidate_by_user(user_id).await;).
+        
+        
+        
+        
+        
+        
+        
 
         Ok(())
     }

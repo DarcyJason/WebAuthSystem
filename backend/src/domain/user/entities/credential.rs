@@ -49,7 +49,7 @@ impl Credential {
             CredentialKind::Password(password_credential) => {
                 password_credential.update_password_credential(new_password_credential);
                 true
-            } // _ => false,
+            } 
         }
     }
 }

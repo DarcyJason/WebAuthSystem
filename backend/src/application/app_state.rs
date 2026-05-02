@@ -53,21 +53,21 @@ impl AppState {
             },
         )?;
 
-        // User Repository
+        
         let user_repo = LayeredUserRepository::new(
             MokaUserRepository::with_ttl(moka_client.clone(), TTL::from_seconds(300)),
             RedisUserRepository::with_ttl(redis_client.clone(), TTL::from_seconds(1800)),
             PostgresUserRepository::new(postgres_client.clone()),
         );
 
-        // Refresh Token Repository
+        
         let refresh_token_repo = LayeredRefreshTokenRepository::new(
             MokaRefreshTokenRepository::with_ttl(moka_client.clone(), TTL::from_seconds(300)),
             RedisRefreshTokenRepository::with_ttl(redis_client.clone(), TTL::from_seconds(1800)),
             PostgresRefreshTokenRepository::new(postgres_client.clone()),
         );
 
-        // Verification Token Repository
+        
         let verification_token_repo = LayeredVerificationTokenRepository::new(
             MokaVerificationTokenRepository::with_ttl(moka_client.clone(), TTL::from_seconds(300)),
             RedisVerificationTokenRepository::with_ttl(

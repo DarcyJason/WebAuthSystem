@@ -15,7 +15,7 @@ impl AccessToken {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AccessTokenClaims {
     sub: String,
-    ver: String, // access token version
+    ver: String, 
     iat: usize,
     exp: usize,
 }

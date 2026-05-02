@@ -78,9 +78,9 @@ impl<S: CacheStore> VerificationTokenCommandRepository for CacheVerificationToke
     }
 
     async fn mark_used(&self, value: &VerificationTokenValue) -> DomainResult<()> {
-        // Cache entries are short-lived; invalidate by overwriting is not straightforward
-        // without a full read-modify-write. For simplicity, we skip cache invalidation here —
-        // the source-of-truth mark_used is done in Postgres.
+        
+        
+        
         let _ = value;
         Ok(())
     }
@@ -90,11 +90,11 @@ impl<S: CacheStore> VerificationTokenCommandRepository for CacheVerificationToke
         user_id: &UserId,
         kind: VerificationTokenKind,
     ) -> DomainResult<()> {
-        // Cache invalidation is best-effort here.
-        // The authoritative change is performed in Postgres (source of truth).
-        // Without a user->tokens index in cache we cannot deterministically evict all entries.
-        // So we simply no-op at the cache layer to satisfy the trait while leaving
-        // source_repo.invalidate_by_user_id_and_kind responsible for correctness.
+        
+        
+        
+        
+        
         let _ = (user_id, kind);
         Ok(())
     }

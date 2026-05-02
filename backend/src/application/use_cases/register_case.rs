@@ -75,7 +75,7 @@ impl RegisterCase {
             .await
             .context(DomainFailedSnafu)?;
 
-        // Issue email verification token
+        
         let token = self
             .verification_token_service
             .issue_email_verification(created_user.id().to_owned());
@@ -88,7 +88,7 @@ impl RegisterCase {
             .await
             .context(DomainFailedSnafu)?;
 
-        // Send verification email (best-effort: don't fail registration if email fails)
+        
         let ttl = TTL::from_seconds(expires_secs as u64);
         let html = build_verification_email(cmd.email.clone(), saved_token, ttl);
         let mail = Mail::new(
